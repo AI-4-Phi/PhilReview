@@ -4,9 +4,12 @@
 
 ## Overview
 
-This directory contains a sophisticated 7-phase agent-based workflow for generating comprehensive, publication-ready state-of-the-art literature reviews for research proposals. The system is inspired by the LiRA (Literature Review Agents) framework but adapted specifically for philosophical research proposals.
+This directory contains a sophisticated 5-phase agent-based workflow for generating focused, insight-driven literature reviews (3000-4000 words) for research proposals. The system is inspired by the LiRA (Literature Review Agents) framework but adapted specifically for philosophical research proposals, emphasizing analytical depth over comprehensive coverage.
 
-**Key Feature**: Domain researchers output **valid BibTeX files** (`.bib`) that can be directly imported into Zotero or other reference managers, while preserving rich metadata for synthesis agents.
+**Key Features**: 
+- Domain researchers output **valid BibTeX files** (`.bib`) for direct Zotero import
+- Focused reviews (3000-4000 words) emphasizing key debates and research gaps
+- Selective citation (15-25 papers) with analytical depth
 
 ## Recent Optimizations (Context Window Efficiency)
 
@@ -26,10 +29,8 @@ This directory contains a sophisticated 7-phase agent-based workflow for generat
 1. **literature-review-planner.md** - Plans review structure and domain decomposition
 2. **domain-literature-researcher.md** - Produces valid BibTeX files (`.bib`) per domain with rich metadata in @comment entries and note fields
 3. **citation-validator.md** - Validates citations, removes unverified entries to `unverified-sources.bib`
-4. **synthesis-planner.md** - Designs narrative structure for the review
-5. **synthesis-writer.md** - Writes publication-ready literature review
-6. **sota-review-editor.md** - Reviews and polishes against best practices
-7. **novelty-assessor.md** - Assesses originality and provides strategic recommendations
+4. **synthesis-planner.md** - Designs tight narrative structure for focused 3000-4000 word review
+5. **synthesis-writer.md** - Writes focused, insight-driven literature review emphasizing key debates and gaps
 
 ## Workflow Phases
 
@@ -59,24 +60,19 @@ This directory contains a sophisticated 7-phase agent-based workflow for generat
 ### Phase 4: Synthesis Planning
 - **Agent**: `@synthesis-planner`
 - **Output**: `synthesis-outline.md`
-- **Process**: Designs narrative structure, organizes literature thematically, plans gap analysis
+- **Process**: Designs tight narrative structure (3-4 sections, 3000-4000 words), selects 15-25 papers to cite, emphasizes key debates and specific gaps
+- **Key Feature**: Focus on analytical insight over comprehensive coverage
 
 ### Phase 5: Synthesis Writing (Multi-Section)
 - **Agent**: `@synthesis-writer` (invoked once per section)
-- **Output**: `synthesis-section-1.md`, `synthesis-section-2.md`, etc. → assembled into `state-of-the-art-review-draft.md`
-- **Process**: Each section written to separate file; orchestrator assembles sections into final draft
-- **Key Feature**: Section-by-section writing (5-6 sections) with only relevant papers per section (~5k words input)
+- **Output**: `synthesis-section-1.md`, `synthesis-section-2.md`, etc. → assembled into `literature-review-final.md`
+- **Process**: Each section written to separate file with specific word targets; orchestrator assembles into final review
+- **Key Feature**: 
+  - Section-by-section writing (3-4 sections)
+  - Total: 3000-4000 words
+  - Selective citation: 15-25 papers total
+  - Analytical depth over comprehensive coverage
 - **Architecture**: Multiple files (one per section) created independently, then concatenated
-
-### Phase 6: Editorial Review
-- **Agent**: `@sota-review-editor`
-- **Output**: `state-of-the-art-review-final.md`, `editorial-notes.md`
-- **Process**: Reviews against best practices, polishes prose, ensures publication readiness
-
-### Phase 7: Novelty Assessment
-- **Agent**: `@novelty-assessor`
-- **Output**: `executive-assessment.md`
-- **Process**: Assesses originality, competitive positioning, provides strategic recommendations
 
 ## Key Features
 
@@ -120,9 +116,9 @@ The `@research-proposal-orchestrator` will automatically activate and guide you 
 ### Execution Modes
 
 **Autopilot Mode**:
-- Execute all 7 phases automatically
-- Present complete package at end
-- Typical duration: 60-90 minutes
+- Execute all 5 phases automatically
+- Present focused literature review at end
+- Typical duration: 45-60 minutes
 - Saves task progress for resume capability
 
 **Human-in-the-Loop Mode**:
@@ -147,10 +143,7 @@ research-proposal-literature-review/
 ├── synthesis-section-1.md                # Phase 5 (individual sections)
 ├── synthesis-section-2.md                # Phase 5 (individual sections)
 ├── synthesis-section-N.md                # Phase 5 (individual sections)
-├── state-of-the-art-review-draft.md     # Phase 5 (assembled from sections)
-├── state-of-the-art-review-final.md     # Phase 6
-├── editorial-notes.md                    # Phase 6
-└── executive-assessment.md               # Phase 7
+└── literature-review-final.md            # Phase 5 (assembled, 3000-4000 words)
 ```
 
 ## Integration with Existing Skills
@@ -175,7 +168,7 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 - ✅ Context isolation per agent
 - ✅ Parallel execution (Phase 2: domains, Phase 5: sections)
 - ✅ Citation validation (Phase 3: ensures only verified papers)
-- ✅ Iterative loops possible
+- ✅ Focused output (3000-4000 words emphasizing insight)
 - ✅ Orchestrator context preserved
 - ✅ Scalable to large projects
 - ✅ Multi-file-then-assemble pattern (Phase 2 & 5)
@@ -187,10 +180,8 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 - **Orchestrator**: Sonnet (strategic reasoning + task persistence)
 - **Researchers**: Sonnet (literature search + BibTeX generation)
 - **Validator**: Sonnet (citation verification)
-- **Planner**: Sonnet (strategic planning + efficient reading)
-- **Writer**: Sonnet (academic prose)
-- **Editor**: Sonnet (quality assessment)
-- **Assessor**: Sonnet (strategic analysis)
+- **Planner**: Sonnet (strategic planning for focused reviews)
+- **Writer**: Sonnet (tight, analytical academic prose)
 
 ### Context Management
 - Each phase agent: Isolated context (can use 50k+ tokens for search)
@@ -212,44 +203,46 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 
 ## Expected Performance
 
-### Comprehensive Review (5-8 domains, 40-80 papers)
-- **Duration**: 60-90 minutes
-- **Output**: 6000-9000 word review
-- **Citations**: 40-80 papers in BibTeX format (7 `.bib` files ready for Zotero import)
-- **Gaps**: 3-5 specific, actionable gaps identified
+### Focused Review (5-8 domains, 15-25 papers cited)
+- **Duration**: 45-60 minutes
+- **Output**: 3000-4000 word review (tight and focused)
+- **Citations**: 15-25 papers cited in review (selected from 40-80 found in domain search)
+- **BibTeX**: 5-8 `.bib` files ready for Zotero import (all found papers)
+- **Gaps**: 2-3 specific, well-defined gaps
+- **Focus**: Analytical depth over comprehensive coverage
 - **Resume**: Can continue from interruption via task-progress.md
-- **Zotero Import**: All BibTeX files can be imported directly for reference management
 
-### Focused Review (3-4 domains, 20-40 papers)
-- **Duration**: 30-45 minutes
-- **Output**: 3000-5000 word review
-- **Citations**: 20-40 papers in BibTeX format (3-4 `.bib` files)
-- **Gaps**: 2-3 specific gaps identified
-- **Zotero Import**: BibTeX files ready for import
+### Quick Review (3-4 domains, 10-15 papers cited)
+- **Duration**: 30-40 minutes
+- **Output**: 2500-3000 word review
+- **Citations**: 10-15 papers cited in review
+- **BibTeX**: 3-4 `.bib` files ready for Zotero import
+- **Gaps**: 1-2 specific gaps identified
 
 ## Quality Standards
 
 All outputs meet:
-- ✅ Publication-ready academic prose
-- ✅ Proper citation integration (not just listing)
+- ✅ Focused, insight-driven prose (3000-4000 words)
+- ✅ Selective citation (15-25 papers) with analytical depth
 - ✅ **Validated citations** (only verified papers in BibTeX files)
-- ✅ Clear, specific gap analysis
-- ✅ Explicit connection to research project
+- ✅ Clear, specific gap analysis (2-3 gaps)
+- ✅ Explicit connection to research project throughout
 - ✅ Strategic positioning for funding/publication
-- ✅ Honest novelty assessment
+- ✅ Analytical depth over comprehensive coverage
 - ✅ Context-efficient (can complete without hitting limits)
 - ✅ Modular architecture (easy to revise individual sections)
 
 ## Future Enhancements
 
 Potential additions:
+- Optional editorial review phase (for users who want 6000+ word comprehensive reviews)
+- Optional novelty assessment phase (executive summary with strategic recommendations)
 - Specialized agents for interdisciplinary research
 - Enhanced Zotero integration (automated collection creation, tagging)
 - Automated figure generation for literature maps
 - Comparative analysis across multiple research ideas
 - Funder-specific formatting agents
 - Export to other formats (RIS, EndNote, etc.)
-- More sophisticated citation validation (citation network analysis)
 
 ## References
 
