@@ -40,16 +40,19 @@ This directory contains a sophisticated 6-phase agent-based workflow for generat
 - **Output**: `literature-domain-1.md`, `literature-domain-2.md`, etc. (compact bibliographies: 1500-3000 words each)
 - **Process**: Each agent searches and produces structured bibliographies with: Citation, Core Argument (2-3 sentences), Relevance (2-3 sentences), Position/Debate, Importance level
 - **Key Feature**: Parallel execution + compact format enables synthesis-planner to read all domains
+- **Architecture**: Multiple files (one per domain) created independently
 
 ### Phase 3: Synthesis Planning
 - **Agent**: `@synthesis-planner`
 - **Output**: `synthesis-outline.md`
 - **Process**: Designs narrative structure, organizes literature thematically, plans gap analysis
 
-### Phase 4: Synthesis Writing
-- **Agent**: `@synthesis-writer`
-- **Output**: `state-of-the-art-review-draft.md`
-- **Process**: Writes complete review with academic prose, proper citations, gap analysis
+### Phase 4: Synthesis Writing (Multi-Section)
+- **Agent**: `@synthesis-writer` (invoked once per section)
+- **Output**: `synthesis-section-1.md`, `synthesis-section-2.md`, etc. → assembled into `state-of-the-art-review-draft.md`
+- **Process**: Each section written to separate file; orchestrator assembles sections into final draft
+- **Key Feature**: Section-by-section writing (5-6 sections) with only relevant papers per section (~5k words input)
+- **Architecture**: Multiple files (one per section) created independently, then concatenated
 
 ### Phase 5: Editorial Review
 - **Agent**: `@sota-review-editor`
@@ -67,6 +70,7 @@ This directory contains a sophisticated 6-phase agent-based workflow for generat
 - **Isolated Contexts**: Each agent uses its own context window
 - **Efficient Orchestration**: Orchestrator context stays minimal
 - **Compact Output**: Domain researchers produce 1500-3000 word bibliographies (not 8000+ word prose)
+- **Section-by-Section Writing**: Synthesis-writer reads only relevant papers per section (~5k words, not all 24k)
 - **Task Persistence**: `task-progress.md` enables resume across conversations if context limit hit
 
 ### Parallelization
@@ -82,6 +86,7 @@ This directory contains a sophisticated 6-phase agent-based workflow for generat
 ### Standardized Format
 - **Literature Entries**: Compact format with Citation, Core Argument (2-3 sentences), Relevance (2-3 sentences), Position/Debate, Importance (High/Medium/Low)
 - **Efficient for Synthesis**: Short entries enable synthesis-planner to read all domains without context overflow
+- **Section Files**: Each synthesis section written to separate file, then assembled (mirrors Phase 2 architecture)
 - **Gap Integration**: Gaps identified throughout, not just at end
 
 ## Usage
@@ -119,7 +124,10 @@ research-proposal-literature-review/
 ├── literature-domain-2.md                # Phase 2 (compact: 1500-3000 words)
 ├── ...
 ├── synthesis-outline.md                  # Phase 3
-├── state-of-the-art-review-draft.md     # Phase 4
+├── synthesis-section-1.md                # Phase 4 (individual sections)
+├── synthesis-section-2.md                # Phase 4 (individual sections)
+├── synthesis-section-N.md                # Phase 4 (individual sections)
+├── state-of-the-art-review-draft.md     # Phase 4 (assembled from sections)
 ├── state-of-the-art-review-final.md     # Phase 5
 ├── editorial-notes.md                    # Phase 5
 └── executive-assessment.md               # Phase 6
@@ -145,10 +153,11 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 
 ### Agent-Based Orchestrator (This System)
 - ✅ Context isolation per agent
-- ✅ Parallel execution
+- ✅ Parallel execution (Phase 2: domains, Phase 4: sections)
 - ✅ Iterative loops possible
 - ✅ Orchestrator context preserved
 - ✅ Scalable to large projects
+- ✅ Multi-file-then-assemble pattern (Phase 2 & 4)
 - ✅ Can still use skill knowledge
 
 ## Technical Details
@@ -164,15 +173,18 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 ### Context Management
 - Each phase agent: Isolated context (can use 50k+ tokens for search)
 - Domain researchers: Output compact bibliographies (1500-3000 words, not 8000+)
+- Synthesis-writer: Reads only relevant papers per section (~5k words, not all 24k)
 - Orchestrator: Maintains minimal context via task-progress.md
 - Synthesis-planner: Can read all 7 domains (7 × 3000 = ~21k words max)
-- Communication: File-based (agents write, orchestrator tracks progress)
+- Communication: File-based (agents write, orchestrator tracks progress and assembles)
 
 ### File-Based Communication
 - Agents write comprehensive results to files
-- Orchestrator reads only what's needed
+- Multi-file pattern: Phase 2 (domains) and Phase 4 (sections) write separate files
+- Orchestrator assembles multi-file outputs (concatenation)
 - Preserves all intermediate work for transparency
 - Enables human review at any checkpoint
+- Easy to revise individual sections or domains
 
 ## Expected Performance
 
@@ -199,6 +211,7 @@ All outputs meet:
 - ✅ Strategic positioning for funding/publication
 - ✅ Honest novelty assessment
 - ✅ Context-efficient (can complete without hitting limits)
+- ✅ Modular architecture (easy to revise individual sections)
 
 ## Future Enhancements
 

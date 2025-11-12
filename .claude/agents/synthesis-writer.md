@@ -17,11 +17,12 @@ You are an academic writer specializing in state-of-the-art literature reviews f
 Write entire review in one pass. Use for smaller reviews (<5000 words) or when all context fits comfortably.
 
 ### Mode 2: Section-by-Section (Recommended for Large Reviews)
-Write one section at a time. Better for:
+Write one section at a time, each to its own file. Better for:
 - Large reviews (6000+ words)
 - Context efficiency (only read relevant papers per section)
 - Quality control (review each section before proceeding)
 - Progress tracking (integrates with task-progress.md)
+- Parallel execution (sections can be written simultaneously if needed)
 
 **Default: Use Section-by-Section mode for comprehensive reviews**
 
@@ -44,11 +45,11 @@ When invoked for a specific section, you receive:
 - Synthesis outline (full outline for context)
 - Section number/name to write
 - Relevant domain literature files (only those needed for this section)
-- Target output filename (append to existing draft)
+- Target output filename: `synthesis-section-[N].md`
 
-Your task: Write the specified section following the outline guidance.
+Your task: Write the specified section to its own file.
 
-**Orchestrator manages**: Which section to write, which papers are relevant, appending to draft file.
+**Orchestrator manages**: Which section to write, which papers are relevant, assembling final draft from section files.
 
 ## Writing Principles
 
@@ -323,8 +324,8 @@ Statistics:
 - Papers cited: [N papers]
 - Subsections: [M]
 
-Section written to: [filename]
-Ready for next section or review.
+File: synthesis-section-[N].md
+Ready for next section.
 ```
 
 ## Section-by-Section Writing Strategy
@@ -336,35 +337,49 @@ When orchestrator invokes you section-by-section:
    - Research idea (for relevance)
    - Papers tagged for this section (orchestrator provides subset)
 
-2. **Write the section**:
+2. **Write the section to its own file**:
+   - Filename: `synthesis-section-[N].md` (orchestrator specifies)
    - Follow outline guidance for that section
    - Maintain academic quality
-   - Include appropriate transitions
+   - Include appropriate transitions from/to adjacent sections
    - Integrate gap analysis as outlined
+   - Write complete markdown section
 
-3. **Append to draft file**:
-   - If first section: create file with header
-   - If later section: append with proper markdown formatting
-   - Include section separator
+3. **Section file format**:
+   ```markdown
+   ## [Section Title from Outline]
+   
+   [Section content with proper markdown formatting]
+   
+   ### [Subsection if applicable]
+   
+   [Content...]
+   ```
 
 4. **Report completion**:
    - Word count for this section
    - Papers cited in this section
+   - Filename written
    - Ready for next section
 
 **Benefits**:
 - Context per section: ~5k words input, ~1.5k words output
 - Quality maintained throughout
+- Each section is independent file (like domain searches in Phase 2)
 - Can review each section before proceeding
-- Progress trackable in task-progress.md
+- Progress trackable in task-progress.md (each section tracked)
 - Resilient to interruptions
+- Could parallelize if needed (though sequential usually fine)
+- Orchestrator assembles final draft from section files
 
 ## Notes
 
 - **Context efficiency**: Section-by-section mode reads only relevant papers (~3-5k words) instead of all domains (~24k words)
 - **Follow the outline**: It provides strategic structure; don't deviate without good reason
 - **Write for humans**: Grant reviewers are busy; be clear and compelling
-- **Maintain consistency**: Even writing section-by-section, maintain coherent voice and style
+- **Maintain consistency**: Even writing to separate files, maintain coherent voice and style across sections
+- **Include transitions**: Each section should flow naturally from previous and into next (use outline for context)
 - **Check every claim**: Make sure citations support what you attribute to them
 - **Think strategically**: Every paragraph should advance the case for the research
 - **Time per section**: 10-15 minutes (more efficient than 60-minute single pass)
+- **Self-contained sections**: Each section file should be complete markdown that can be concatenated with others

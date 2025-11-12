@@ -31,10 +31,11 @@ At workflow start, create `task-progress.md`:
 - [ ] Phase 2: Literature Search - Domain 2
 - [ ] Phase 2: Literature Search - Domain N
 - [ ] Phase 3: Synthesis Planning (synthesis-outline.md)
-- [ ] Phase 4: Synthesis Writing - Section 1
-- [ ] Phase 4: Synthesis Writing - Section 2
-- [ ] Phase 4: Synthesis Writing - Section N
-- [ ] Phase 5: Editorial Review (state-of-the-art-review-final.md)
+- [ ] Phase 4: Synthesis Writing - Section 1 (synthesis-section-1.md)
+- [ ] Phase 4: Synthesis Writing - Section 2 (synthesis-section-2.md)
+- [ ] Phase 4: Synthesis Writing - Section N (synthesis-section-N.md)
+- [ ] Phase 4: Assembly - Combine sections into draft
+- [ ] Phase 5: Editorial Review (state-of-the-art-review-final.md)</parameter>
 - [ ] Phase 6: Novelty Assessment (executive-assessment.md)
 
 ## Completed Tasks
@@ -118,30 +119,38 @@ Coordinate a 6-phase workflow that produces:
 
 **Output**: `synthesis-outline.md`
 
-### Phase 4: Synthesis Writing
+### Phase 4: Synthesis Writing (Multi-Section)
 
 **Goal**: Produce complete state-of-the-art literature review
 
-**Process** (Section-by-Section for Context Efficiency):
+**Process** (Section-by-Section, Like Phase 2 Parallel Search):
 1. Read synthesis outline to identify sections (typically 4-6 sections)
-2. For each section:
+2. For each section (can be sequential or parallel):
    - Identify which domain files contain relevant papers for that section
    - Invoke `@synthesis-writer` with:
      - Synthesis outline (full outline for context)
      - Section number/name to write
      - Relevant domain literature files only (subset, not all 7)
      - Research idea
-   - Writer appends section to draft file
+     - Output filename: `synthesis-section-[N].md`
+   - Writer creates section file
    - **Update task-progress.md** ✓
-3. After all sections complete, draft review is assembled
+3. After all section files complete, assemble draft:
+   - Run command: `cat synthesis-section-*.md > state-of-the-art-review-draft.md`
+   - Or manually concatenate sections in order
+   - **Update task-progress.md** ✓
 
-**Why Section-by-Section**:
+**Parallelization**: Like Phase 2, sections can be written simultaneously if needed (though sequential is usually fine)
+
+**Why Section-by-Section with Separate Files**:
 - Context per section: ~5k words input vs. ~24k for full draft
-- Better quality maintenance throughout
+- Architecture consistency: mirrors Phase 2 domain searches
+- Each section is independent file (cleaner, reviewable)
 - Progress trackable per section
 - Resilient to interruptions
+- Easy to revise individual sections
 
-**Output**: `state-of-the-art-review-draft.md` (assembled from sections)
+**Outputs**: `synthesis-section-1.md`, `synthesis-section-2.md`, ..., `synthesis-section-N.md` → assembled into `state-of-the-art-review-draft.md`
 
 ### Phase 5: Editorial Review
 
@@ -178,7 +187,10 @@ research-proposal-literature-review/
 ├── literature-domain-1.md                # Phase 2 (compact: 1500-3000 words)
 ├── literature-domain-N.md
 ├── synthesis-outline.md                  # Phase 3
-├── state-of-the-art-review-draft.md     # Phase 4 (written section-by-section)
+├── synthesis-section-1.md                # Phase 4 (individual sections)
+├── synthesis-section-2.md
+├── synthesis-section-N.md
+├── state-of-the-art-review-draft.md     # Phase 4 (assembled from sections)
 ├── state-of-the-art-review-final.md     # Phase 5
 ├── editorial-notes.md
 └── executive-assessment.md               # Phase 6
@@ -201,8 +213,10 @@ research-proposal-literature-review/
 ### Autopilot Execution
 
 - Run all phases sequentially
-- Update task-progress.md after each phase
+- Phase 4: Write all sections, then assemble draft
+- Update task-progress.md after each completed task
 - Present complete package at end
+</parameter>
 
 ### Human-in-the-Loop Execution
 
@@ -218,6 +232,7 @@ When user says "Continue" or "Resume":
 2. Identify last completed task
 3. Report: "Resuming from Phase [X]. Last completed: [task]. Next: [task]. Proceeding..."
 4. Continue workflow from that point
+5. If in Phase 4: Check which section files exist, write remaining sections, then assemble
 
 ## Error Handling
 
@@ -243,7 +258,8 @@ All outputs must have:
 ## Communication Style
 
 - **Progress updates**: "Phase 4/6: Writing synthesis section 3 of 5..."
-- **Section-by-section writing**: "Section 1 (Introduction) complete, 1200 words. Proceeding to Section 2..."
+- **Section-by-section writing**: "Section 1 complete → synthesis-section-1.md (1200 words). Proceeding to Section 2..."
+- **Assembly step**: "All 5 sections complete. Assembling draft: synthesis-section-*.md → state-of-the-art-review-draft.md"
 - **Context efficiency**: Each agent uses isolated context. Domain files are compact (1500-3000 words). Synthesis-writer reads only relevant papers per section (~5k words, not all 24k).
 
 ## Success Metrics
@@ -259,9 +275,11 @@ All outputs must have:
 
 - **Duration**: 60-90 min for comprehensive review (5-8 domains, 40-80 papers)
 - **Context efficiency**: 
-  - Phase 2: Parallel execution + compact bibliographies (1500-3000 words per domain)
-  - Phase 4: Section-by-section writing (reads ~5k words per section, not all 24k)
+  - Phase 2: Parallel domain searches → individual files → validated together
+  - Phase 4: Section-by-section writing → individual files → assembled together
+  - Each synthesis-writer invocation reads ~5k words per section, not all 24k
   - Task list enables resume if context limit hit
 - **Iteration**: User can request re-runs of any phase or section
-- **Preservation**: All intermediate files saved
-- **Section-by-section benefits**: Better quality, progress tracking, resilience to interruptions
+- **Preservation**: All intermediate files saved (including individual section files)
+- **Architecture consistency**: Phase 2 and Phase 4 both use multiple-files-then-combine pattern
+- **Section-by-section benefits**: Better quality, progress tracking, resilience to interruptions, easy revision of individual sections
