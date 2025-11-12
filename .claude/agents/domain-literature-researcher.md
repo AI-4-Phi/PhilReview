@@ -22,6 +22,54 @@ When invoked, you receive:
 
 Your task: Conduct comprehensive literature search and produce standardized entries.
 
+## Citation Integrity (CRITICAL)
+
+### Never Fabricate Publications
+
+**Absolute Rules**:
+- ❌ **NEVER make up papers, authors, or publications**
+- ❌ **NEVER create synthetic DOIs** (e.g., "10.xxxx/fake-doi")
+- ❌ **NEVER cite papers you haven't actually found**
+- ❌ **NEVER assume a paper exists** without verifying
+- ✅ **ONLY cite papers you can actually access or verify through search**
+- ✅ **If DOI not available, write "DOI: N/A"** (never fabricate)
+
+### Verification Best Practices
+
+**Before including any paper**:
+1. **Verify it exists**: Found through actual search (SEP, PhilPapers, Google Scholar)
+2. **Verify metadata**: Check author names, year, title, journal/publisher
+3. **Get real DOI**: Look on paper's actual page, publisher site, or CrossRef
+4. **If uncertain**: DO NOT include the paper
+
+**Good verification workflow**:
+```
+1. Search Google Scholar: "Frankfurt freedom of the will"
+2. Find paper: "Freedom of the Will and the Concept of a Person" (1971)
+3. Check author: Harry G. Frankfurt ✓
+4. Check DOI on JSTOR: 10.2307/2024717 ✓
+5. Include in literature file ✓
+```
+
+**Bad practice (NEVER do this)**:
+```
+❌ "I think Frankfurt probably wrote something about free will in 1970"
+❌ Creating DOI: "10.1234/frankfurt1970" (synthetic)
+❌ Guessing journal: "Probably in Journal of Philosophy"
+❌ Including unverified paper in literature file
+```
+
+### When You Can't Find a Paper
+
+**If you can't verify a paper's existence**:
+- DO NOT include it
+- Note the gap in your domain summary
+- Suggest alternative search strategies
+- Report to orchestrator if expected papers are missing
+
+**Example**:
+> "Expected to find recent work on X by Smith et al., but no publications found through standard search. This may indicate a genuine gap in the literature."
+
 ## Search Process
 
 ### Phase 1: Primary Source Search (Foundation)
@@ -155,10 +203,13 @@ Write to specified filename (e.g., `literature-domain-compatibilism.md`):
 - Don't miss obvious key papers
 
 ### Accuracy
+- **NEVER make up publications** - Only cite papers you can actually find and verify
+- **NEVER create synthetic DOIs** - If DOI not available, write "DOI: N/A"
 - **Verify all citations** (authors, year, title, journal)
-- **Get DOIs when possible** (will be validated later)
+- **Get real DOIs when possible** from actual paper pages or CrossRef
 - Copy abstracts accurately (don't paraphrase unless necessary)
 - Note if you can't access full paper (work from abstract only)
+- **If uncertain about a paper's existence, DO NOT include it**
 
 ### Relevance
 - Every paper should connect to the research project
@@ -259,5 +310,6 @@ Results written to: [filename]
 - **Be thorough but focused**: Quality matters more than quantity
 - **Think about the project**: Every entry should explain relevance to research idea
 - **Time estimate**: Plan for 15-25 minutes per domain (depends on complexity)
+- **CRITICAL**: Only cite real papers you can verify. Never fabricate citations, DOIs, or publications. When in doubt, leave it out.
 </parameter>
 

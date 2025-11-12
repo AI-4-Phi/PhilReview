@@ -57,9 +57,10 @@ Your task: Write the specified section to its own file.
 
 - **Scholarly tone**: Professional, objective, precise
 - **Clear prose**: Accessible to grant reviewers (not all are specialists)
-- **Proper citations**: Every claim supported by literature
+- **Proper citations**: Every claim supported by literature using (Author Year) format
 - **Balanced coverage**: Fair representation of all positions
 - **Rigorous analysis**: Engage with arguments, don't just summarize
+- **Full bibliography**: Chicago-style bibliography at end with all cited works
 
 ### 2. Strategic Positioning
 
@@ -83,10 +84,13 @@ Write to specified filename (e.g., `state-of-the-art-review-draft.md`):
 
 ```markdown
 # State-of-the-Art Literature Review: [Research Project Title]
+---
 
 **Draft Date**: [YYYY-MM-DD]
 
 **Word Count**: [Approximate count]
+
+**Citation Format**: (Author Year) in-text, Chicago-style bibliography
 
 ---
 
@@ -188,19 +192,24 @@ By integrating philosophical rigor with empirical testability, this research pro
 
 ## References
 
+**Format**: Chicago Manual of Style (Author-Date system)
+
 [Alphabetical list of all papers cited]
 
-[Use consistent format - Chicago or APA]
+**Examples**:
 
-[Example entries]:
+Dennett, Daniel C. 1984. *Elbow Room: The Varieties of Free Will Worth Wanting*. Cambridge, MA: MIT Press.
 
-Dennett, D. C. (1984). *Elbow Room: The Varieties of Free Will Worth Wanting*. MIT Press.
+Fischer, John Martin, and Mark Ravizza. 1998. *Responsibility and Control: A Theory of Moral Responsibility*. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9780511814594.
 
-Fischer, J. M., & Ravizza, M. (1998). *Responsibility and Control: A Theory of Moral Responsibility*. Cambridge University Press. https://doi.org/10.1017/CBO9780511814594
+Frankfurt, Harry G. 1971. "Freedom of the Will and the Concept of a Person." *The Journal of Philosophy* 68 (1): 5–20. https://doi.org/10.2307/2024717.
 
-Frankfurt, H. G. (1971). Freedom of the Will and the Concept of a Person. *The Journal of Philosophy*, 68(1), 5-20. https://doi.org/10.2307/2024717
-
-[Continue for all papers cited in text]
+**Important**: 
+- Include ALL papers cited in the text
+- Use consistent Chicago Author-Date format throughout
+- Include DOIs when available
+- Alphabetize by author last name
+- Every in-text citation (Author Year) must have corresponding bibliography entry
 
 ---
 
@@ -214,11 +223,19 @@ Frankfurt, H. G. (1971). Freedom of the Will and the Concept of a Person. *The J
 
 ### Citation Integration
 
+**Citation format**: Use (Author Year) in-text citations throughout
+
 **Good citation integration** (analysis, not just name-dropping):
-> "Fischer and Ravizza (1998) argue that moral responsibility requires guidance control—the ability to regulate one's behavior through reasons-responsive mechanisms. This account differs crucially from libertarian views in not requiring alternative possibilities; what matters is the actual mechanism's responsiveness to reasons, not whether the agent could have done otherwise (pp. 31-45). Their framework has been influential but faces the challenge of operationalizing 'reasons-responsiveness' empirically."
+> "Fischer and Ravizza (1998) argue that moral responsibility requires guidance control—the ability to regulate one's behavior through reasons-responsive mechanisms. This account differs crucially from libertarian views in not requiring alternative possibilities; what matters is the actual mechanism's responsiveness to reasons, not whether the agent could have done otherwise. Their framework has been influential but faces the challenge of operationalizing 'reasons-responsiveness' empirically."
 
 **Poor citation integration** (list-like):
-> "Many philosophers have written about free will (Frankfurt 1971; Dennett 1984; Fischer & Ravizza 1998; Nelkin 2011; Vargas 2013)."
+> "Many philosophers have written about free will (Frankfurt 1971; Dennett 1984; Fischer and Ravizza 1998; Nelkin 2011; Vargas 2013)."
+
+**Citation style notes**:
+- Use (Author Year) format: (Frankfurt 1971), not [1] or (Frankfurt, 1971)
+- Multiple authors: (Fischer and Ravizza 1998) for two authors, (Smith et al. 2020) for three or more
+- Multiple citations: (Frankfurt 1971; Dennett 1984; Fischer and Ravizza 1998)
+- Page numbers when quoting: (Fischer and Ravizza 1998, 31-45)
 
 ### Paragraph Structure
 
@@ -269,8 +286,9 @@ Self-check:
 ✅ **Connection to project**: Is relevance clear throughout?
 ✅ **Academic quality**: Would this pass review by philosophy professors?
 ✅ **Accessibility**: Could a non-specialist grant reviewer follow it?
-✅ **References**: All in-text citations in reference list?
-✅ **Consistency**: Citation format uniform throughout?
+✅ **References**: All in-text citations in Chicago-style bibliography?
+✅ **Citation format**: (Author Year) format used consistently throughout?
+✅ **Bibliography format**: Chicago Author-Date style with all required elements?
 
 ### Word Count Guidelines
 
@@ -380,6 +398,8 @@ When orchestrator invokes you section-by-section:
 - **Maintain consistency**: Even writing to separate files, maintain coherent voice and style across sections
 - **Include transitions**: Each section should flow naturally from previous and into next (use outline for context)
 - **Check every claim**: Make sure citations support what you attribute to them
+- **Citation format**: Use (Author Year) throughout, with Chicago-style bibliography at end
+- **Bibliography required**: Every section writing should contribute to the final bibliography (last section typically includes full References section)
 - **Think strategically**: Every paragraph should advance the case for the research
 - **Time per section**: 10-15 minutes (more efficient than 60-minute single pass)
 - **Self-contained sections**: Each section file should be complete markdown that can be concatenated with others

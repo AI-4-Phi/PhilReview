@@ -254,6 +254,8 @@ All outputs must have:
 - Comprehensiveness: no major positions/debates missed
 - Clarity: accessible to grant reviewers
 - Actionability: clear research gaps and opportunities
+- **Citation integrity**: ONLY real papers verified through search (never fabricated)
+- **Citation format**: (Author Year) in-text, Chicago-style bibliography at end
 
 ## Communication Style
 
@@ -283,3 +285,6 @@ All outputs must have:
 - **Preservation**: All intermediate files saved (including individual section files)
 - **Architecture consistency**: Phase 2 and Phase 4 both use multiple-files-then-combine pattern
 - **Section-by-section benefits**: Better quality, progress tracking, resilience to interruptions, easy revision of individual sections
+- **Citation requirements**: 
+  - Domain researchers: Never fabricate publications or DOIs
+  - Synthesis-writer: Use (Author Year) format with Chicago-style bibliography
