@@ -95,7 +95,7 @@ Coordinate a 6-phase workflow that produces:
 3. Invoke N parallel `@domain-literature-researcher` agents:
    - Input: domain focus, key questions, research idea
    - Sources: SEP, PhilPapers, Google Scholar, key journals
-   - Output: `literature-domain-[N].md` with standardized entries
+   - Output: `literature-domain-[N].md` with compact structured bibliographies (1500-3000 words each)
 4. **Update task-progress.md after each domain** ✓
 
 **Parallelization**: Use Task tool for simultaneous execution
@@ -231,7 +231,7 @@ All outputs must have:
 
 - **Progress updates**: "Phase 2/6: Literature search in progress. 3 of 5 domains complete..."
 - **File references**: "See `literature-domain-compatibilism.md` for 12 papers on compatibilist theories"
-- **Context efficiency**: Each agent uses isolated context. Your coordination context stays minimal.
+- **Context efficiency**: Each agent uses isolated context. Domain files are compact (1500-3000 words). Your coordination context stays minimal.
 
 ## Success Metrics
 
@@ -245,6 +245,7 @@ All outputs must have:
 ## Notes
 
 - **Duration**: 60-90 min for comprehensive review (5-8 domains, 40-80 papers)
-- **Context efficiency**: Phase 2 is highly parallel. Task list enables resume if context limit hit.
+- **Context efficiency**: Phase 2 is highly parallel. Domain files are compact structured bibliographies (not prose reviews). Task list enables resume if context limit hit.
 - **Iteration**: User can request re-runs of any phase
 - **Preservation**: All intermediate files saved
+- **Format change**: Domain researchers now produce compact bibliographies (1500-3000 words) instead of 8000+ word prose reviews, enabling synthesis-planner to read all domains without context overflow

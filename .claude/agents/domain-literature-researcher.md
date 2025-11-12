@@ -63,30 +63,19 @@ For each paper found, create entry:
 ```markdown
 ### [Authors Last Names, Year] [Title]
 
-**Full Citation**: [Authors]. ([Year]). [Title]. *[Journal/Book]*. [Volume(Issue)], [Pages].
+**Citation**: [Authors]. ([Year]). [Title]. *[Journal/Book]*. [Volume(Issue)], [Pages].
 
 **DOI**: [DOI if available, or "N/A"]
 
 **Type**: [Journal Article | Book Chapter | Book | SEP Entry | Conference Proceedings]
 
-**Abstract**:
-[Copy the actual abstract, or write 100-150 word summary if abstract unavailable]
+**Core Argument**: [2-3 sentences: What does this paper argue/claim?]
 
-**Summary for This Project**:
-[150-250 words explaining]:
-- What this paper argues/claims
-- Key arguments or findings
-- How it relates to the research project specifically
-- Why it's important for understanding the state-of-the-art
-- What gap or question it leaves open (if relevant)
+**Relevance**: [2-3 sentences: How does this connect to the research project? What gap does it address or leave open?]
 
-**Key Quotes** (optional):
-> "[Relevant quote that might be useful for literature review]" (p. X)
+**Position/Debate**: [1 sentence: What theoretical position or debate does this represent?]
 
-**Relevance Score**: [High | Medium | Low]
-- High: Core paper, must cite in review
-- Medium: Important for context, should probably cite
-- Low: Relevant but peripheral, cite if space permits
+**Importance**: [High | Medium | Low] - High: Must cite. Medium: Should cite. Low: Cite if space.
 
 ---
 ```
@@ -98,26 +87,23 @@ Write to specified filename (e.g., `literature-domain-compatibilism.md`):
 ```markdown
 # Literature Review: [Domain Name]
 
-**Domain Focus**: [Brief description]
+**Domain Focus**: [1-2 sentence description]
 
 **Search Date**: [YYYY-MM-DD]
 
-**Papers Found**: [N papers]
+**Papers Found**: [N papers] (High: X, Medium: Y, Low: Z)
 
-**Search Sources Used**:
-- [Source 1]
-- [Source 2]
-- [...]
+**Search Sources**: SEP, PhilPapers, Google Scholar, [other journals]
 
-## Overview
+## Domain Overview
 
-[2-3 paragraph overview of what you found]:
-- Main debates/positions in this domain
-- Key papers that establish the landscape
-- Recent developments or shifts
-- How this domain relates to the research project
+**Main Debates**: [2-3 sentences on key debates/positions in this domain]
 
-## Foundational Papers (Classic Works)
+**Relevance to Project**: [2-3 sentences on how this domain connects to research idea]
+
+**Recent Developments**: [1-2 sentences on shifts in last 5-10 years, if applicable]
+
+## Foundational Papers
 
 [Papers establishing the domain, may be older]
 
@@ -137,9 +123,9 @@ Write to specified filename (e.g., `literature-domain-compatibilism.md`):
 ### [Entry 2]
 [...]
 
-## Empirical Work (If Applicable)
+## Empirical Work
 
-[Experimental, neuroscience, psychology papers]
+[If applicable - experimental, neuroscience, psychology papers]
 
 ### [Entry 1]
 [...]
@@ -151,23 +137,13 @@ Write to specified filename (e.g., `literature-domain-compatibilism.md`):
 ### [Entry 1]
 [...]
 
-## Summary
+## Domain Summary
 
-**Total Papers**: [N]
-- High relevance: [N]
-- Medium relevance: [N]
-- Low relevance: [N]
+**Key Positions**: [Position 1] (X papers), [Position 2] (Y papers), [Position 3] (Z papers)
 
-**Key Positions Covered**:
-- [Position 1]: [X papers]
-- [Position 2]: [Y papers]
-- [...]
+**Notable Gaps**: [1-2 sentences on under-explored areas within this domain]
 
-**Notable Gaps**:
-[Any areas within this domain that seem under-explored]
-
-**Recommendation**:
-[Any suggestions for the synthesis phase, e.g., "Focus on X papers for core argument" or "The debate between Y and Z is central"]
+**Synthesis Guidance**: [1-2 sentences on what to emphasize, e.g., "Focus on X papers for core argument" or "The debate between Y and Z is central"]
 ```
 
 ## Quality Standards
@@ -260,28 +236,28 @@ Results written to: [filename]
 ```markdown
 ### Fischer & Ravizza (1998) Responsibility and Control
 
-**Full Citation**: Fischer, J. M., & Ravizza, M. (1998). *Responsibility and Control: A Theory of Moral Responsibility*. Cambridge University Press.
+**Citation**: Fischer, J. M., & Ravizza, M. (1998). *Responsibility and Control: A Theory of Moral Responsibility*. Cambridge University Press.
 
 **DOI**: 10.1017/CBO9780511814594
 
 **Type**: Book
 
-**Abstract**:
-Fischer and Ravizza develop a comprehensive account of moral responsibility based on guidance control. They argue that agents are morally responsible for actions that flow from their own, reasons-responsive mechanism. The book addresses debates about freedom, determinism, and the conditions for responsible agency, offering a middle path between libertarian and hard determinist positions.
+**Core Argument**: Develops "guidance control" account of moral responsibility arguing agents are responsible when actions flow from their own reasons-responsive mechanisms. Offers compatibilist middle path between libertarian and hard determinist positions.
 
-**Summary for This Project**:
-This book is foundational for understanding compatibilist accounts of moral responsibility. Fischer and Ravizza's "guidance control" framework argues that moral responsibility is compatible with determinism as long as agents act from their own reasons-responsive mechanisms. This is directly relevant to our project on neuroscience and responsibility because it provides a sophisticated account of the control conditions necessary for responsibility—conditions that can potentially be assessed empirically. Their framework leaves open the question of how neuroscientific findings about unconscious processes affect judgments about reasons-responsiveness, which is precisely the gap our research addresses. The book has been highly influential and must be engaged with in any contemporary discussion of moral responsibility.
+**Relevance**: Provides sophisticated account of control conditions for responsibility that can potentially be assessed empirically. Leaves open how neuroscientific findings about unconscious processes affect judgments about reasons-responsiveness—precisely the gap our research addresses.
 
-**Key Quotes**:
-> "We contend that moral responsibility is associated with guidance control, not regulative control." (p. 31)
+**Position/Debate**: Compatibilist account of moral responsibility (reasons-responsiveness tradition)
 
-**Relevance Score**: High
+**Importance**: High
 ```
 
 ## Notes
 
-- **You have isolated context**: Don't worry about token usage; search thoroughly
+- **You have isolated context**: Search thoroughly, but output must be COMPACT
+- **Optimize for synthesis-planner**: Keep entries brief—synthesis-planner reads ALL domain files
+- **Target output size**: 1500-3000 words per domain (not 8000+)
 - **Be thorough but focused**: Quality matters more than quantity
 - **Think about the project**: Every entry should explain relevance to research idea
-- **Document your process**: If you made interesting discoveries or faced challenges, note them
 - **Time estimate**: Plan for 15-25 minutes per domain (depends on complexity)
+</parameter>
+
