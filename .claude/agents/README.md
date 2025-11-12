@@ -4,22 +4,28 @@
 
 ## Overview
 
-This directory contains a sophisticated 7-phase agent-based workflow for generating comprehensive, publication-ready state-of-the-art literature reviews for research proposals. The system is inspired by the LiRA (Literature Review Agents) framework but adapted specifically for philosophical research proposals.
+This directory contains a sophisticated 6-phase agent-based workflow for generating comprehensive, publication-ready state-of-the-art literature reviews for research proposals. The system is inspired by the LiRA (Literature Review Agents) framework but adapted specifically for philosophical research proposals.
+
+## Recent Optimizations (Context Window Efficiency)
+
+- **Compact bibliographies**: Domain researchers now produce structured bibliographies (1500-3000 words) instead of prose reviews (8000+ words)
+- **Validation removed**: Phase 3 citation validation eliminated to reduce processing time
+- **Task persistence**: Added `task-progress.md` for cross-conversation resume capability
+- **Result**: Synthesis-planner can now read all 7 domains without context overflow
 
 ## Agent Architecture
 
 ### Meta-Orchestrator
-- **research-proposal-orchestrator.md** - Coordinates the entire 7-phase workflow
+- **research-proposal-orchestrator.md** - Coordinates the entire 6-phase workflow with task persistence
 
 ### Phase Agents
 
 1. **literature-review-planner.md** - Plans review structure and domain decomposition
-2. **domain-literature-researcher.md** - Conducts focused literature searches per domain
-3. **citation-validator.md** - Validates citations, DOIs, and metadata accuracy
-4. **synthesis-planner.md** - Designs narrative structure for the review
-5. **synthesis-writer.md** - Writes publication-ready literature review
-6. **sota-review-editor.md** - Reviews and polishes against best practices
-7. **novelty-assessor.md** - Assesses originality and provides strategic recommendations
+2. **domain-literature-researcher.md** - Produces compact structured bibliographies per domain (1500-3000 words)
+3. **synthesis-planner.md** - Designs narrative structure for the review
+4. **synthesis-writer.md** - Writes publication-ready literature review
+5. **sota-review-editor.md** - Reviews and polishes against best practices
+6. **novelty-assessor.md** - Assesses originality and provides strategic recommendations
 
 ## Workflow Phases
 
@@ -31,32 +37,26 @@ This directory contains a sophisticated 7-phase agent-based workflow for generat
 
 ### Phase 2: Parallel Literature Search
 - **Agent**: `@domain-literature-researcher` (multiple instances in parallel)
-- **Output**: `literature-domain-1.md`, `literature-domain-2.md`, etc.
-- **Process**: Each agent searches a specific domain using isolated context
-- **Key Feature**: Parallel execution for efficiency (5-8 simultaneous researchers)
+- **Output**: `literature-domain-1.md`, `literature-domain-2.md`, etc. (compact bibliographies: 1500-3000 words each)
+- **Process**: Each agent searches and produces structured bibliographies with: Citation, Core Argument (2-3 sentences), Relevance (2-3 sentences), Position/Debate, Importance level
+- **Key Feature**: Parallel execution + compact format enables synthesis-planner to read all domains
 
-### Phase 3: Validation
-- **Agent**: `@citation-validator`
-- **Output**: `validation-report.md`
-- **Process**: Verifies all DOIs, checks metadata accuracy, identifies issues
-- **Model**: Haiku (fast validation)
-
-### Phase 4: Synthesis Planning
+### Phase 3: Synthesis Planning
 - **Agent**: `@synthesis-planner`
 - **Output**: `synthesis-outline.md`
 - **Process**: Designs narrative structure, organizes literature thematically, plans gap analysis
 
-### Phase 5: Synthesis Writing
+### Phase 4: Synthesis Writing
 - **Agent**: `@synthesis-writer`
 - **Output**: `state-of-the-art-review-draft.md`
 - **Process**: Writes complete review with academic prose, proper citations, gap analysis
 
-### Phase 6: Editorial Review
+### Phase 5: Editorial Review
 - **Agent**: `@sota-review-editor`
 - **Output**: `state-of-the-art-review-final.md`, `editorial-notes.md`
 - **Process**: Reviews against best practices, polishes prose, ensures publication readiness
 
-### Phase 7: Novelty Assessment
+### Phase 6: Novelty Assessment
 - **Agent**: `@novelty-assessor`
 - **Output**: `executive-assessment.md`
 - **Process**: Assesses originality, competitive positioning, provides strategic recommendations
@@ -65,8 +65,9 @@ This directory contains a sophisticated 7-phase agent-based workflow for generat
 
 ### Context Preservation
 - **Isolated Contexts**: Each agent uses its own context window
-- **Efficient Orchestration**: Orchestrator context stays <20k tokens
-- **Heavy Lifting Delegated**: Literature searches (50k+ tokens) happen in isolated contexts
+- **Efficient Orchestration**: Orchestrator context stays minimal
+- **Compact Output**: Domain researchers produce 1500-3000 word bibliographies (not 8000+ word prose)
+- **Task Persistence**: `task-progress.md` enables resume across conversations if context limit hit
 
 ### Parallelization
 - **Phase 2**: Multiple domain researchers execute simultaneously
@@ -75,12 +76,12 @@ This directory contains a sophisticated 7-phase agent-based workflow for generat
 
 ### Iterative Refinement
 - **User Checkpoints**: Human-in-the-loop mode allows review at each phase
-- **Quality Assurance**: Validation phase catches errors early
+- **Resume Capability**: Task list enables picking up from interruption
 - **Editorial Polish**: Dedicated editing phase ensures quality
 
 ### Standardized Format
-- **Literature Entries**: Consistent format with DOI, abstract, project-specific summary
-- **Relevance Scoring**: High/Medium/Low for prioritization
+- **Literature Entries**: Compact format with Citation, Core Argument (2-3 sentences), Relevance (2-3 sentences), Position/Debate, Importance (High/Medium/Low)
+- **Efficient for Synthesis**: Short entries enable synthesis-planner to read all domains without context overflow
 - **Gap Integration**: Gaps identified throughout, not just at end
 
 ## Usage
@@ -96,9 +97,10 @@ The `@research-proposal-orchestrator` will automatically activate and guide you 
 ### Execution Modes
 
 **Autopilot Mode**:
-- Execute all 7 phases automatically
+- Execute all 6 phases automatically
 - Present complete package at end
 - Typical duration: 60-90 minutes
+- Saves task progress for resume capability
 
 **Human-in-the-Loop Mode**:
 - Review and approve after each phase
@@ -111,16 +113,16 @@ After complete workflow, you receive:
 
 ```
 research-proposal-literature-review/
+├── task-progress.md                      # Progress tracker (enables resume)
 ├── lit-review-plan.md                    # Phase 1
-├── literature-domain-1.md                # Phase 2
-├── literature-domain-2.md
+├── literature-domain-1.md                # Phase 2 (compact: 1500-3000 words)
+├── literature-domain-2.md                # Phase 2 (compact: 1500-3000 words)
 ├── ...
-├── validation-report.md                  # Phase 3
-├── synthesis-outline.md                  # Phase 4
-├── state-of-the-art-review-draft.md     # Phase 5
-├── state-of-the-art-review-final.md     # Phase 6
-├── editorial-notes.md                    # Phase 6
-└── executive-assessment.md               # Phase 7
+├── synthesis-outline.md                  # Phase 3
+├── state-of-the-art-review-draft.md     # Phase 4
+├── state-of-the-art-review-final.md     # Phase 5
+├── editorial-notes.md                    # Phase 5
+└── executive-assessment.md               # Phase 6
 ```
 
 ## Integration with Existing Skills
@@ -152,18 +154,19 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 ## Technical Details
 
 ### Models Used
-- **Orchestrator**: Sonnet (strategic reasoning)
-- **Researchers**: Sonnet (complex literature analysis)
-- **Planner**: Sonnet (strategic planning)
+- **Orchestrator**: Sonnet (strategic reasoning + task persistence)
+- **Researchers**: Sonnet (literature search + compact bibliography generation)
+- **Planner**: Sonnet (strategic planning + efficient reading)
 - **Writer**: Sonnet (academic prose)
 - **Editor**: Sonnet (quality assessment)
-- **Validator**: Haiku (fast, efficient validation)
 - **Assessor**: Sonnet (strategic analysis)
 
 ### Context Management
-- Each phase agent: Isolated context (can use 50k+ tokens)
-- Orchestrator: Maintains only summaries (<20k tokens)
-- Communication: File-based (agents write, orchestrator reads summaries)
+- Each phase agent: Isolated context (can use 50k+ tokens for search)
+- Domain researchers: Output compact bibliographies (1500-3000 words, not 8000+)
+- Orchestrator: Maintains minimal context via task-progress.md
+- Synthesis-planner: Can read all 7 domains (7 × 3000 = ~21k words max)
+- Communication: File-based (agents write, orchestrator tracks progress)
 
 ### File-Based Communication
 - Agents write comprehensive results to files
@@ -176,13 +179,14 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 ### Comprehensive Review (5-8 domains, 40-80 papers)
 - **Duration**: 60-90 minutes
 - **Output**: 6000-9000 word review
-- **Citations**: 40-80 papers validated
+- **Citations**: 40-80 papers (compact bibliographies: 10-15k total words for synthesis-planner)
 - **Gaps**: 3-5 specific, actionable gaps identified
+- **Resume**: Can continue from interruption via task-progress.md
 
 ### Focused Review (3-4 domains, 20-40 papers)
 - **Duration**: 30-45 minutes
 - **Output**: 3000-5000 word review
-- **Citations**: 20-40 papers validated
+- **Citations**: 20-40 papers (compact bibliographies: 5-8k total words)
 - **Gaps**: 2-3 specific gaps identified
 
 ## Quality Standards
@@ -190,16 +194,17 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 All outputs meet:
 - ✅ Publication-ready academic prose
 - ✅ Proper citation integration (not just listing)
-- ✅ Validated citations (>95% accuracy)
 - ✅ Clear, specific gap analysis
 - ✅ Explicit connection to research project
 - ✅ Strategic positioning for funding/publication
 - ✅ Honest novelty assessment
+- ✅ Context-efficient (can complete without hitting limits)
 
 ## Future Enhancements
 
 Potential additions:
 - Specialized agents for interdisciplinary research
+- Optional validation phase for citation accuracy (if needed)
 - Integration with citation management tools
 - Automated figure generation for literature maps
 - Comparative analysis across multiple research ideas
