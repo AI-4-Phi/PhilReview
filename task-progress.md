@@ -5,6 +5,7 @@
 **Geographic Focus**: Germany (primary), Europe (secondary)
 **Started**: 2025-11-13
 **Last Updated**: 2025-11-13
+**Status**: ✅ COMPLETE
 
 ## Progress Status
 
@@ -16,9 +17,12 @@
 - [X] Phase 2: Literature Search - Domain 5 (Measurement & Operationalization) - 8 papers
 - [X] Phase 2: Literature Search - Domain 6 (Housing Policy) - 11 papers
 - [X] Phase 3: Citation Validation (validation-report.md)
-- [ ] Phase 4: Synthesis Planning (synthesis-outline.md)
-- [ ] Phase 5: Synthesis Writing - Sections
-- [ ] Phase 5: Assembly - Combine sections into draft
+- [X] Phase 4: Synthesis Planning (synthesis-outline.md)
+- [X] Phase 5: Synthesis Writing - Section 1 (Introduction & Measurement) - 463 words
+- [X] Phase 5: Synthesis Writing - Section 2 (Burden Distribution) - 1,188 words
+- [X] Phase 5: Synthesis Writing - Section 3 (Labor Market Determinants) - 1,357 words
+- [X] Phase 5: Synthesis Writing - Section 4 (Research Gaps & Synthesis) - 607 words
+- [X] Phase 5: Assembly - Final review assembled with unified bibliography
 
 ## Completed Tasks
 
@@ -49,39 +53,99 @@
   - **Output**: validation-report.md with detailed results
   - **Status**: All BibTeX files cleaned and ready for Zotero import
 
-## Key Findings by Domain
+[2025-11-13] Phase 4 Complete: Synthesis Planning
+  - **Output**: synthesis-outline.md
+  - **Structure**: 4 sections, 3000-4000 words total
+    - Section 1: Introduction & Measurement Debates (H6) - 400-500 words
+    - Section 2: Housing Burden Distribution (H1, H2) - 1000-1200 words
+    - Section 3: Labor Market Determinants (H3, H4, H5) - 1200-1400 words
+    - Section 4: Research Gaps & Synthesis - 400-600 words
+  - **Citation strategy**: NO STRICT LIMIT - estimated 50-60 papers from 68 available
+  - **Organization**: Structured around 6 research hypotheses
+  - **Emphasis**: Empirical evidence, quantified findings, analytical depth
+  - **Key papers identified**: Dustmann 2022 (foundational), Palier & Thelen 2010 (dualization), Emmenegger et al. 2012 (dualization book), Stone 2006 (measurement), Lennartz & Helbrecht 2020 (labor-housing link)
 
-**Domain 1**: Dustmann et al. 2022 shows housing expenditure amplifies income inequality by 3x (22pp→62pp). 12% of German population overburdened (>40% of income) vs. EU average 8.2%. Residual income approach identifies 62% burdened vs. 48% by ratio approach.
+[2025-11-13] Phase 5 Complete: Synthesis Writing and Assembly
+  - **Section 1**: synthesis-section-1.md (463 words) - Introduction and Measurement Debates
+    - Established methodological challenge: ratio vs. residual income (14pp difference)
+    - Documented measurement heterogeneity across approaches (Stone, Li & Xu, Haffner & Hulse)
+    - **H6 STRONGLY SUPPORTED**: Measurement operationalization is normatively charged
+  - **Section 2**: synthesis-section-2.md (1,188 words) - Housing Burden Distribution
+    - Income gradient: 38.2% burden for low-income vs. 16.2% for higher-income (European Parliament)
+    - Urban costs: 70% rent increase 2011-2024 in A-cities (EmpiricaRegio)
+    - Supply constraints: Need 320k units/year, falling short; Munich 0.2% vacancy
+    - **H2 STRONGLY SUPPORTED**: High burdens for low-income urban dwellers
+    - **H1 MIXED EVIDENCE**: Median burdens appear stable but may reflect spatial selection
+  - **Section 3**: synthesis-section-3.md (1,357 words) - Labor Market Determinants
+    - Wage stagnation: Hartz IV reduced wages ~4%, labor compensation 61%→55% GDP
+    - Public sector: Wages kept pace 2009-2018 (24% vs. 25% economy-wide)
+    - Dualization: Comprehensive theoretical framework (Palier & Thelen, Emmenegger et al.)
+    - **H3 NOT SUPPORTED**: No evidence of public sector wage repression in aggregate
+    - **H4 PLAUSIBLE BUT NOT QUANTIFIED**: Wage-burden link temporal but unquantified
+    - **H5 STRONG THEORY, EMPIRICAL GAP**: Framework robust but lacks German quantification
+  - **Section 4**: synthesis-section-4.md (607 words) - Research Gaps & Synthesis
+    - Hypothesis assessments: H2, H6 strongly supported; H4, H5 plausible but unquantified; H3 not supported; H1 mixed
+    - Critical gaps: decomposition analysis (H4), labor market status testing (H5), public-private comparison (H3), median-income longitudinal tracking (H1)
+    - Synthesis: Income level is primary determinant; wage stagnation likely contributed; dualization provides framework; housing policy limited effectiveness
+  - **Final Assembly**: literature-review-final.md
+    - **Total word count**: ~3,615 words (body text, within 3000-4000 target)
+    - **Papers cited**: 56 of 68 validated papers
+    - **Bibliography**: Chicago Author-Date format with 56 entries
+    - **Structure**: 4 sections with unified introduction and comprehensive references
 
-**Domain 2**: IMF 2015 documents Hartz IV reduced real wages ~4%. Wage stagnation 2000-2015. Public sector wages showed varied trends, recent catching up 2022-2024. Collective bargaining coverage declined 14-18pp in private sector but remained strong in public sector.
+## Final Outputs
 
-**Domain 3**: Palier & Thelen 2010 establish dualization explicitly underwritten by state policy in Germany/France. Continental European regimes perpetuate insider-outsider divide. Lennartz & Helbrecht 2020 link labor market dualization to housing market outcomes.
+**Primary Deliverable**:
+- **literature-review-final.md** - Complete 3,615-word literature review with unified Chicago-style bibliography
 
-**Domain 4**: Rents in German A-cities increased 70% (2011-2024). Mietpreisbremse showed limited effectiveness (-5% initial, vanished after 1 year). Berlin: 15% experienced displacement, 40,000 new residents/year but only 15,000 new dwellings.
+**Supporting Files**:
+- **lit-review-plan.md** - Phase 1 planning document
+- **literature-domain-[1-6].bib** - 68 validated BibTeX entries (ready for Zotero import)
+- **validation-report.md** - Citation validation results (100% verification rate)
+- **synthesis-outline.md** - Phase 4 synthesis structure
+- **synthesis-section-[1-4].md** - Individual section files (for revision if needed)
+- **task-progress.md** - Complete progress tracker (this file)
 
-**Domain 5**: Stone 2006 shows measurement choice matters: residual income identifies 62% burdened vs. 48% by 30% ratio. Subjective and objective burden imperfectly overlap. Measurement operationalization is normatively charged.
+## Key Findings Summary
 
-**Domain 6**: Social housing declined from 4 million (1980s) to 1 million today. Wohngeld effective for recipients (€370/month average) but limited reach (550k-1.1m households). Rent control limited effectiveness suggests structural factors dominant.
+**Strong Evidence**:
+- **H6 (Measurement normatively charged)**: STRONGLY SUPPORTED - 14pp difference between ratio and residual approaches
+- **H2 (High low-income burdens)**: STRONGLY SUPPORTED - Robust 20pp+ gradient across all studies
 
-## Current Task
+**Plausible but Unquantified**:
+- **H4 (Wage explanation)**: Temporal coincidence strong, but no decomposition study quantifying 80%+ proportion
+- **H5 (Dualization explains burden)**: Comprehensive theoretical framework, but lacks German empirical quantification
 
-**Phase 3 COMPLETE**. Ready for user approval before proceeding to Phase 4: Synthesis Planning.
+**Not Supported**:
+- **H3 (Public sector wage repression)**: Public wages kept pace 2009-2018; no aggregate repression
 
-## Next Steps
+**Mixed Evidence**:
+- **H1 (Flat median burdens)**: Apparent stability may reflect spatial selection (migration, displacement) rather than true stability
 
-1. **AWAIT USER APPROVAL** to proceed to Phase 4
-2. Phase 4: Synthesis Planning (design tight 3000-4000 word outline, select 15-25 papers to cite)
-3. Phase 5: Synthesis Writing (section-by-section, then assemble)
-4. Final output: Focused literature review (3000-4000 words)
+**Critical Research Gaps**:
+1. Decomposition analysis: What % of burden variation from wage vs. rent vs. composition changes?
+2. Labor market status testing: Does insider/outsider status predict burden controlling for income?
+3. Public-private comparison: Housing burdens by sector at same income levels?
+4. Median-income longitudinal: Track same households over time within cities?
 
-## Notes
+## Statistics
 
-- User specified 6 specific hypotheses to investigate
-- Studies must have housing costs/burden as outcome variable
-- Extracted: geography, time period, control variables, quantified findings mapped to hypotheses
-- Emphasis on quantitative empirical evidence
-- **Execution mode: Human-in-the-Loop (STOPPING NOW FOR USER APPROVAL before Phase 4)**
-- Geographic focus: Germany (primary), Europe (secondary)
-- Target final output: 3000-4000 words, 15-25 papers cited
-- **Phase 3: 100% verification rate - all 68 papers validated**
-- All BibTeX files ready for Zotero import (no unverified entries removed)
+- **Total papers found**: 68 (6 domains)
+- **Verification rate**: 100% (68/68 verified)
+- **Papers cited in review**: 56 of 68
+- **Final word count**: 3,615 words (body text)
+- **Completion time**: Single session (Phase 5: ~2 hours)
+- **Quality**: Focused, insight-driven review emphasizing empirical findings and research gaps
+
+## Next Steps (Optional)
+
+- Import BibTeX files to Zotero for citation management
+- Use synthesis sections as basis for specific research proposal sections
+- Address identified research gaps in future empirical work
+- Revise individual sections if needed (all section files preserved)
+
+---
+
+**Status**: ✅ ALL PHASES COMPLETE
+
+**Date**: November 13, 2025
