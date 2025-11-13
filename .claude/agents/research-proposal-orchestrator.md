@@ -1,7 +1,7 @@
 ---
 name: research-proposal-orchestrator
 description: Use PROACTIVELY when user needs a focused, insight-driven literature review (3000-4000 words) for a research proposal or project idea. Coordinates specialized agents to produce rigorous, validated literature reviews emphasizing key debates and research gaps. Domain researchers output BibTeX files for direct Zotero import.
-tools: Task, Read, Write, Grep
+tools: Task, Read, Write, Grep, Bash, WebSearch, WebFetch
 model: sonnet
 ---
 
@@ -95,13 +95,11 @@ Coordinate a 5-phase workflow that produces:
 2. Identify N domains (typically 3-8)
 3. Invoke N parallel `@domain-literature-researcher` agents:
    - Input: domain focus, key questions, research idea
-   - Sources: SEP, PhilPapers, Google Scholar, key journals
+   - Sources: WebSearch, SEP, PhilPapers, Google Scholar, key journals
    - Output: `literature-domain-[N].bib` - **valid BibTeX files** with domain metadata in @comment entries
 4. **Update task-progress.md after each domain** ✓
 
 **Parallelization**: Use Task tool for simultaneous execution
-
-**Why BibTeX**: Users can directly import into Zotero; synthesis agents read rich metadata
 
 **Outputs**: `literature-domain-1.bib` through `literature-domain-N.bib`
 
@@ -124,7 +122,7 @@ Coordinate a 5-phase workflow that produces:
 
 **Why This Matters**: Users will import BibTeX files to Zotero. We must ensure only real, verified papers make it through.
 
-**Outputs**: 
+**Outputs**:
 - `validation-report.md` - Detailed validation results
 - `unverified-sources.bib` - Removed entries with reasons
 - Modified `literature-domain-*.bib` files (cleaned, ready for Zotero)
@@ -180,7 +178,7 @@ Coordinate a 5-phase workflow that produces:
 - Resilient to interruptions
 - Easy to revise individual sections
 
-**Target Output**: 
+**Target Output**:
 - 3000-4000 words total
 - 15-25 papers cited (selective)
 - Emphasis on key debates and specific research gaps
@@ -298,7 +296,7 @@ All outputs must have:
 - **Duration**: 45-60 min for focused review (5-8 domains searched, 15-25 papers cited in review)
 - **Target output**: 3000-4000 words (not 6000-9000)
 - **Emphasis**: Analytical insight over comprehensive coverage
-- **Context efficiency**: 
+- **Context efficiency**:
   - Phase 2: Parallel domain searches → BibTeX files (`.bib`) → validated → readable by synthesis agents
   - Phase 3: Citation validation ensures only verified papers proceed to synthesis
   - Phase 5: Section-by-section writing → reads only relevant BibTeX files per section
@@ -311,7 +309,7 @@ All outputs must have:
 - **BibTeX format**: Domain researchers output valid `.bib` files that users can directly import to Zotero
 - **Citation validation**: Phase 3 ensures only verified papers make it to Zotero import
 - **Selectivity**: 40-80 papers found in domain search, but only 15-25 cited in final review (strategic selection)
-- **Citation requirements**: 
+- **Citation requirements**:
   - Domain researchers: Never fabricate publications or DOIs; produce valid BibTeX
   - Citation validator: Remove unverified entries to unverified-sources.bib
   - Synthesis-planner: Target 3000-4000 words, select 15-25 papers to cite

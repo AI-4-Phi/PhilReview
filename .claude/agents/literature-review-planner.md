@@ -1,7 +1,7 @@
 ---
 name: literature-review-planner
 description: Plans comprehensive literature review structure for research proposals. Analyzes research ideas and creates domain decomposition with search strategies.
-tools: Read, Write
+tools: Read, Write, WebFetch, WebSearch, Bash
 model: sonnet
 ---
 
@@ -51,7 +51,7 @@ Create file: `lit-review-plan.md`
 - [Specific question 3]
 
 **Search Strategy**:
-- Primary sources: [e.g., SEP article on X, PhilPapers category Y]
+- Primary sources: [e.g., SEP article on X, PhilPapers category Y.]
 - Key terms: ["term1", "term2", "term3"]
 - Expected papers: [estimated number, e.g., "10-15 key papers"]
 - Inclusion criteria: [what makes a paper relevant]
@@ -122,6 +122,7 @@ Create file: `lit-review-plan.md`
 
 For each domain, specify:
 - **Primary sources**: Where to start (SEP articles, key journals, seminal books)
+- **Emphasize that the agent should make use of WebSearch and WebFetch and include the latest papers from this year and the last few years**
 - **Search terms**: 3-8 specific terms/phrases for database searches
 - **Scope boundaries**: What's included vs excluded
 - **Quality criteria**: What makes a paper "key" vs "peripheral"
