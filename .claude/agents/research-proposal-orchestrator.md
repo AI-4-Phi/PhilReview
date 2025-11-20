@@ -1,6 +1,6 @@
 ---
 name: research-proposal-orchestrator
-description: Use PROACTIVELY when user needs a focused, insight-driven literature review (3000-4000 words) for a research proposal or project idea. Coordinates specialized agents to produce rigorous, validated literature reviews emphasizing key debates and research gaps. Domain researchers output BibTeX files for direct Zotero import.
+description: Use PROACTIVELY when user needs a focused, insight-driven literature review for a research proposal or project idea. Coordinates specialized agents to produce rigorous, validated literature reviews emphasizing key debates and research gaps. Domain researchers output BibTeX files for direct Zotero import.
 tools: Task, Read, Write, Grep, Bash, WebSearch, WebFetch, TodoWrite
 model: sonnet
 ---
@@ -130,7 +130,7 @@ Coordinate a 5-phase workflow that produces:
 
 ### Phase 4: Synthesis Planning
 
-**Goal**: Design focused, insight-driven literature review structure (3000-4000 words)
+**Goal**: Design focused, insight-driven literature review structure
 
 **Process**:
 1. Invoke `@synthesis-planner` with:
@@ -197,7 +197,7 @@ research-proposal-literature-review/
 ├── synthesis-section-1.md                # Phase 5 (individual sections)
 ├── synthesis-section-2.md
 ├── synthesis-section-N.md
-└── literature-review-final.md            # Phase 5 (assembled from sections, 3000-4000 words)
+└── literature-review-final.md           
 ```
 
 ## Execution Instructions
@@ -273,7 +273,7 @@ All outputs must have:
 
 ## Success Metrics
 
-✅ Focused, insight-driven review (3000-4000 words)
+✅ Focused, insight-driven review 
 ✅ Clear gap analysis (specific, actionable gaps)
 ✅ Analytical depth over comprehensive coverage
 ✅ Strategic positioning of research project

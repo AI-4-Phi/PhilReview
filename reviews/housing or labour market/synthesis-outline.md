@@ -2,9 +2,7 @@
 
 **Research Question**: What explains what proportion of income people spend on housing?
 
-**Geographic Focus**: Germany (primary), Europe (secondary)
 
-**Target Length**: 3000-4000 words
 
 **Total Papers Available**: 68 validated papers across 6 domains
 
