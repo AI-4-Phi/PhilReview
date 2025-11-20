@@ -4,12 +4,11 @@
 
 ## Overview
 
-This directory contains a sophisticated 5-phase agent-based workflow for generating focused, insight-driven literature reviews (3000-4000 words) for research proposals. The system is inspired by the LiRA (Literature Review Agents) framework but adapted specifically for philosophical research proposals, emphasizing analytical depth over comprehensive coverage.
+This directory contains a sophisticated 5-phase agent-based workflow for generating focused, insight-driven literature reviews for research proposals. The system is inspired by the LiRA (Literature Review Agents) framework but adapted specifically for philosophical research proposals, emphasizing analytical depth over comprehensive coverage.
 
 **Key Features**: 
 - Domain researchers output **valid BibTeX files** (`.bib`) for direct Zotero import
-- Focused reviews (3000-4000 words) emphasizing key debates and research gaps
-- Selective citation (15-25 papers) with analytical depth
+- Focused reviews words) emphasizing key debates and research gaps
 
 ## Recent Optimizations (Context Window Efficiency)
 
@@ -29,7 +28,7 @@ This directory contains a sophisticated 5-phase agent-based workflow for generat
 1. **literature-review-planner.md** - Plans review structure and domain decomposition
 2. **domain-literature-researcher.md** - Produces valid BibTeX files (`.bib`) per domain with rich metadata in @comment entries and note fields
 3. **citation-validator.md** - Validates citations, removes unverified entries to `unverified-sources.bib`
-4. **synthesis-planner.md** - Designs tight narrative structure for focused 3000-4000 word review
+4. **synthesis-planner.md** - Designs tight narrative structure for focused  review
 5. **synthesis-writer.md** - Writes focused, insight-driven literature review emphasizing key debates and gaps
 
 ## Workflow Phases
@@ -68,9 +67,7 @@ This directory contains a sophisticated 5-phase agent-based workflow for generat
 - **Output**: `synthesis-section-1.md`, `synthesis-section-2.md`, etc. → assembled into `literature-review-final.md`
 - **Process**: Each section written to separate file with specific word targets; orchestrator assembles into final review
 - **Key Feature**: 
-  - Section-by-section writing (3-4 sections)
-  - Total: 3000-4000 words
-  - Selective citation: 15-25 papers total
+  - Section-by-section writing 
   - Analytical depth over comprehensive coverage
 - **Architecture**: Multiple files (one per section) created independently, then concatenated
 
@@ -168,7 +165,6 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 - ✅ Context isolation per agent
 - ✅ Parallel execution (Phase 2: domains, Phase 5: sections)
 - ✅ Citation validation (Phase 3: ensures only verified papers)
-- ✅ Focused output (3000-4000 words emphasizing insight)
 - ✅ Orchestrator context preserved
 - ✅ Scalable to large projects
 - ✅ Multi-file-then-assemble pattern (Phase 2 & 5)
@@ -203,9 +199,7 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 
 ## Expected Performance
 
-### Focused Review (5-8 domains, 15-25 papers cited)
-- **Duration**: 45-60 minutes
-- **Output**: 3000-4000 word review (tight and focused)
+### Focused Review 
 - **Citations**: 15-25 papers cited in review (selected from 40-80 found in domain search)
 - **BibTeX**: 5-8 `.bib` files ready for Zotero import (all found papers)
 - **Gaps**: 2-3 specific, well-defined gaps
@@ -222,8 +216,7 @@ The hybrid approach combines agent context isolation with skill domain knowledge
 ## Quality Standards
 
 All outputs meet:
-- ✅ Focused, insight-driven prose (3000-4000 words)
-- ✅ Selective citation (15-25 papers) with analytical depth
+- ✅ Focused, insight-driven prose 
 - ✅ **Validated citations** (only verified papers in BibTeX files)
 - ✅ Clear, specific gap analysis (2-3 gaps)
 - ✅ Explicit connection to research project throughout

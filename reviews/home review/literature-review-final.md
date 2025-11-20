@@ -190,4 +190,3 @@ Wells, Katy. 2022. "Homelessness and Freedom." *Critical Review of International
 Whittemore, Andrew H. 2017. "The Experience of Racial and Ethnic Minorities with Zoning in the United States." *Journal of Planning Literature* 32(1): 16-27.
 
 Young, Iris Marion. 1997. "House and Home: Feminist Variations on a Theme." In *Intersecting Voices: Dilemmas of Gender, Political Philosophy, and Policy*, 134-164. Princeton, NJ: Princeton University Press.
-

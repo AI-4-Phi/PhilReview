@@ -4,9 +4,6 @@
 
 **Geographic Focus**: Germany (primary), Europe (secondary)
 
-**Disciplines**: Economics and Political Science
-
-**Target Output**: 3000-4000 word focused literature review
 
 ## Research Hypotheses to Investigate
 
@@ -250,9 +247,6 @@ Preliminary analysis suggests potential gaps:
 ## Estimated Scope
 
 - **Total domains**: 6
-- **Estimated papers**: 54-81 papers total across all domains
-- **Final synthesis citations**: 15-25 papers (selective from total)
-- **Target review length**: 3000-4000 words
 - **Emphasis**: Quantitative findings, methodological approaches, research gaps relative to hypotheses
 
 ## Timeline
@@ -261,7 +255,7 @@ Preliminary analysis suggests potential gaps:
 - **Phase 2: Domain Literature Search** - Parallel execution (6 domains)
 - **Phase 3: Citation Validation** - Verify all entries
 - **Phase 4: Synthesis Planning** - Create focused outline
-- **Phase 5: Synthesis Writing** - 3-4 sections, 3000-4000 words total
+- **Phase 5: Synthesis Writing** - 
 
 ## Success Criteria
 
