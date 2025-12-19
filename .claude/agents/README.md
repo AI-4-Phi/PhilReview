@@ -8,14 +8,14 @@ This directory contains a sophisticated 5-phase agent-based workflow for generat
 
 **Key Features**: 
 - Domain researchers output **valid BibTeX files** (`.bib`) for direct Zotero import
-- Focused reviews words) emphasizing key debates and research gaps
+- Focused reviews emphasizing key debates and research gaps
 
 ## Recent Optimizations (Context Window Efficiency)
 
 - **BibTeX output**: Domain researchers now produce valid BibTeX files (`.bib`) instead of prose reviews
 - **Citation validation**: Phase 3 validates citations, removes unverified entries to `unverified-sources.bib`
 - **Task persistence**: Added `task-progress.md` for cross-conversation resume capability
-- **Zotero integration**: Users can directly import BibTeX files into Zotero with one click
+- **Zotero integration**: Users can directly import BibTeX files into Zotero
 - **Result**: Synthesis-planner can now read all 7 domains without context overflow; users get verified, reference-manager-ready bibliographies
 
 ## Agent Architecture
@@ -37,22 +37,22 @@ This directory contains a sophisticated 5-phase agent-based workflow for generat
 - **Agent**: `@literature-review-planner`
 - **Output**: `lit-review-plan.md`
 - **Process**: Analyzes research idea, decomposes into 3-8 searchable domains
-- **User Input**: Review and approve plan (human-in-the-loop)
+- **User Input**: Review and approve plan (only for human-in-the-loop)
 
 ### Phase 2: Parallel Literature Search
 - **Agent**: `@domain-literature-researcher` (multiple instances in parallel)
-- **Output**: `literature-domain-1.bib`, `literature-domain-2.bib`, etc. (valid BibTeX files)
+- **Output**: `literature-domain-1.bib`, `literature-domain-2.bib`, etc. (BibTeX files)
 - **Process**: Each agent searches and produces BibTeX bibliography with:
   - Domain metadata in @comment entries (overview, gaps, synthesis guidance)
   - Standard BibTeX entries (@article, @book, etc.) with proper citation data
-  - Rich metadata in `note` fields (Core Argument, Relevance, Position)
+  - Content summary in `note` fields (Core Argument, Relevance, Position)
   - Importance levels in `keywords` fields (High/Medium/Low)
 - **Key Feature**: Parallel execution + BibTeX format enables direct Zotero import AND synthesis-planner reading
 - **Architecture**: Multiple files (one per domain) created independently
 
 ### Phase 3: Citation Validation
 - **Agent**: `@citation-validator`
-- **Output**: `validation-report.md`, `unverified-sources.bib`, modified `.bib` files (cleaned)
+- **Output**: `validation-report.md`, `unverified-sources.bib`, modified domain BibTeX `.bib` files (now validated)
 - **Process**: Validates every BibTeX entry (DOI check, Google Scholar verification), removes unverified entries to `unverified-sources.bib`, preserves only verified papers in domain files
 - **Key Feature**: Ensures only real, verified papers make it to Zotero import and synthesis phases
 
