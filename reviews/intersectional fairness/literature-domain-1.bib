@@ -54,7 +54,7 @@
 
 @article{Dutta2024,
   title = {Fairness at Every Intersection: Uncovering and Mitigating Intersectional Biases in Multimodal Clinical Predictions},
-  author = {Dutta, Subrata and others},
+  author = {Ramachandranpillai, Resmi and Dutta, Subrata and others},
   journal = {arXiv preprint arXiv:2412.00606},
   year = {2024},
   doi = {10.48550/arXiv.2412.00606},
@@ -70,55 +70,50 @@
   note = {Proposes differential fairness, a multi-attribute definition of fairness informed by intersectionality. Shows that fairness on individual attributes does not guarantee intersectional fairness. Provides learning algorithm with economic, privacy, and generalization guarantees.}
 }
 
-@article{Mangal2024,
-  title = {Implementing Equitable and Intersectionality-Aware ML in Education: A Practical Guide},
-  author = {Mangal, Prerna and others},
-  journal = {British Journal of Educational Technology},
-  year = {2024},
-  doi = {10.1111/bjet.13484},
-  note = {Modification to ABROCA metric enhancing ability to measure disparities among multiple subgroups including intersectional subgroups. Utilizes adversarial learning tailored for intersectionality as bias mitigation method in educational technology contexts.}
-}
-
-@article{Zhang2024,
-  title = {Intersectional Debiasing in Prediction Models for Emergency Admissions},
-  author = {Zhang, Ziyue and others},
-  journal = {medRxiv preprint},
-  year = {2024},
-  doi = {10.1101/2024.11.05.24316769},
+@article{Lett2025,
+  title = {Intersectional and Marginal Debiasing in Prediction Models for Emergency Admissions},
+  author = {Lett, Elle and Shahbandegan, Shakiba and Barak-Corren, Yuval and Fine, Andrew M. and La Cava, William G.},
+  journal = {JAMA Network Open},
+  volume = {8},
+  number = {5},
+  year = {2025},
+  doi = {10.1001/jamanetworkopen.2025.15308},
   note = {Compares intersectional vs. marginal debiasing approaches. Finds intersectional debiasing produces greater reductions in subgroup calibration error (MIMIC-IV: 21.2 percent; BCH: 27.2 percent) compared to marginal debiasing (MIMIC-IV: 10.6 percent; BCH: 22.7 percent). Shows 5.7-11.1 percent additional reduction in calibration errors and 4.5 percent reduction in false-negative rates.}
 }
 
-@article{Celis2022,
+@article{Castelnovo2022,
   title = {A Clarification of the Nuances in the Fairness Metrics Landscape},
-  author = {Celis, L. Elisa and Mehrotra, Anay and Vishnoi, Nisheeth K.},
+  author = {Castelnovo, Alessandro and Crupi, Riccardo and Greco, Greta and Regoli, Daniele and Penco, Ilaria Giuseppina and Cosentini, Andrea Claudio},
   journal = {Scientific Reports},
   volume = {12},
   number = {1},
+  pages = {4209},
   year = {2022},
   doi = {10.1038/s41598-022-07939-1},
   note = {Discusses how conditional demographic parity theoretically solves intersectional bias but faces computational and practical issues due to exponential increase of subgroups when adding sensitive features. Assessing group fairness with multiple sensitive attributes may be unfeasible in most practical cases. Presence of many sensitive features represents huge problem that fairness ML literature has barely begun to address.}
 }
 
-@article{Yurochkin2024,
+@article{Ghassemi2024,
   title = {Auditing and Enforcing Conditional Fairness via Optimal Transport},
-  author = {Yurochkin, Mikhail and Sun, Yuekai},
+  author = {Ghassemi, Mohsen and Mishler, Alan and Dalmasso, Niccolò and Zhang, Luhao and Potluru, Vamsi K. and Balch, Tucker and Veloso, Manuela},
   journal = {arXiv preprint arXiv:2410.14029},
   year = {2024},
   doi = {10.48550/arXiv.2410.14029},
-  note = {Addresses challenges with conditional demographic parity being harder to achieve than demographic parity, particularly when conditioning variable has many levels or model outputs are continuous. Auditing and enforcing CDP remains understudied in the literature.}
+  note = {Addresses challenges with conditional demographic parity being harder to achieve than demographic parity, particularly when conditioning variable has many levels or model outputs are continuous. Auditing and enforcing CDP remains understudied in the literature. Proposes FairBiT and FairLeap methods using optimal transport distances.}
 }
 
-@article{Hashimoto2024,
+@article{Hashimoto2025,
   title = {Intersectional Fairness in Reinforcement Learning with Large State and Constraint Spaces},
   author = {Hashimoto, Kazuki and others},
   journal = {arXiv preprint arXiv:2502.11828},
   year = {2025},
+  doi = {10.48550/arXiv.2502.11828},
   note = {Develops methods to solve multi-objective RL problems with possibly exponentially large class of constraints over intersecting groups. Addresses both tabular and large state space MDPs in oracle-efficient manner. Demonstrates feasibility of intersectional fairness in complex RL settings.}
 }
 
 @article{Yan2024,
   title = {Intersectional Fair Ranking via Subgroup Divergence},
-  author = {Yan, Tom and others},
+  author = {Pastor, Eliana and Bonchi, Francesco},
   journal = {Data Mining and Knowledge Discovery},
   year = {2024},
   doi = {10.1007/s10618-024-01029-8},
@@ -133,11 +128,15 @@
   note = {Addresses fairness when groups overlap. Relevant to intersectional contexts where individuals belong to multiple groups simultaneously. Provides theoretical and algorithmic contributions for handling overlapping group memberships in fairness constraints.}
 }
 
-@inproceedings{HeribertJohnson2018,
+@inproceedings{HebertJohnson2018,
   title = {Multicalibration: Calibration for the (Computationally-Identifiable) Masses},
-  author = {Hébert-Johnson, Ursula and Kim, Michael and Reingold, Omer and Rothblum, Guy},
+  author = {Hébert-Johnson, Ursula and Kim, Michael P. and Reingold, Omer and Rothblum, Guy N.},
   booktitle = {Proceedings of the 35th International Conference on Machine Learning (ICML)},
+  series = {Proceedings of Machine Learning Research},
+  volume = {80},
+  pages = {1939--1948},
   year = {2018},
+  publisher = {PMLR},
   note = {Introduces multicalibration requiring predictions be well-calibrated simultaneously over rich collection of subpopulations. Sample complexity grows exponentially with number of class labels. Finer-grained groups require more data. Algorithm runtime inversely proportional to size of smallest group. Foundational work for multi-group fairness.}
 }
 
@@ -158,12 +157,14 @@
   author = {Kim, Michael P. and Ghorbani, Amirata and Zou, James},
   booktitle = {Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society (AIES)},
   year = {2019},
+  pages = {247--254},
+  doi = {10.1145/3306618.3314287},
   note = {Framework for multiaccuracy auditing and post-processing ensuring accurate predictions across identifiable subgroups. Works with black-box access to predictor and relatively small labeled dataset for auditing. Relevant to intersectional fairness through subgroup-level accuracy guarantees.}
 }
 
-@article{Dwork2024,
+@article{Hansen2024,
   title = {When is Multicalibration Post-Processing Necessary?},
-  author = {Dwork, Cynthia and others},
+  author = {Hansen, Dutch and Devic, Siddartha and Nakkiran, Preetum and Sharan, Vatsal},
   journal = {arXiv preprint arXiv:2406.06487},
   year = {2024},
   doi = {10.48550/arXiv.2406.06487},

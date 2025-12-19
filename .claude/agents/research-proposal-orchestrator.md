@@ -1,6 +1,6 @@
 ---
 name: research-proposal-orchestrator
-description: Use PROACTIVELY when user needs a focused, insight-driven literature review for a research proposal or project idea. Coordinates specialized agents to produce rigorous, validated literature reviews emphasizing key debates and research gaps. Domain researchers output BibTeX files for direct Zotero import.
+description: Used PROACTIVELY when user needs literature review based on a research proposal or project idea. Coordinates specialized agents to produce rigorous, validated literature reviews emphasizing key debates and research gaps. Domain researchers output BibTeX files. 
 tools: Task, Read, Write, Grep, Bash, WebSearch, WebFetch, TodoWrite
 model: sonnet
 ---

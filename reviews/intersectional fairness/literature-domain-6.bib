@@ -2,11 +2,12 @@
 @comment{Focus: Reasoning under uncertainty about group-level properties, epistemic justice in data collection,}
 @comment{epistemic responsibility when making claims about small groups, statistical inference ethics}
 
-@article{Fricker2007,
+@book{Fricker2007,
   title = {Epistemic Injustice: Power and the Ethics of Knowing},
   author = {Fricker, Miranda},
   year = {2007},
   publisher = {Oxford University Press},
+  isbn = {9780198237907},
   note = {Foundational work on epistemic injustice. Distinguishes testimonial injustice (credibility deficit due to prejudice) and hermeneutical injustice (gap in collective interpretive resources). Algorithmic systems can be vectors of epistemic injustice - excluding marginalized groups from processes that define, judge, and decide about them. Relevant to who gets to determine which groups matter in fairness analysis.}
 }
 
@@ -18,21 +19,24 @@
   number = {2},
   pages = {163--173},
   year = {2012},
+  doi = {10.1080/02691728.2011.652211},
   note = {Extends epistemic justice to social institutions. Institutions can systematically advantage or disadvantage different knowers. Relevant to algorithmic fairness: systems are institutions that can promote or undermine epistemic justice through how they categorize groups, collect data, make inferences.}
 }
 
-@article{DOgnazio2020,
+@book{DOgnazio2020,
   title = {Data Feminism},
   author = {D'Ignazio, Catherine and Klein, Lauren F.},
   year = {2020},
   publisher = {MIT Press},
+  isbn = {9780262044004},
   note = {Argues data practices systematically privilege certain perspectives while marginalizing others. Data collection and use raise moral and epistemic issues. Without diverse perspectives across AI ecosystem, ML advances will fuel epistemic injustice. Directly relevant to epistemic dimensions of data collection for fairness.}
 }
 
-@article{Kay2024,
+@inproceedings{Kay2024,
   title = {Epistemic Injustice in Generative AI: A Pipeline Taxonomy, Empirical Hypotheses, and Stage-Matched Governance},
   author = {Kay, Jackie and Kasirzadeh, Atoosa and Mohamed, Shakir},
-  journal = {arXiv preprint arXiv:2408.11441},
+  booktitle = {Proceedings of the 2024 AAAI/ACM Conference on AI, Ethics, and Society},
+  pages = {684--697},
   year = {2024},
   doi = {10.48550/arXiv.2408.11441},
   note = {Taxonomy mapping testimonial, hermeneutical, and distributive injustices onto four AI development stages: data collection, model training, inference, dissemination. Systems are not only products of biased data but of institutional and epistemic frameworks favoring surveillance, control, efficiency over equity and care. Published at AIES 2024.}
@@ -49,14 +53,6 @@
   note = {Questions whose knowledge and whose good are served by data practices. Data collection involves epistemic choices about what to measure, how to categorize - choices that advantage some groups' perspectives while disadvantaging others. Relevant to ontological and epistemic dimensions of specifying groups.}
 }
 
-@article{Hullman2021,
-  title = {The Epistemic and the Agonistic: Cataloguing the Uncertainty in Data-Driven Decision-Making},
-  author = {Hullman, Jessica},
-  journal = {Big Data \& Society},
-  year = {2021},
-  note = {Distinguishes epistemic uncertainty (lack of knowledge) from agonistic uncertainty (disagreement about values/priorities). Both present in algorithmic fairness. Statistical uncertainty about group performance is epistemic. Disagreement about which groups matter or what fairness requires is agonistic. Different types require different responses.}
-}
-
 @article{Hüllermeier2021,
   title = {Aleatoric and Epistemic Uncertainty in Machine Learning: An Introduction to Concepts and Methods},
   author = {Hüllermeier, Eyke and Waegeman, Willem},
@@ -68,26 +64,18 @@
   note = {Distinction between aleatoric (irreducible probabilistic variability) and epistemic (reducible through more knowledge) uncertainty is major importance in ML. Epistemic uncertainty known as systematic uncertainty - things one could in principle know but does not in practice. Epistemic uncertainty reflects uncertainty about estimates due to limited sample size. Allows disentangling task-inherent (aleatoric) from sampling (epistemic) effects. What counts as each type depends on level of model simplification and context.}
 }
 
-@article{Bhatt2021,
+@inproceedings{Bhatt2021,
   title = {Uncertainty as a Form of Transparency: Measuring, Communicating, and Using Uncertainty},
   author = {Bhatt, Umang and Antorán, Javier and Zhang, Yunfeng and Liao, Q. Vera and Sattigeri, Prasanna and Fogliato, Riccardo and Melançon, Gabrielle and Krishnan, Ranganath and Stanley, Jason and Tickoo, Omesh and others},
-  journal = {Proceedings of the 2021 AAAI/ACM Conference on AI, Ethics, and Society},
+  booktitle = {Proceedings of the 2021 AAAI/ACM Conference on AI, Ethics, and Society},
   pages = {401--413},
   year = {2021},
   note = {Argues uncertainty quantification crucial for responsible AI. Making uncertainty visible enables more epistemically responsible inferences. Particularly important for claims about small groups with high epistemic uncertainty. Failing to communicate uncertainty can mislead about reliability of group-level inferences.}
 }
 
-@article{Fazelpour2020,
-  title = {The Data Sciences and Epistemic Injustice},
-  author = {Fazelpour, Sina and Danks, David},
-  journal = {Philosophy \& Technology},
-  year = {2020},
-  note = {Examines how data science practices can perpetuate epistemic injustice. Choices about data collection, categories, modeling approaches can systematically privilege some knowers/perspectives while disadvantaging others. Relevant to epistemic dimensions of determining which groups to include in fairness analysis.}
-}
-
-@incollection{SEPAlgorithmicFairness2021,
+@incollection{SEPAlgorithmicFairness2025,
   title = {Algorithmic Fairness},
-  author = {Vredenburgh, Kate},
+  author = {Hellman, Deborah},
   booktitle = {The Stanford Encyclopedia of Philosophy},
   editor = {Zalta, Edward N.},
   year = {2025},
@@ -100,40 +88,47 @@
   title = {Algorithmic Fairness and the Situated Dynamics of Justice},
   author = {Fazelpour, Sina and Lipton, Zachary C.},
   journal = {Canadian Journal of Philosophy},
+  volume = {52},
+  number = {1},
+  pages = {44--60},
   year = {2023},
   doi = {10.1017/can.2022.38},
   note = {Argues fairness must be understood in situated context rather than abstract. Different contexts involve different epistemic positions, power dynamics, and justice considerations. What counts as epistemically responsible inference about groups depends on social and political context.}
 }
 
-@article{Eubanks2018,
+@book{Eubanks2018,
   title = {Automating Inequality: How High-Tech Tools Profile, Police, and Punish the Poor},
   author = {Eubanks, Virginia},
   year = {2018},
   publisher = {St. Martin's Press},
+  isbn = {9781250074317},
   note = {Documents how automated systems make inferences about marginalized groups with insufficient epistemic basis. Systems claim certainty about group properties based on sparse, biased data. Epistemic irresponsibility compounds material harms. Relevant to epistemic requirements for making claims about intersectional groups.}
 }
 
-@article{Benjamin2019,
+@book{Benjamin2019,
   title = {Race After Technology: Abolitionist Tools for the New Jim Code},
   author = {Benjamin, Ruha},
   year = {2019},
   publisher = {Polity Press},
+  isbn = {9781509526437},
   note = {Examines how technologies encode assumptions about racial and other social groups. Making inferences about groups involves epistemic choices about which group properties are real/meaningful. These choices often made without adequate epistemic basis or input from affected communities. Epistemic injustice in group categorization.}
 }
 
-@article{Noble2018,
+@book{Noble2018,
   title = {Algorithms of Oppression: How Search Engines Reinforce Racism},
   author = {Noble, Safiya Umoja},
   year = {2018},
   publisher = {NYU Press},
+  isbn = {9781479837243},
   note = {Shows how algorithmic systems make and perpetuate epistemic claims about groups (especially intersectional groups like Black women) without adequate basis. Systems both reflect and produce knowledge about groups - epistemic and political dimensions intertwined.}
 }
 
-@article{ONeill2016,
+@book{ONeill2016,
   title = {Weapons of Math Destruction: How Big Data Increases Inequality and Threatens Democracy},
-  author = {O'Neill, Cathy},
+  author = {O'Neil, Cathy},
   year = {2016},
   publisher = {Crown},
+  isbn = {9780553418811},
   note = {Documents cases where algorithmic systems make high-stakes inferences about groups with insufficient data and without appropriate uncertainty quantification. Failure to acknowledge epistemic limitations leads to overconfident, often harmful, inferences about marginalized groups.}
 }
 
@@ -155,13 +150,14 @@
   number = {12},
   pages = {86--92},
   year = {2021},
+  doi = {10.1145/3458723},
   note = {Proposes transparency framework for datasets. Part of epistemic responsibility in using data is documenting how categories defined, measured, and validated. Particularly important for demographic categories used in fairness assessment. Without clear epistemic grounding, unclear what inferences about groups are warranted.}
 }
 
-@article{Raji2020,
+@inproceedings{Raji2020,
   title = {Closing the AI Accountability Gap: Defining an End-to-End Framework for Internal Algorithmic Auditing},
   author = {Raji, Inioluwa Deborah and Smart, Andrew and White, Rebecca N. and Mitchell, Margaret and Gebru, Timnit and Hutchinson, Ben and Smith-Loud, Jamila and Theron, Daniel and Barnes, Parker},
-  journal = {Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency},
+  booktitle = {Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency},
   pages = {33--44},
   year = {2020},
   note = {Proposes framework for algorithmic auditing including epistemic requirements. Audits must account for uncertainty, especially for small/intersectional groups. Making claims about fairness for groups requires epistemic warrant - adequate data, valid measurements, appropriate statistical methods accounting for uncertainty.}
@@ -174,5 +170,6 @@
   volume = {583},
   pages = {169},
   year = {2020},
+  doi = {10.1038/d41586-020-02003-2},
   note = {Argues focus on fairness metrics misses deeper epistemic and political questions: Who has power to define groups, determine what counts as fairness, validate claims about groups? Epistemic authority over group categories is form of power. Fairness debates are partly epistemic disagreements about group ontology.}
 }
