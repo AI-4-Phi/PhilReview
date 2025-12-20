@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "WebSearch",
+      "WebFetch",
+      "Bash(ls:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
 Date: Dec 19, 2025. By Johannes
 Updated: Dec 20, 2025.
 
-- WebSearch has extremely high usage costs. Replace with MCPs (google scholar, brave search)
+- WebSearch has extremely high usage costs. Replace with Skill → **Plan ready**: `.claude/skills/philosophy-research/IMPLEMENTATION-PLAN.md`
 - ensure that lit researcher takes better notes (Johannes already reminded him to do that, need to check how it goes next time)
 - Augment agents with skill. E.g. Skill for reading and writing .bib files? Or for handling text files (reading, writing, merging)
     - https://claude-plugins.dev/skills/@K-Dense-AI/claude-scientific-skills/citation-management
