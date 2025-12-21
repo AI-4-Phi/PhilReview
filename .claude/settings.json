@@ -2,10 +2,21 @@
   "permissions": {
     "allow": [
       "Read",
+      "Write",
+      "Edit",
+      "Grep",
+      "Glob",
       "WebSearch",
       "WebFetch",
+      "Git",
       "Bash(ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(python:*)",
+      "Bash(for:*)",
+      "Bash(source:*)",
+      "Bash(conda:*)",
+      "Bash(echo:*)"
     ]
   }
 }
