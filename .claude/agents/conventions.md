@@ -146,7 +146,9 @@ Files:
 - ❌ Never fabricate papers, authors, or publications
 - ❌ Never create synthetic DOIs
 - ❌ Never cite papers not verified through search
-- ✅ Only cite papers found and verified via WebSearch
+- ✅ Only cite papers found via skill scripts (s2_search, search_openalex, etc.)
+- ✅ Papers from structured APIs are verified at search time
+- ✅ Use `verify_paper.py` for DOI verification when needed
 - ✅ If DOI unavailable, omit the field
 
 ### Citation Integration in Prose

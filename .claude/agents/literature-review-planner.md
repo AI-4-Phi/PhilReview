@@ -1,7 +1,8 @@
 ---
 name: literature-review-planner
 description: Plans comprehensive literature review structure for research proposals. Analyzes research ideas and creates domain decomposition with search strategies.
-tools: Read, Write, WebFetch, WebSearch, Bash
+tools: Read, Write, WebFetch, Bash
+skills: philosophy-research
 model: opus
 ---
 
@@ -80,7 +81,7 @@ You are a strategic planning specialist for philosophical literature reviews. Yo
 
 ## Notes for Researchers
 
-[Special instructions: use WebSearch extensively, include papers from current year, etc.]
+[Special instructions: use philosophy-research skill scripts extensively, prioritize SEP for foundational context, include recent papers via search_arxiv.py or s2_search.py with --recent flag, etc.]
 ```
 
 ## Planning Guidelines
@@ -103,10 +104,17 @@ You are a strategic planning specialist for philosophical literature reviews. Yo
 ### Search Strategy Guidelines
 
 For each domain, specify:
-- **Primary sources**: Where to start (SEP, key journals)
-- **Emphasize WebSearch**: Agents should search extensively, include recent papers
-- **Search terms**: 3-8 specific terms
+- **Primary sources**: Where to start (SEP via `search_sep.py`, PhilPapers via `search_philpapers.py`)
+- **Skill scripts**: Domain researchers use `philosophy-research` skill with structured API searches
+- **Search terms**: 3-8 specific terms for use with `s2_search.py`, `search_openalex.py`
 - **Quality criteria**: What makes a paper "key" vs "peripheral"
+
+**Available search scripts** (for reference when planning):
+- `search_sep.py` / `fetch_sep.py` — SEP discovery and content extraction
+- `search_philpapers.py` — PhilPapers via Brave
+- `s2_search.py` — Semantic Scholar (broad academic)
+- `search_openalex.py` — OpenAlex (250M+ works, cross-disciplinary)
+- `search_arxiv.py` — arXiv preprints (AI ethics, recent work)
 
 ### Balancing Coverage
 

@@ -4,39 +4,58 @@
 
 This orchestrator uses a consistent architectural pattern for computationally intensive phases: **multiple agents write to separate files, then orchestrator assembles the final output**.
 
+## Philosophy-Research Skill
+
+Domain researchers and citation validators use the `philosophy-research` skill (`.claude/skills/philosophy-research/`) which provides structured API access to academic sources:
+
+| Script | Purpose | API |
+|--------|---------|-----|
+| `s2_search.py` | Paper discovery | Semantic Scholar |
+| `s2_citations.py` | Citation traversal | Semantic Scholar |
+| `search_openalex.py` | Broad academic search | OpenAlex (250M+ works) |
+| `search_arxiv.py` | Preprint search | arXiv |
+| `search_sep.py` | SEP discovery | Brave → SEP |
+| `fetch_sep.py` | SEP content extraction | Direct SEP |
+| `search_philpapers.py` | PhilPapers search | Brave → PhilPapers |
+| `verify_paper.py` | DOI verification | CrossRef |
+
+**Key benefit**: Papers discovered via structured APIs are verified at search time, eliminating the need for a separate validation phase.
+
 ## Pattern Implementation
 
 ### Phase 2: Parallel Domain Literature Search
 
-**Pattern**: Multiple researchers → Individual files → Validated together
+**Pattern**: Multiple researchers → Individual BibTeX files → Used by synthesis-planner
 
 ```
 Input: lit-review-plan.md (identifies 7 domains)
 
 Parallel Execution:
-├── @domain-literature-researcher #1 → literature-domain-1.md
-├── @domain-literature-researcher #2 → literature-domain-2.md
-├── @domain-literature-researcher #3 → literature-domain-3.md
-├── @domain-literature-researcher #4 → literature-domain-4.md
-├── @domain-literature-researcher #5 → literature-domain-5.md
-├── @domain-literature-researcher #6 → literature-domain-6.md
-└── @domain-literature-researcher #7 → literature-domain-7.md
+├── @domain-literature-researcher #1 → literature-domain-1.bib
+├── @domain-literature-researcher #2 → literature-domain-2.bib
+├── @domain-literature-researcher #3 → literature-domain-3.bib
+├── @domain-literature-researcher #4 → literature-domain-4.bib
+├── @domain-literature-researcher #5 → literature-domain-5.bib
+├── @domain-literature-researcher #6 → literature-domain-6.bib
+└── @domain-literature-researcher #7 → literature-domain-7.bib
 
 Each agent:
 - Isolated context
-- Searches specific domain
-- Produces compact bibliography (1500-3000 words)
+- Uses philosophy-research skill scripts for structured API searches
+- Produces valid BibTeX file with rich metadata
+- Papers verified at search time via APIs
 - Independent of other researchers
 
 Orchestrator:
 - Tracks completion in task-progress.md
 - All files used together by synthesis-planner
 - No explicit assembly needed (planner reads all)
+- No separate validation phase needed
 ```
 
-### Phase 4: Section-by-Section Synthesis Writing
+### Phase 3 & 4: Synthesis Planning and Section-by-Section Writing
 
-**Pattern**: Multiple writers → Individual section files → Assembled into draft
+**Pattern**: Planner creates outline → Multiple writers → Individual section files → Assembled into draft
 
 ```
 Input: synthesis-outline.md (identifies 5 sections)
@@ -126,32 +145,32 @@ Phase 1: Planning
 └── Context: ~3k words ✓
 
 Phase 2: Domain Search (MULTI-FILE PATTERN)
-├── Per researcher: 
+├── Per researcher:
 │   ├── Input: Plan excerpt (~500 words)
-│   ├── Search: Web (isolated context)
-│   └── Output: domain file (~2.5k words)
+│   ├── Search: Skill scripts (structured APIs, isolated context)
+│   └── Output: BibTeX file (~2.5k words including metadata)
 ├── Context per researcher: ~10k words ✓
 └── Total output: 7 files × 2.5k = 17.5k words
 
 Phase 3: Synthesis Planning
-├── Input: All domain files (~17.5k words) + plan (~2k)
+├── Input: All domain BibTeX files (~17.5k words) + plan (~2k)
 ├── Output: synthesis-outline.md (~2.5k words)
 └── Context: ~20k words ✓
 
 Phase 4: Synthesis Writing (MULTI-FILE PATTERN)
 ├── Per section:
-│   ├── Input: Outline (~2.5k) + relevant domains (~5k)
+│   ├── Input: Outline (~2.5k) + relevant BibTeX files (~5k)
 │   ├── Output: section file (~1.5k words)
 │   └── Context: ~9k words ✓
-├── Assembly: cat synthesis-section-*.md > draft.md
+├── Assembly: cat synthesis-section-*.md > literature-review-final.md
 └── Total output: 5 files × 1.5k = 7.5k words
 
-Phase 5: Editorial Review
+(Optional) Editorial Review
 ├── Input: Draft (~7.5k words)
 ├── Output: Final (~8k words) + notes (~1k)
 └── Context: ~16k words ✓
 
-Phase 6: Novelty Assessment
+(Optional) Novelty Assessment
 ├── Input: Final review (~8k words) + idea (~1k)
 ├── Output: Executive assessment (~2k words)
 └── Context: ~11k words ✓
@@ -160,21 +179,23 @@ Phase 6: Novelty Assessment
 **Maximum context in any phase: ~20k words (Phase 3)**
 **Far below 200k token limit throughout**
 
+**Note**: Citation validation phase removed. Domain researchers use structured API searches via the philosophy-research skill, which returns verified papers with accurate metadata.
+
 ## File Organization
 
 ```
-research-proposal-literature-review/
+reviews/[project-name]/
 ├── task-progress.md                      # State tracker
 │
 ├── lit-review-plan.md                    # Phase 1 output
 │
-├── literature-domain-1.md                # Phase 2 outputs (multi-file)
-├── literature-domain-2.md
-├── literature-domain-3.md
-├── literature-domain-4.md
-├── literature-domain-5.md
-├── literature-domain-6.md
-├── literature-domain-7.md
+├── literature-domain-1.bib               # Phase 2 outputs (BibTeX, multi-file)
+├── literature-domain-2.bib
+├── literature-domain-3.bib
+├── literature-domain-4.bib
+├── literature-domain-5.bib
+├── literature-domain-6.bib
+├── literature-domain-7.bib
 │
 ├── synthesis-outline.md                  # Phase 3 output
 │
@@ -183,15 +204,28 @@ research-proposal-literature-review/
 ├── synthesis-section-3.md
 ├── synthesis-section-4.md
 ├── synthesis-section-5.md
-├── state-of-the-art-review-draft.md     # Phase 4 assembled
+├── literature-review-final.md            # Phase 4 assembled
 │
-├── state-of-the-art-review-final.md     # Phase 5 output
+├── state-of-the-art-review-final.md      # (Optional) Editorial output
 ├── editorial-notes.md
 │
-└── executive-assessment.md               # Phase 6 output
+└── executive-assessment.md               # (Optional) Novelty output
+
+.claude/skills/philosophy-research/
+├── SKILL.md                              # Skill definition
+└── scripts/
+    ├── s2_search.py                      # Semantic Scholar search
+    ├── s2_citations.py                   # Citation traversal
+    ├── search_openalex.py                # OpenAlex search
+    ├── search_arxiv.py                   # arXiv search
+    ├── search_sep.py                     # SEP discovery
+    ├── fetch_sep.py                      # SEP content extraction
+    ├── search_philpapers.py              # PhilPapers search
+    ├── verify_paper.py                   # CrossRef verification
+    └── rate_limiter.py                   # Shared rate limiting
 ```
 
-**Multi-file phases clearly visible**: Phase 2 (7 files) and Phase 4 (5 files)
+**Multi-file phases clearly visible**: Phase 2 (7 BibTeX files) and Phase 4 (5 section files)
 
 ## Key Design Decisions
 

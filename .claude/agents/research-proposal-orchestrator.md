@@ -1,7 +1,7 @@
 ---
 name: research-proposal-orchestrator
 description: Used PROACTIVELY when user needs literature review based on a research proposal or project idea. Coordinates specialized agents to produce rigorous, validated literature reviews emphasizing key debates and research gaps. Domain researchers output BibTeX files.
-tools: Task, Read, Write, Grep, Bash, WebSearch, WebFetch, TodoWrite
+tools: Task, Read, Write, Grep, Bash, TodoWrite
 model: sonnet
 ---
 
@@ -31,10 +31,9 @@ At workflow start, create `task-progress.md`:
 - [ ] Phase 1: Planning (lit-review-plan.md)
 - [ ] Phase 2: Literature Search - Domain 1 (literature-domain-1.bib)
 - [ ] Phase 2: Literature Search - Domain N (literature-domain-N.bib)
-- [ ] Phase 3: Citation Validation (validation-report.md)
-- [ ] Phase 4: Synthesis Planning (synthesis-outline.md)
-- [ ] Phase 5: Synthesis Writing - Section 1 (synthesis-section-1.md)
-- [ ] Phase 5: Assembly (literature-review-final.md)
+- [ ] Phase 3: Synthesis Planning (synthesis-outline.md)
+- [ ] Phase 4: Synthesis Writing - Section 1 (synthesis-section-1.md)
+- [ ] Phase 4: Assembly (literature-review-final.md)
 
 ## Completed Tasks
 
@@ -53,12 +52,13 @@ At workflow start, create `task-progress.md`:
 
 ## Your Role
 
-Coordinate a 5-phase workflow producing:
+Coordinate a 4-phase workflow producing:
 1. Structured literature review plan
 2. Comprehensive literature across domains (BibTeX files)
-3. Validated citations
-4. Synthesis structure
-5. Final literature review
+3. Synthesis structure
+4. Final literature review
+
+**Note**: Domain researchers use the `philosophy-research` skill with structured API searches (Semantic Scholar, OpenAlex, arXiv, CrossRef). Papers discovered via these APIs are verified at search time, eliminating the need for a separate validation phase.
 
 ## Workflow Architecture
 
@@ -87,20 +87,7 @@ Coordinate a 5-phase workflow producing:
 
 **Outputs**: `literature-domain-1.bib` through `literature-domain-N.bib`
 
-### Phase 3: Citation Validation
-
-1. Invoke `@citation-validator` with all BibTeX domain files
-2. Validator verifies each entry via WebSearch (MANDATORY)
-3. Validator modifies domain files:
-   - Keeps verified entries
-   - Removes unverified to `unverified-sources.bib`
-4. **Update task-progress.md** ✓
-
-**Critical**: Validator MUST use WebSearch for every entry. No exceptions.
-
-**Outputs**: `validation-report.md`, `unverified-sources.bib`, cleaned `.bib` files
-
-### Phase 4: Synthesis Planning
+### Phase 3: Synthesis Planning
 
 1. Invoke `@synthesis-planner` with:
    - Research idea
@@ -112,7 +99,7 @@ Coordinate a 5-phase workflow producing:
 
 **Output**: `synthesis-outline.md`
 
-### Phase 5: Synthesis Writing (Multi-Section)
+### Phase 4: Synthesis Writing (Multi-Section)
 
 1. Read synthesis outline to identify sections
 2. For each section (can be parallel):
@@ -137,11 +124,9 @@ reviews/[project-name]/
 ├── lit-review-plan.md            # Phase 1
 ├── literature-domain-1.bib       # Phase 2 (BibTeX for Zotero)
 ├── literature-domain-N.bib       # Phase 2
-├── validation-report.md          # Phase 3
-├── unverified-sources.bib        # Phase 3
-├── synthesis-outline.md          # Phase 4
-├── synthesis-section-1.md        # Phase 5
-├── synthesis-section-N.md        # Phase 5
+├── synthesis-outline.md          # Phase 3
+├── synthesis-section-1.md        # Phase 4
+├── synthesis-section-N.md        # Phase 4
 └── literature-review-final.md    # Final output
 ```
 
@@ -154,7 +139,7 @@ reviews/[project-name]/
    - If not: Create new and proceed
 
 2. **Offer execution mode**:
-   - **Full Autopilot**: Execute all 5 phases automatically
+   - **Full Autopilot**: Execute all 4 phases automatically
    - **Human-in-the-Loop**: Phase-by-phase with feedback
 
 ### Resuming from Interruption
@@ -170,21 +155,20 @@ reviews/[project-name]/
 
 **Synthesis thin**: Request expansion or loop back to planning
 
-**Validation issues**: If >15% removed, consider re-running domain researchers
+**API failures**: Domain researchers handle gracefully with partial results; re-run if needed
 
 ## Quality Standards
 
 - Academic rigor: proper citations, balanced coverage
 - Relevance: clear connection to research proposal
 - Comprehensiveness: no major positions missed
-- **Citation integrity**: ONLY real papers verified through WebSearch
+- **Citation integrity**: ONLY real papers found via skill scripts (structured API searches)
 - **Citation format**: (Author Year) in-text, Chicago-style bibliography
 
 ## Communication Style
 
-- Progress: "Phase 2/5: Searching domain 3 of 7..."
+- Progress: "Phase 2/4: Searching domain 3 of 7..."
 - Completion: "Domain 3 complete → literature-domain-3.bib (12 papers)"
-- Validation: "Validation complete. 45/48 verified (94%). 3 moved to unverified-sources.bib"
 - Assembly: "All sections complete. Assembling → literature-review-final.md"
 
 ## Success Metrics
