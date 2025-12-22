@@ -21,6 +21,7 @@ import arxiv
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rate_limiter import get_limiter
+from search_cache import cache_key, get_cache, put_cache
 
 
 def log_progress(message: str) -> None:
@@ -78,11 +79,40 @@ def main():
     parser.add_argument("--recent", action="store_true", help="Sort by submission date")
     parser.add_argument("--year", help="Filter to specific year")
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--no-cache", action="store_true", help="Disable result caching")
 
     args = parser.parse_args()
 
     if not args.query and not args.id and not args.author and not args.title:
         output_error("", "config_error", "Must provide query, --id, --author, or --title")
+
+    # Generate cache key for searches (not direct ID lookups)
+    cache_params = {}
+    if not args.id:
+        cache_params = {
+            "query": args.query or "",
+            "limit": args.limit,
+            "recent": args.recent,
+        }
+        if args.author:
+            cache_params["author"] = args.author
+        if args.title:
+            cache_params["title"] = args.title
+        if args.abstract:
+            cache_params["abstract"] = args.abstract
+        if args.category:
+            cache_params["category"] = args.category
+        if args.year:
+            cache_params["year"] = args.year
+
+        key = cache_key(source="arxiv", **cache_params)
+
+        # Check cache first (unless --no-cache)
+        if not args.no_cache:
+            cached = get_cache(key)
+            if cached:
+                log_progress(f"Using cached results (cache key: {key})")
+                output_success(args.query or args.title or args.author, cached)
 
     limiter = get_limiter("arxiv")
     client = arxiv.Client(page_size=min(args.limit, 100), delay_seconds=0, num_retries=3)
@@ -151,6 +181,12 @@ def main():
                 output_error(query_str, "not_found", "No papers found", 1)
 
             log_progress(f"Search complete: {len(results)} papers found")
+
+            # Cache results (unless --no-cache)
+            if not args.no_cache:
+                if put_cache(key, results):
+                    log_progress(f"Cached results (cache key: {key})")
+
             output_success(query_str, results)
 
     except arxiv.HTTPError as e:

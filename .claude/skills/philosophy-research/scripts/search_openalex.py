@@ -45,6 +45,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from rate_limiter import ExponentialBackoff, get_limiter
+from search_cache import cache_key, get_cache, put_cache
 
 # OpenAlex API configuration
 OPENALEX_BASE_URL = "https://api.openalex.org"
@@ -437,6 +438,11 @@ def main():
         action="store_true",
         help="Print debug information"
     )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable result caching"
+    )
 
     args = parser.parse_args()
 
@@ -451,6 +457,42 @@ def main():
 
     if not args.email and args.debug:
         print("DEBUG: OPENALEX_EMAIL not set, using public pool", file=sys.stderr)
+
+    # Generate cache key for searches (not direct lookups)
+    cache_params = {}
+    if not (args.doi or args.id):
+        cache_params = {
+            "query": args.query or "",
+            "limit": args.limit,
+        }
+        if args.year:
+            cache_params["year"] = args.year
+        if args.cites:
+            cache_params["cites"] = args.cites
+        if args.oa_only:
+            cache_params["oa_only"] = True
+        if args.min_citations:
+            cache_params["min_citations"] = args.min_citations
+        if args.type:
+            cache_params["type"] = args.type
+
+        key = cache_key(source="openalex", **cache_params)
+
+        # Check cache first (unless --no-cache)
+        if not args.no_cache:
+            cached = get_cache(key)
+            if cached:
+                log_progress(f"Using cached results (cache key: {key})")
+                if isinstance(cached, tuple):  # (results, errors) tuple
+                    results, errors = cached
+                    if errors:
+                        query_str = args.query or f"cites:{args.cites}"
+                        warning = f"Completed with {len(errors)} error(s). Found {len(results)} papers."
+                        output_partial(query_str, results, errors, warning)
+                    else:
+                        output_success(args.query or f"cites:{args.cites}", results)
+                else:
+                    output_success(args.query or f"cites:{args.cites}", cached)
 
     # Initialize rate limiter and backoff
     limiter = get_limiter("openalex")
@@ -482,6 +524,11 @@ def main():
 
             if not results and not errors:
                 output_error(query_str, "not_found", "No papers found matching query", exit_code=1)
+
+            # Cache results (unless --no-cache)
+            if not args.no_cache:
+                if put_cache(key, (results, errors)):
+                    log_progress(f"Cached results (cache key: {key})")
 
             if errors:
                 warning = f"Completed with {len(errors)} error(s). Found {len(results)} papers."
