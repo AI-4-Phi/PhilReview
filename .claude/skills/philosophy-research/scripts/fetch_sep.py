@@ -23,7 +23,7 @@ import requests
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from rate_limiter import get_limiter
+from rate_limiter import ExponentialBackoff, get_limiter
 
 SEP_BASE = "https://plato.stanford.edu/entries"
 
@@ -212,45 +212,63 @@ def extract_metadata(soup: BeautifulSoup) -> dict:
     return meta
 
 
-def fetch_sep_article(entry_name: str, limiter, debug: bool = False) -> dict:
-    """Fetch and parse SEP article."""
+def fetch_sep_article(entry_name: str, limiter, backoff: ExponentialBackoff, debug: bool = False) -> dict:
+    """Fetch and parse SEP article with retry logic."""
     url = f"{SEP_BASE}/{entry_name}/"
 
     log_progress(f"Fetching SEP article: {entry_name}")
 
-    limiter.wait()
-    if debug:
-        print(f"DEBUG: GET {url}", file=sys.stderr)
+    for attempt in range(backoff.max_attempts):
+        limiter.wait()
+        if debug:
+            print(f"DEBUG: GET {url}", file=sys.stderr)
 
-    response = requests.get(url, timeout=30, headers={"User-Agent": "PhiloResearchBot/1.0"})
-    limiter.record()
+        try:
+            response = requests.get(url, timeout=30, headers={"User-Agent": "PhiloResearchBot/1.0"})
+            limiter.record()
 
-    if response.status_code == 404:
-        raise LookupError(f"SEP entry not found: {entry_name}")
-    elif response.status_code != 200:
-        raise RuntimeError(f"HTTP error: {response.status_code}")
+            if response.status_code == 404:
+                raise LookupError(f"SEP entry not found: {entry_name}")
+            elif response.status_code == 429:
+                log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
+                if not backoff.wait(attempt):
+                    raise RuntimeError("Rate limit exceeded after max retries")
+                log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
+                continue
+            elif response.status_code != 200:
+                raise RuntimeError(f"HTTP error: {response.status_code}")
 
-    log_progress(f"Parsing article content...")
+            log_progress(f"Parsing article content...")
 
-    soup = BeautifulSoup(response.text, "lxml")
+            soup = BeautifulSoup(response.text, "lxml")
 
-    # Get title
-    title_elem = soup.find("h1")
-    title = title_elem.get_text(strip=True) if title_elem else entry_name
+            # Get title
+            title_elem = soup.find("h1")
+            title = title_elem.get_text(strip=True) if title_elem else entry_name
 
-    log_progress(f"Article fetched: {title}")
+            log_progress(f"Article fetched: {title}")
 
-    return {
-        "url": url,
-        "entry_name": entry_name,
-        "title": title,
-        "metadata": extract_metadata(soup),
-        "preamble": extract_preamble(soup),
-        "toc": extract_toc(soup),
-        "sections": extract_sections(soup),
-        "bibliography": extract_bibliography(soup),
-        "related_entries": extract_related_entries(soup),
-    }
+            return {
+                "url": url,
+                "entry_name": entry_name,
+                "title": title,
+                "metadata": extract_metadata(soup),
+                "preamble": extract_preamble(soup),
+                "toc": extract_toc(soup),
+                "sections": extract_sections(soup),
+                "bibliography": extract_bibliography(soup),
+                "related_entries": extract_related_entries(soup),
+            }
+
+        except requests.exceptions.RequestException as e:
+            log_progress(f"Network error: {str(e)[:100]}, retrying (attempt {attempt+1}/{backoff.max_attempts})...")
+            if attempt < backoff.max_attempts - 1:
+                backoff.wait(attempt)
+                log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
+                continue
+            raise RuntimeError(f"Network error: {e}")
+
+    raise RuntimeError("Max retries exceeded")
 
 
 def main():
@@ -273,9 +291,10 @@ def main():
             output_error(args.entry, "config_error", "Could not extract entry name from URL")
 
     limiter = get_limiter("sep_fetch")
+    backoff = ExponentialBackoff(max_attempts=5)
 
     try:
-        article = fetch_sep_article(entry_name, limiter, args.debug)
+        article = fetch_sep_article(entry_name, limiter, backoff, args.debug)
 
         # Filter output based on options
         if args.bibliography_only:
