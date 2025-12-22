@@ -37,6 +37,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from rate_limiter import ExponentialBackoff, get_limiter
+from search_cache import cache_key, get_cache, put_cache
 
 # Semantic Scholar API configuration
 S2_BASE_URL = "https://api.semanticscholar.org/graph/v1"
@@ -414,6 +415,11 @@ def main():
         action="store_true",
         help="Print debug information"
     )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable result caching"
+    )
 
     args = parser.parse_args()
 
@@ -429,6 +435,30 @@ def main():
 
     if not args.api_key and args.debug:
         print("DEBUG: S2_API_KEY not set, using unauthenticated access", file=sys.stderr)
+
+    # Generate cache key from query parameters
+    cache_params = {
+        "query": args.query,
+        "limit": args.limit,
+        "bulk": args.bulk,
+    }
+    if args.year:
+        cache_params["year"] = args.year
+    if args.field:
+        cache_params["field"] = args.field
+    if args.min_citations:
+        cache_params["min_citations"] = args.min_citations
+    if args.sort:
+        cache_params["sort"] = args.sort
+
+    key = cache_key(source="s2", **cache_params)
+
+    # Check cache first (unless --no-cache)
+    if not args.no_cache:
+        cached = get_cache(key)
+        if cached:
+            log_progress(f"Using cached results (cache key: {key})")
+            output_success(args.query, cached)
 
     # Initialize rate limiter and backoff
     limiter = get_limiter("semantic_scholar")
@@ -463,6 +493,11 @@ def main():
 
         if not results:
             output_error(args.query, "not_found", "No papers found matching query", exit_code=1)
+
+        # Cache results (unless --no-cache)
+        if not args.no_cache:
+            if put_cache(key, results):
+                log_progress(f"Cached results (cache key: {key})")
 
         output_success(args.query, results)
 
