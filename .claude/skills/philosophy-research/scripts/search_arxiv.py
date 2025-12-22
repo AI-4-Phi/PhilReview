@@ -23,6 +23,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rate_limiter import get_limiter
 
 
+def log_progress(message: str) -> None:
+    """Emit progress to stderr (visible to user, doesn't break JSON output)."""
+    print(f"[search_arxiv.py] {message}", file=sys.stderr, flush=True)
+
+
 def output_success(query: str, results: list) -> None:
     print(json.dumps({
         "status": "success", "source": "arxiv", "query": query,
@@ -85,6 +90,7 @@ def main():
     try:
         if args.id:
             arxiv_id = args.id.replace("arXiv:", "").replace("arxiv:", "")
+            log_progress(f"Looking up arXiv ID: {arxiv_id}")
             limiter.wait()
             search = arxiv.Search(id_list=[arxiv_id])
             results = list(client.results(search))
@@ -92,6 +98,7 @@ def main():
 
             if not results:
                 output_error(args.id, "not_found", f"arXiv ID not found: {arxiv_id}", 1)
+            log_progress(f"Found paper: {results[0].title[:50]}...")
             output_success(args.id, [format_result(results[0])])
 
         else:
@@ -109,6 +116,15 @@ def main():
                 query_parts.append(f"cat:{args.category}")
 
             query_str = " AND ".join(query_parts)
+
+            # Build search description
+            search_desc = f"'{query_str}'"
+            if args.category:
+                search_desc += f" (category={args.category})"
+            if args.year:
+                search_desc += f" (year={args.year})"
+
+            log_progress(f"Searching arXiv: {search_desc}, limit={args.limit}")
 
             sort_by = arxiv.SortCriterion.SubmittedDate if args.recent else arxiv.SortCriterion.Relevance
 
@@ -134,6 +150,7 @@ def main():
             if not results:
                 output_error(query_str, "not_found", "No papers found", 1)
 
+            log_progress(f"Search complete: {len(results)} papers found")
             output_success(query_str, results)
 
     except arxiv.HTTPError as e:

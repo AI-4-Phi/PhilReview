@@ -28,6 +28,11 @@ from rate_limiter import get_limiter
 SEP_BASE = "https://plato.stanford.edu/entries"
 
 
+def log_progress(message: str) -> None:
+    """Emit progress to stderr (visible to user, doesn't break JSON output)."""
+    print(f"[fetch_sep.py] {message}", file=sys.stderr, flush=True)
+
+
 def output_success(entry: str, result: dict) -> None:
     print(json.dumps({
         "status": "success", "source": "sep", "query": entry,
@@ -211,6 +216,8 @@ def fetch_sep_article(entry_name: str, limiter, debug: bool = False) -> dict:
     """Fetch and parse SEP article."""
     url = f"{SEP_BASE}/{entry_name}/"
 
+    log_progress(f"Fetching SEP article: {entry_name}")
+
     limiter.wait()
     if debug:
         print(f"DEBUG: GET {url}", file=sys.stderr)
@@ -223,11 +230,15 @@ def fetch_sep_article(entry_name: str, limiter, debug: bool = False) -> dict:
     elif response.status_code != 200:
         raise RuntimeError(f"HTTP error: {response.status_code}")
 
+    log_progress(f"Parsing article content...")
+
     soup = BeautifulSoup(response.text, "lxml")
 
     # Get title
     title_elem = soup.find("h1")
     title = title_elem.get_text(strip=True) if title_elem else entry_name
+
+    log_progress(f"Article fetched: {title}")
 
     return {
         "url": url,

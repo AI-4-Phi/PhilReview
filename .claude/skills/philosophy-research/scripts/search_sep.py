@@ -24,6 +24,11 @@ from rate_limiter import ExponentialBackoff, get_limiter
 BRAVE_URL = "https://api.search.brave.com/res/v1/web/search"
 
 
+def log_progress(message: str) -> None:
+    """Emit progress to stderr (visible to user, doesn't break JSON output)."""
+    print(f"[search_sep.py] {message}", file=sys.stderr, flush=True)
+
+
 def output_success(query: str, results: list) -> None:
     print(json.dumps({
         "status": "success", "source": "sep_via_brave", "query": query,
@@ -89,6 +94,8 @@ def search_sep(
     debug: bool = False
 ) -> tuple[list[dict], list[dict]]:
     """Search SEP via Brave API."""
+    log_progress(f"Searching SEP: '{query}', limit={limit}")
+
     params = {
         "q": f"site:plato.stanford.edu {query}",
         "count": 20,
@@ -123,6 +130,7 @@ def search_sep(
                     web_results = data.get("web", {}).get("results", [])
 
                     if not web_results:
+                        log_progress(f"Search complete: {len(all_results)} entries found")
                         return all_results, errors
 
                     for item in web_results:
@@ -131,12 +139,16 @@ def search_sep(
                             if len(all_results) < limit:
                                 all_results.append(format_result(item))
 
+                    log_progress(f"Retrieved {len(all_results)} entries...")
                     break
 
                 elif response.status_code == 429:
+                    log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                     if not backoff.wait(attempt):
+                        log_progress(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({"type": "rate_limit", "message": "Rate limit exceeded", "recoverable": True})
                         return all_results, errors
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
 
                 elif response.status_code == 401:
@@ -146,15 +158,19 @@ def search_sep(
                     raise RuntimeError(f"Brave API error: {response.status_code}")
 
             except requests.exceptions.RequestException as e:
+                log_progress(f"Network error: {str(e)[:100]}, retrying (attempt {attempt+1}/{backoff.max_attempts})...")
                 if attempt < backoff.max_attempts - 1:
                     backoff.wait(attempt)
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
+                log_progress(f"Max retries reached after network errors, returning {len(all_results)} partial results")
                 errors.append({"type": "network_error", "message": str(e), "recoverable": True})
                 return all_results, errors
 
         if not all_pages:
             break
 
+    log_progress(f"Search complete: {len(all_results)} entries found")
     return all_results, errors
 
 

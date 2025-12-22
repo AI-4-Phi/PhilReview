@@ -41,6 +41,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from rate_limiter import ExponentialBackoff, get_limiter
 
+
+def log_progress(message: str) -> None:
+    """Emit progress to stderr (visible to user, doesn't break JSON output)."""
+    print(f"[verify_paper.py] {message}", file=sys.stderr, flush=True)
+
+
 # Standard output helpers
 def output_success(query: dict, result: dict) -> None:
     """Output successful verification result."""
@@ -156,6 +162,8 @@ def verify_by_doi(doi: str, limiter, backoff: ExponentialBackoff, mailto: str, d
     Returns:
         Paper metadata dict on success, raises exception on failure
     """
+    log_progress(f"Verifying DOI: {doi}")
+
     url = f"https://api.crossref.org/works/{doi}"
     params = {}
     if mailto:
@@ -176,22 +184,28 @@ def verify_by_doi(doi: str, limiter, backoff: ExponentialBackoff, mailto: str, d
 
             if response.status_code == 200:
                 data = response.json()
-                return format_result(data.get("message", {}), "doi_lookup")
+                result = format_result(data.get("message", {}), "doi_lookup")
+                log_progress(f"DOI verified: {result.get('title', '')[:50]}...")
+                return result
 
             elif response.status_code == 404:
                 raise LookupError(f"DOI {doi} not found in CrossRef")
 
             elif response.status_code == 429:
+                log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                 if not backoff.wait(attempt):
                     raise RuntimeError("Rate limit exceeded after max retries")
+                log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                 continue
 
             else:
                 raise RuntimeError(f"CrossRef API error: {response.status_code}")
 
         except requests.exceptions.RequestException as e:
+            log_progress(f"Network error: {str(e)[:100]}, retrying (attempt {attempt+1}/{backoff.max_attempts})...")
             if attempt < backoff.max_attempts - 1:
                 backoff.wait(attempt)
+                log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                 continue
             raise RuntimeError(f"Network error: {e}")
 
@@ -213,6 +227,15 @@ def search_by_metadata(
     Returns:
         Paper metadata dict on success, raises LookupError if not found
     """
+    # Build search description
+    search_desc = f"title='{title[:50]}...'"
+    if author:
+        search_desc += f" author={author}"
+    if year:
+        search_desc += f" year={year}"
+
+    log_progress(f"Searching CrossRef: {search_desc}")
+
     url = "https://api.crossref.org/works"
 
     params = {
@@ -293,19 +316,25 @@ def search_by_metadata(
                     if result_year and abs(result_year - year) > 1:
                         raise LookupError(f"Year mismatch: expected {year}, got {result_year}")
 
-                return format_result(top, "bibliographic_search", score)
+                result = format_result(top, "bibliographic_search", score)
+                log_progress(f"Paper found: {result.get('title', '')[:50]}... (score: {score:.1f})")
+                return result
 
             elif response.status_code == 429:
+                log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                 if not backoff.wait(attempt):
                     raise RuntimeError("Rate limit exceeded after max retries")
+                log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                 continue
 
             else:
                 raise RuntimeError(f"CrossRef API error: {response.status_code}")
 
         except requests.exceptions.RequestException as e:
+            log_progress(f"Network error: {str(e)[:100]}, retrying (attempt {attempt+1}/{backoff.max_attempts})...")
             if attempt < backoff.max_attempts - 1:
                 backoff.wait(attempt)
+                log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                 continue
             raise RuntimeError(f"Network error: {e}")
 

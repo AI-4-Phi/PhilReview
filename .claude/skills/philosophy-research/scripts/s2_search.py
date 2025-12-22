@@ -43,6 +43,11 @@ S2_BASE_URL = "https://api.semanticscholar.org/graph/v1"
 S2_FIELDS = "paperId,title,authors,year,abstract,citationCount,externalIds,url,venue,publicationTypes,journal"
 
 
+def log_progress(message: str) -> None:
+    """Emit progress to stderr (visible to user, doesn't break JSON output)."""
+    print(f"[s2_search.py] {message}", file=sys.stderr, flush=True)
+
+
 def output_success(query: str, results: list, source: str = "semantic_scholar") -> None:
     """Output successful search results."""
     print(json.dumps({
@@ -129,6 +134,17 @@ def relevance_search(
     Perform relevance-ranked search (default mode).
     Returns up to 100 results per request.
     """
+    # Build search description
+    search_desc = f"'{query}'"
+    if year:
+        search_desc += f" (year={year})"
+    if field:
+        search_desc += f" (field={field})"
+    if min_citations:
+        search_desc += f" (min_citations={min_citations})"
+
+    log_progress(f"Searching Semantic Scholar: {search_desc}, limit={limit}")
+
     url = f"{S2_BASE_URL}/paper/search"
 
     params = {
@@ -175,6 +191,7 @@ def relevance_search(
 
                     if not papers:
                         # No more results
+                        log_progress(f"Found {len(all_results)} papers total")
                         return all_results
 
                     for paper in papers:
@@ -182,14 +199,19 @@ def relevance_search(
 
                     # Check if there are more results
                     total = data.get("total", 0)
+                    log_progress(f"Retrieved {len(all_results)}/{min(limit, total)} papers...")
+
                     if offset + len(papers) >= total or len(papers) < params["limit"]:
+                        log_progress(f"Search complete: {len(all_results)} papers found")
                         return all_results
 
                     offset += len(papers)
                     break  # Success, move to next page
 
                 elif response.status_code == 429:
+                    log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                     if not backoff.wait(attempt):
+                        log_progress(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({
                             "type": "rate_limit",
                             "message": f"Rate limit exceeded at offset {offset}",
@@ -197,6 +219,7 @@ def relevance_search(
                         })
                         # Return partial results
                         return all_results
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
 
                 elif response.status_code == 400:
@@ -207,9 +230,12 @@ def relevance_search(
                     raise RuntimeError(f"S2 API error: {response.status_code}")
 
             except requests.exceptions.RequestException as e:
+                log_progress(f"Network error: {str(e)[:100]}, retrying (attempt {attempt+1}/{backoff.max_attempts})...")
                 if attempt < backoff.max_attempts - 1:
                     backoff.wait(attempt)
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
+                log_progress(f"Max retries reached after network errors, returning {len(all_results)} partial results")
                 errors.append({
                     "type": "network_error",
                     "message": str(e),
@@ -236,6 +262,17 @@ def bulk_search(
     Perform bulk search (no relevance ranking, up to 1000 per request).
     Supports boolean operators in query.
     """
+    # Build search description
+    search_desc = f"'{query}'"
+    if year:
+        search_desc += f" (year={year})"
+    if field:
+        search_desc += f" (field={field})"
+    if min_citations:
+        search_desc += f" (min_citations={min_citations})"
+
+    log_progress(f"Bulk searching Semantic Scholar: {search_desc}, limit={limit}")
+
     url = f"{S2_BASE_URL}/paper/search/bulk"
 
     params = {
@@ -286,21 +323,27 @@ def bulk_search(
                             break
                         all_results.append(format_paper(paper))
 
+                    log_progress(f"Retrieved {len(all_results)} papers...")
+
                     # Check for continuation token
                     token = data.get("token")
                     if not token or len(papers) == 0:
+                        log_progress(f"Bulk search complete: {len(all_results)} papers found")
                         return all_results
 
                     break  # Success, move to next page
 
                 elif response.status_code == 429:
+                    log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                     if not backoff.wait(attempt):
+                        log_progress(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({
                             "type": "rate_limit",
                             "message": "Rate limit exceeded during bulk search",
                             "recoverable": True
                         })
                         return all_results
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
 
                 elif response.status_code == 400:
