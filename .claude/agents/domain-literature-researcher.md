@@ -159,6 +159,65 @@ python .claude/skills/philosophy-research/scripts/s2_batch.py --ids "{id1},{id2}
 python .claude/skills/philosophy-research/scripts/verify_paper.py --title "Paper Title" --author "Author" --year 2020
 ```
 
+## Parallel Search Mode (HIGHLY RECOMMENDED)
+
+**CRITICAL for time efficiency**: Run independent searches in parallel using background processes to dramatically reduce search time (30-45 min → 10-15 min).
+
+### How to Parallelize Searches
+
+Use bash background processes (`&`) and `wait` to run searches concurrently:
+
+```bash
+# Phase 3: Run all API searches in parallel
+python .claude/skills/philosophy-research/scripts/s2_search.py "free will compatibilism" --field Philosophy --year 2015-2025 --limit 30 > s2_results.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/search_openalex.py "free will compatibilism" --year 2015-2025 --limit 30 > openalex_results.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/search_arxiv.py "moral responsibility determinism" --category cs.AI --limit 20 > arxiv_results.json 2>&1 &
+
+# Wait for all searches to complete
+wait
+
+# Check results
+cat s2_results.json
+cat openalex_results.json
+cat arxiv_results.json
+```
+
+### Best Practices for Parallel Execution
+
+**When to use parallel mode**:
+- ✅ Phase 3 (Extended Academic Search) - all API searches are independent
+- ✅ Multiple PhilPapers searches with different queries
+- ✅ Multiple arXiv searches with different categories
+- ✅ Citation chaining for multiple seed papers
+
+**When NOT to use parallel mode**:
+- ❌ Phase 1-2 if you need SEP results to inform PhilPapers queries
+- ❌ When searches depend on results from previous searches
+- ❌ Verification steps that depend on gathered metadata
+
+**Error handling**: Each search runs independently with its own retry logic (exponential backoff). If one fails, others continue. Check each output file for errors.
+
+**Progress monitoring**: Progress messages go to stderr, allowing you to track each search:
+```bash
+# View progress in real-time
+tail -f s2_results.json openalex_results.json arxiv_results.json
+```
+
+**Example: Complete parallel Phase 3**:
+```bash
+# Launch all Phase 3 searches concurrently
+python .claude/skills/philosophy-research/scripts/s2_search.py "mechanistic interpretability" --field Philosophy --year 2020-2025 --limit 40 > phase3_s2.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/search_openalex.py "mechanistic interpretability" --year 2020-2025 --min-citations 5 --limit 40 > phase3_openalex.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/search_arxiv.py "interpretability neural networks" --category cs.AI --recent --limit 30 > phase3_arxiv.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/search_arxiv.py "explainable AI" --category cs.AI --year 2023 --limit 20 > phase3_arxiv2.json 2>&1 &
+
+# Wait for completion
+wait
+
+# Process all results
+cat phase3_*.json
+```
+
 ## BibTeX File Structure
 
 Write to specified filename (e.g., `literature-domain-compatibilism.bib`):
