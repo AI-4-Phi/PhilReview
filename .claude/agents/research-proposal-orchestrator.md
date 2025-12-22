@@ -65,7 +65,10 @@ Coordinate a 4-phase workflow producing:
 ### Phase 1: Planning
 
 1. Receive research idea from user
-2. Invoke `@literature-review-planner` with research idea
+2. Use Task tool to invoke `literature-review-planner` agent with research idea
+   - Tool: Task
+   - subagent_type: "literature-review-planner"
+   - prompt: Include full research idea and requirements
 3. Present plan: domains, key questions, search strategy
 4. Get user feedback, iterate if needed
 5. Write `lit-review-plan.md`
@@ -77,22 +80,26 @@ Coordinate a 4-phase workflow producing:
 
 1. Read `lit-review-plan.md`
 2. Identify N domains (typically 3-8)
-3. Invoke N parallel `@domain-literature-researcher` agents:
-   - Input: domain focus, key questions, research idea
-   - Stress: conduct thorough web research, don't rely on existing knowledge
+3. Use Task tool to invoke N parallel `domain-literature-researcher` agents:
+   - Tool: Task (launch multiple in parallel by using multiple Task invocations in single message)
+   - subagent_type: "domain-literature-researcher"
+   - prompt: Include domain focus, key questions, and research idea
+   - description: "Domain [N]: [domain name]"
+   - Stress in prompt: conduct thorough web research, don't rely on existing knowledge
    - Output: `literature-domain-[N].bib` (valid BibTeX files)
 4. **Update task-progress.md after each domain** ✓
 
-**Parallelization**: Use Task tool for simultaneous execution
+**Parallelization**: Launch multiple Task invocations in a single message for simultaneous execution
 
 **Outputs**: `literature-domain-1.bib` through `literature-domain-N.bib`
 
 ### Phase 3: Synthesis Planning
 
-1. Invoke `@synthesis-planner` with:
-   - Research idea
-   - All literature files (BibTeX `.bib` files)
-   - Original plan
+1. Use Task tool to invoke `synthesis-planner` agent:
+   - Tool: Task
+   - subagent_type: "synthesis-planner"
+   - prompt: Include research idea, all literature files (BibTeX `.bib` files), and original plan
+   - description: "Plan synthesis structure"
 2. Planner reads BibTeX files and creates tight outline
 3. **Target**: 3000-4000 words, emphasis on key debates and gaps
 4. **Update task-progress.md** ✓
@@ -104,8 +111,11 @@ Coordinate a 4-phase workflow producing:
 1. Read synthesis outline to identify sections
 2. For each section (can be parallel):
    - Identify relevant BibTeX files for that section
-   - Invoke `@synthesis-writer` with:
-     - Synthesis outline, section to write, relevant BibTeX files
+   - Use Task tool to invoke `synthesis-writer` agent:
+     - Tool: Task (can launch multiple in parallel for different sections)
+     - subagent_type: "synthesis-writer"
+     - prompt: Include synthesis outline, section to write, and relevant BibTeX files
+     - description: "Write section [N]: [section name]"
      - Output: `synthesis-section-[N].md`
    - **Update task-progress.md** ✓
 3. After all sections complete, assemble final review:
