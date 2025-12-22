@@ -50,6 +50,11 @@ from rate_limiter import ExponentialBackoff, get_limiter
 OPENALEX_BASE_URL = "https://api.openalex.org"
 
 
+def log_progress(message: str) -> None:
+    """Emit progress to stderr (visible to user, doesn't break JSON output)."""
+    print(f"[search_openalex.py] {message}", file=sys.stderr, flush=True)
+
+
 def output_success(query: str, results: list) -> None:
     """Output successful search results."""
     print(json.dumps({
@@ -251,6 +256,14 @@ def search_works(
     Returns:
         Tuple of (results, errors)
     """
+    search_desc = f"'{query}'" if query else "direct lookup"
+    if year:
+        search_desc += f" (year={year})"
+    if min_citations:
+        search_desc += f" (min_citations={min_citations})"
+
+    log_progress(f"Searching OpenAlex: {search_desc}, limit={limit}")
+
     url = f"{OPENALEX_BASE_URL}/works"
 
     params = {
@@ -311,6 +324,7 @@ def search_works(
                     works = data.get("results", [])
 
                     if not works:
+                        log_progress(f"Search complete: {len(all_results)} papers found")
                         return all_results, errors
 
                     for work in works:
@@ -318,22 +332,28 @@ def search_works(
                             break
                         all_results.append(format_work(work))
 
+                    log_progress(f"Retrieved {len(all_results)} papers...")
+
                     # Get next cursor
                     meta = data.get("meta", {})
                     cursor = meta.get("next_cursor")
                     if not cursor:
+                        log_progress(f"Search complete: {len(all_results)} papers found")
                         return all_results, errors
 
                     break  # Success, move to next page
 
                 elif response.status_code == 429:
+                    log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                     if not backoff.wait(attempt):
+                        log_progress(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({
                             "type": "rate_limit",
                             "message": "Rate limit exceeded during pagination",
                             "recoverable": True
                         })
                         return all_results, errors
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
 
                 elif response.status_code == 400:
@@ -344,9 +364,12 @@ def search_works(
                     raise RuntimeError(f"OpenAlex API error: {response.status_code}")
 
             except requests.exceptions.RequestException as e:
+                log_progress(f"Network error: {str(e)[:100]}, retrying (attempt {attempt+1}/{backoff.max_attempts})...")
                 if attempt < backoff.max_attempts - 1:
                     backoff.wait(attempt)
+                    log_progress(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue
+                log_progress(f"Max retries reached after network errors, returning {len(all_results)} partial results")
                 errors.append({
                     "type": "network_error",
                     "message": str(e),
@@ -354,6 +377,7 @@ def search_works(
                 })
                 return all_results, errors
 
+    log_progress(f"Search complete: {len(all_results)} papers found")
     return all_results, errors
 
 
