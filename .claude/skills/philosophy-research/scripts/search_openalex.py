@@ -126,7 +126,7 @@ def format_work(work: dict) -> dict:
         if author_info:
             author = {
                 "name": author_info.get("display_name", ""),
-                "openalex_id": author_info.get("id", "").replace("https://openalex.org/", ""),
+                "openalex_id": (author_info.get("id") or "").replace("https://openalex.org/", ""),
             }
             if authorship.get("author", {}).get("orcid"):
                 author["orcid"] = authorship["author"]["orcid"]
@@ -161,7 +161,7 @@ def format_work(work: dict) -> dict:
     open_access = work.get("open_access", {}) or {}
 
     # Get OpenAlex ID
-    openalex_id = work.get("id", "").replace("https://openalex.org/", "")
+    openalex_id = (work.get("id") or "").replace("https://openalex.org/", "")
 
     return {
         "openalex_id": openalex_id,
