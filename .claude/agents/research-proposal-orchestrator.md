@@ -118,26 +118,93 @@ Coordinate a 4-phase workflow producing:
      - description: "Write section [N]: [section name]"
      - Output: `synthesis-section-[N].md`
    - **Update task-progress.md** ✓
-3. After all sections complete, assemble final review:
+3. After all sections complete, assemble final review with YAML frontmatter:
    ```bash
-   for f in synthesis-section-*.md; do cat "$f"; echo; echo; done > literature-review-final.md
-   ```
-4. **Update task-progress.md** ✓
+   # Create YAML frontmatter
+   cat > literature-review-final.md << 'EOF'
+   ---
+   title: "State-of-the-Art Literature Review: [Research Topic]"
+   author: [Author Name]
+   date: [YYYY-MM-DD]
+   bibliography: literature-all.bib
+   csl: chicago-author-date.csl
+   abstract: |
+     [1-2 sentence summary of the review's scope and key findings]
+   keywords:
+     - [keyword1]
+     - [keyword2]
+     - [keyword3]
+   ---
 
-**Outputs**: `synthesis-section-*.md` → assembled into `literature-review-final.md`
+   EOF
+
+   # Append all sections
+   for f in synthesis-section-*.md; do cat "$f"; echo; echo; done >> literature-review-final.md
+   ```
+
+   **YAML frontmatter fields** (fill in from research context):
+   - `title`: Include research topic
+   - `author`: From user context or leave as placeholder
+   - `date`: Current date (YYYY-MM-DD)
+   - `bibliography`: Points to aggregated BibTeX file
+   - `csl`: Chicago author-date (matches our citation style)
+   - `abstract`: Brief summary of review scope
+   - `keywords`: 3-5 key terms from the research
+
+4. Aggregate all domain BibTeX files into single file for Zotero import:
+   ```bash
+   for f in literature-domain-*.bib; do echo; cat "$f"; done > literature-all.bib
+   ```
+5. Clean up intermediate files:
+   ```bash
+   mkdir -p intermediate_files
+   mv task-progress.md intermediate_files/
+   mv lit-review-plan.md intermediate_files/
+   mv synthesis-outline.md intermediate_files/
+   mv synthesis-section-*.md intermediate_files/
+   mv literature-domain-*.bib intermediate_files/
+   ```
+
+   **Intermediate files moved**:
+   - `task-progress.md` — workflow state tracker
+   - `lit-review-plan.md` — domain planning
+   - `synthesis-outline.md` — synthesis structure
+   - `synthesis-section-*.md` — individual sections (now in final review)
+   - `literature-domain-*.bib` — individual domain BibTeX (now in literature-all.bib)
+
+**Outputs** (final, top-level):
+- `literature-review-final.md` — complete review with YAML frontmatter
+- `literature-all.bib` — aggregated bibliography for Zotero/pandoc
 
 ## Output Structure
 
+**After cleanup** (final state):
 ```
 reviews/[project-name]/
-├── task-progress.md              # Progress tracker (CRITICAL)
+├── literature-review-final.md    # Final review (pandoc-ready)
+├── literature-all.bib            # Aggregated bibliography
+└── intermediate_files/           # Workflow artifacts
+    ├── task-progress.md
+    ├── lit-review-plan.md
+    ├── synthesis-outline.md
+    ├── synthesis-section-1.md
+    ├── synthesis-section-N.md
+    ├── literature-domain-1.bib
+    └── literature-domain-N.bib
+```
+
+**During workflow** (before cleanup):
+```
+reviews/[project-name]/
+├── task-progress.md              # Progress tracker (CRITICAL for resume)
 ├── lit-review-plan.md            # Phase 1
-├── literature-domain-1.bib       # Phase 2 (BibTeX for Zotero)
+├── literature-domain-1.bib       # Phase 2
 ├── literature-domain-N.bib       # Phase 2
 ├── synthesis-outline.md          # Phase 3
 ├── synthesis-section-1.md        # Phase 4
 ├── synthesis-section-N.md        # Phase 4
-└── literature-review-final.md    # Final output
+├── literature-all.bib            # Phase 4 (aggregated)
+└── literature-review-final.md    # Phase 4 (assembled)
 ```
 
 ## Execution Instructions
@@ -192,7 +259,9 @@ See `conventions.md` for full status update format and examples.
 | **Agent launch** | `→ Launching domain researcher: [domain name]` |
 | **Agent completion** | `✓ Domain 3 complete: literature-domain-3.bib (12 papers)` |
 | **Phase completion** | `✓ Phase 2 complete: 5 domains, 72 papers total` |
-| **Assembly** | `📄 Assembling final review → literature-review-final.md` |
+| **Assembly** | `📄 Assembling final review with YAML frontmatter...` |
+| **BibTeX aggregation** | `📚 Aggregating BibTeX files → literature-all.bib` |
+| **Cleanup** | `🧹 Moving intermediate files → intermediate_files/` |
 | **Workflow complete** | `✅ Literature review complete: literature-review-final.md (3,450 words)` |
 
 ### Example Flow (User Sees)
@@ -232,9 +301,14 @@ See `conventions.md` for full status update format and examples.
 ✓ Section 3 complete: 920 words
 → Writing Section 4: Conclusion...
 ✓ Section 4 complete: 450 words
-📄 Assembling final review...
+📄 Assembling final review with YAML frontmatter...
+📚 Aggregating BibTeX files → literature-all.bib
+🧹 Moving intermediate files → intermediate_files/
 
-✅ Literature review complete: literature-review-final.md (3,100 words, 58 citations)
+✅ Literature review complete!
+   → literature-review-final.md (3,100 words, 58 citations)
+   → literature-all.bib (62 entries, Zotero-ready)
+   → intermediate_files/ (7 files archived)
 ```
 
 ## Success Metrics
