@@ -183,9 +183,29 @@ Phase 4: Synthesis Writing (MULTI-FILE PATTERN)
 
 ## File Organization
 
+**Final state** (after cleanup):
 ```
 reviews/[project-name]/
-├── task-progress.md                      # State tracker
+├── literature-review-final.md            # Final review (pandoc-ready, YAML frontmatter)
+├── literature-all.bib                    # Aggregated BibTeX (Zotero/pandoc)
+│
+├── intermediate_files/                   # Archived workflow artifacts
+│   ├── task-progress.md
+│   ├── lit-review-plan.md
+│   ├── synthesis-outline.md
+│   ├── synthesis-section-*.md
+│   └── literature-domain-*.bib
+│
+├── state-of-the-art-review-final.md      # (Optional) Editorial output
+├── editorial-notes.md
+│
+└── executive-assessment.md               # (Optional) Novelty output
+```
+
+**During workflow** (before cleanup):
+```
+reviews/[project-name]/
+├── task-progress.md                      # State tracker (CRITICAL for resume)
 │
 ├── lit-review-plan.md                    # Phase 1 output
 │
@@ -204,12 +224,9 @@ reviews/[project-name]/
 ├── synthesis-section-3.md
 ├── synthesis-section-4.md
 ├── synthesis-section-5.md
-├── literature-review-final.md            # Phase 4 assembled
-│
-├── state-of-the-art-review-final.md      # (Optional) Editorial output
-├── editorial-notes.md
-│
-└── executive-assessment.md               # (Optional) Novelty output
+├── literature-all.bib                    # Phase 4: Aggregated BibTeX
+└── literature-review-final.md            # Phase 4: Assembled with YAML frontmatter
+```
 
 .claude/skills/philosophy-research/
 ├── SKILL.md                              # Skill definition
