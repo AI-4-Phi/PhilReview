@@ -3,7 +3,8 @@
 Date: Dec 19, 2025. By Johannes
 Updated: Dec 28, 2025.
 
-
+- The orchestator forgets the last steps: aggregating the bib files, moving intermediate files, adding YAML frontmatter
+- remove task-progress.md updating. The orchestrator now uses an improved Claude-internal tool to track its subagents and tends to forget to update task-progress.md. Ealier conversations in Claude Code can be resumed with /resume, so the task-progress.md seems unnecessary now.
 - agent idea: based on .bib file, download PDFs of sources that make it to the final report, add path to PDFs to bib files. (Check first: does this allow for Zotero import?)
 
 ## DONE / DEFERRED
