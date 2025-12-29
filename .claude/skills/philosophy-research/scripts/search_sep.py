@@ -94,6 +94,7 @@ def search_sep(
     debug: bool = False
 ) -> tuple[list[dict], list[dict]]:
     """Search SEP via Brave API."""
+    log_progress(f"Connecting to Brave API for SEP search...")
     log_progress(f"Searching SEP: '{query}', limit={limit}")
 
     params = {

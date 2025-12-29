@@ -117,6 +117,7 @@ def main():
     limiter = get_limiter("arxiv")
     client = arxiv.Client(page_size=min(args.limit, 100), delay_seconds=0, num_retries=3)
 
+    log_progress(f"Connecting to arXiv API...")
     try:
         if args.id:
             arxiv_id = args.id.replace("arXiv:", "").replace("arxiv:", "")

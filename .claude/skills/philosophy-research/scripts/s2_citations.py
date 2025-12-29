@@ -45,6 +45,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from rate_limiter import ExponentialBackoff, get_limiter
 
+
+def log_progress(message: str) -> None:
+    """Log progress message to stderr."""
+    print(f"[s2_citations.py] {message}", file=sys.stderr)
+
+
 # Semantic Scholar API configuration
 S2_BASE_URL = "https://api.semanticscholar.org/graph/v1"
 S2_PAPER_FIELDS = "paperId,title,authors,year,abstract,citationCount,externalIds,url,venue"
@@ -139,6 +145,7 @@ def get_paper_details(
     debug: bool = False
 ) -> dict:
     """Get basic paper details."""
+    log_progress(f"Connecting to Semantic Scholar API...")
     url = f"{S2_BASE_URL}/paper/{paper_id}"
     params = {"fields": S2_PAPER_FIELDS}
 
@@ -157,7 +164,9 @@ def get_paper_details(
             limiter.record()
 
             if response.status_code == 200:
-                return format_paper(response.json())
+                result = format_paper(response.json())
+                log_progress(f"Found paper: {result.get('title', '')[:50]}...")
+                return result
             elif response.status_code == 404:
                 raise LookupError(f"Paper not found: {paper_id}")
             elif response.status_code == 429:
@@ -192,6 +201,8 @@ def get_citations(
     Returns:
         Tuple of (results, errors)
     """
+    direction_label = "citing papers" if direction == "citations" else "references"
+    log_progress(f"Fetching {direction_label}...")
     url = f"{S2_BASE_URL}/paper/{paper_id}/{direction}"
     params = {
         "fields": S2_CITATION_FIELDS,
@@ -240,9 +251,11 @@ def get_citations(
 
                     # Check if there are more results
                     if len(items) < params["limit"]:
+                        log_progress(f"Retrieved {len(all_results)} {direction_label}")
                         return all_results, errors
 
                     offset += len(items)
+                    log_progress(f"Retrieved {len(all_results)} {direction_label}, fetching more...")
                     break  # Success, move to next page
 
                 elif response.status_code == 404:

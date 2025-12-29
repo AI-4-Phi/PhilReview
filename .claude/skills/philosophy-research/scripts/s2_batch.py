@@ -43,6 +43,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from rate_limiter import ExponentialBackoff, get_limiter
 
+
+def log_progress(message: str) -> None:
+    """Log progress message to stderr."""
+    print(f"[s2_batch.py] {message}", file=sys.stderr)
+
+
 # Semantic Scholar API configuration
 S2_BASE_URL = "https://api.semanticscholar.org/graph/v1"
 S2_DEFAULT_FIELDS = "paperId,title,authors,year,abstract,citationCount,externalIds,url,venue,publicationTypes,journal"
@@ -148,6 +154,8 @@ def batch_fetch(
     Returns:
         Tuple of (results, not_found_ids, errors)
     """
+    log_progress(f"Connecting to Semantic Scholar API...")
+    log_progress(f"Batch fetching {len(paper_ids)} paper(s)...")
     url = f"{S2_BASE_URL}/paper/batch"
     params = {"fields": fields}
 
@@ -182,6 +190,7 @@ def batch_fetch(
 
             if response.status_code == 200:
                 data = response.json()
+                log_progress(f"Processing {len(data)} responses...")
 
                 # Response is a list matching input order
                 # None values indicate not found
@@ -195,9 +204,11 @@ def batch_fetch(
                             formatted["_queryId"] = paper_ids[i]
                             results.append(formatted)
 
+                log_progress(f"Found {len(results)} papers, {len(not_found)} not found")
                 return results, not_found, errors
 
             elif response.status_code == 429:
+                log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                 if not backoff.wait(attempt):
                     errors.append({
                         "type": "rate_limit",

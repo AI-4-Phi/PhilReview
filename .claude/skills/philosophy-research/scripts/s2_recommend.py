@@ -42,6 +42,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from rate_limiter import ExponentialBackoff, get_limiter
 
+
+def log_progress(message: str) -> None:
+    """Log progress message to stderr."""
+    print(f"[s2_recommend.py] {message}", file=sys.stderr)
+
+
 # Semantic Scholar API configuration
 S2_RECOMMEND_URL = "https://api.semanticscholar.org/recommendations/v1/papers"
 S2_FIELDS = "paperId,title,authors,year,abstract,citationCount,externalIds,url,venue"
@@ -129,6 +135,8 @@ def get_batch_recommendations(
     Returns:
         Tuple of (results, errors)
     """
+    log_progress(f"Connecting to Semantic Scholar Recommendations API...")
+    log_progress(f"Using {len(positive_ids)} positive seed paper(s)")
     url = f"{S2_RECOMMEND_URL}/"
     params = {
         "fields": S2_FIELDS,
@@ -175,9 +183,11 @@ def get_batch_recommendations(
                 for paper in papers:
                     results.append(format_paper(paper))
 
+                log_progress(f"Found {len(results)} recommendations")
                 return results, errors
 
             elif response.status_code == 429:
+                log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                 if not backoff.wait(attempt):
                     errors.append({
                         "type": "rate_limit",
@@ -231,6 +241,8 @@ def get_single_paper_recommendations(
     Returns:
         Tuple of (results, errors)
     """
+    log_progress(f"Connecting to Semantic Scholar Recommendations API...")
+    log_progress(f"Finding similar papers to {paper_id[:30]}...")
     url = f"{S2_RECOMMEND_URL}/forpaper/{paper_id}"
     params = {
         "fields": S2_FIELDS,
@@ -265,9 +277,11 @@ def get_single_paper_recommendations(
                 for paper in papers:
                     results.append(format_paper(paper))
 
+                log_progress(f"Found {len(results)} recommendations")
                 return results, errors
 
             elif response.status_code == 429:
+                log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
                 if not backoff.wait(attempt):
                     errors.append({
                         "type": "rate_limit",

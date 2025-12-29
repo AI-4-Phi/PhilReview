@@ -216,6 +216,7 @@ def fetch_sep_article(entry_name: str, limiter, backoff: ExponentialBackoff, deb
     """Fetch and parse SEP article with retry logic."""
     url = f"{SEP_BASE}/{entry_name}/"
 
+    log_progress(f"Connecting to Stanford Encyclopedia of Philosophy...")
     log_progress(f"Fetching SEP article: {entry_name}")
 
     for attempt in range(backoff.max_attempts):

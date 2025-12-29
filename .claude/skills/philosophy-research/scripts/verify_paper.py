@@ -162,6 +162,7 @@ def verify_by_doi(doi: str, limiter, backoff: ExponentialBackoff, mailto: str, d
     Returns:
         Paper metadata dict on success, raises exception on failure
     """
+    log_progress(f"Connecting to CrossRef API...")
     log_progress(f"Verifying DOI: {doi}")
 
     url = f"https://api.crossref.org/works/{doi}"
@@ -234,6 +235,7 @@ def search_by_metadata(
     if year:
         search_desc += f" year={year}"
 
+    log_progress(f"Connecting to CrossRef API...")
     log_progress(f"Searching CrossRef: {search_desc}")
 
     url = "https://api.crossref.org/works"

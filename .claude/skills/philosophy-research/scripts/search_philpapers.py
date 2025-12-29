@@ -100,6 +100,7 @@ def search_philpapers(
     if recent:
         search_desc += " (recent=past year)"
 
+    log_progress(f"Connecting to Brave API for PhilPapers search...")
     log_progress(f"Searching PhilPapers: {search_desc}, limit={limit}")
 
     params = {
