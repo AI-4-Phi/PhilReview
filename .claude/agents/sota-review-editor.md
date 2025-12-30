@@ -7,7 +7,7 @@ model: sonnet
 
 # State-of-the-Art Review Editor
 
-**Shared conventions**: See `conventions.md` for citation style and UTF-8 encoding specifications.
+**Shared conventions**: See `../docs/conventions.md` for citation style and UTF-8 encoding specifications.
 
 ## Status Updates
 

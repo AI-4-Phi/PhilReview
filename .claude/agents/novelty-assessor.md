@@ -7,7 +7,7 @@ model: sonnet
 
 # Novelty Assessor & Strategic Advisor
 
-**Shared conventions**: See `conventions.md` for UTF-8 encoding specifications.
+**Shared conventions**: See `../docs/conventions.md` for UTF-8 encoding specifications.
 
 ## Status Updates
 

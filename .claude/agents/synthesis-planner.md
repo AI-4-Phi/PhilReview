@@ -7,7 +7,7 @@ model: opus
 
 # Synthesis Planner
 
-**Shared conventions**: See `conventions.md` for BibTeX format, UTF-8 encoding, and citation style specifications.
+**Shared conventions**: See `../docs/conventions.md` for BibTeX format, UTF-8 encoding, and citation style specifications.
 
 ## Your Role
 
