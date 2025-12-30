@@ -1,7 +1,7 @@
 ---
 name: research-proposal-orchestrator
 description: Used PROACTIVELY when user needs literature review based on a research proposal or project idea. Coordinates specialized subagents with Task tool to produce rigorous, accurate literature reviews emphasizing key debates and research gaps. 
-tools: Task, Read, Write, Grep, Bash, TodoWrite
+tools: Task, Bash, Glob, Grep, LS, exit_plan_mode, Read, Edit, MultiEdit, Write, TodoRead, TodoWrite
 model: opus
 ---
 

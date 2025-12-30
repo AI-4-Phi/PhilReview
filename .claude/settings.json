@@ -1,16 +1,16 @@
 {
   "permissions": {
     "allow": [
+      "LS",
       "Read",
       "Write",
       "Edit",
+      "MultiEdit",
       "Grep",
       "Glob",
       "WebSearch",
       "WebFetch",
-      "Git",
       "Bash(ls:*)",
-      "Bash(cat:*)",
       "Bash(mkdir:*)",
       "Bash(python:*)",
       "Bash(for:*)",
