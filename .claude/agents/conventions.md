@@ -306,7 +306,7 @@ constitutive criteria for mechanisms is underexplored.
 DOMAIN: [Domain Name]
 SEARCH_DATE: [YYYY-MM-DD]
 PAPERS_FOUND: [N total] (High: [X], Medium: [Y], Low: [Z])
-SEARCH_SOURCES: SEP, PhilPapers, Google Scholar, [other]
+SEARCH_SOURCES: SEP, PhilPapers, Semantic Scholar, OpenAlex, arXiv
 ====================================================================
 
 DOMAIN_OVERVIEW:
