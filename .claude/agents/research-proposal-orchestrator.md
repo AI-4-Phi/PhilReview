@@ -7,7 +7,7 @@ model: opus
 
 # Research Proposal Literature Review Orchestrator
 
-**Shared conventions**: See `conventions.md` for BibTeX format, UTF-8 encoding, citation style, and file assembly specifications.
+**Shared conventions**: See `../docs/conventions.md` for BibTeX format, UTF-8 encoding, citation style, and file assembly specifications.
 
 ## Overview
 
@@ -280,7 +280,7 @@ reviews/[project-name]/
 
 **Critical**: Text output in Claude Code CLI is **visible to the user in real-time**. Output status updates directly.
 
-See `conventions.md` for full status update format and examples.
+See `../docs/conventions.md` for full status update format and examples.
 
 ### Required Status Updates
 

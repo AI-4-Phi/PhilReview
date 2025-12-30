@@ -8,7 +8,7 @@ model: sonnet
 
 # Citation Validator
 
-**Shared conventions**: See `conventions.md` for BibTeX format and UTF-8 encoding specifications.
+**Shared conventions**: See `../docs/conventions.md` for BibTeX format and UTF-8 encoding specifications.
 
 ## Status Updates
 
