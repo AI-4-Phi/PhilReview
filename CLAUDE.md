@@ -53,7 +53,11 @@ For agent architecture and design patterns, see `.claude/docs/ARCHITECTURE.md`.
 
 Reference documentation:
 - **Claude Agent Development Documentation** `https://code.claude.com/docs/en/sub-agents`
+- **Claude Agent SDK on Subagents** `https://platform.claude.com/docs/en/agent-sdk/subagents`
 - **Claude Agents Best Practices** `https://www.anthropic.com/engineering/building-effective-agents`
 - **Claude Skills Documentation** `https://code.claude.com/docs/en/skills`
+- **Claude Code Settings Reference** `https://code.claude.com/docs/en/settings`
 - **Claude MCP Server Use Documentation** `https://code.claude.com/docs/en/mcp`
+- **Agent SDK reference - TypeScript** `https://platform.claude.com/docs/en/agent-sdk/typescript`
+
 
