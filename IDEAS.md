@@ -3,6 +3,10 @@
 Date: Dec 19, 2025. By Johannes
 Updated: Dec 30, 2025.
 
+- maybe reduce use of conventions.md again. Instead, simple instructions in agent definition. Potential for confusion too great
+- Improve agent namespace
+- Remove use of `cat` in last phase of `research-proposal-orchestrator`, inconsistent with agent role (should use Read, Write, and Edit tools, i guess)
+- 
 - The orchestator forgets the last steps: aggregating the bib files, moving intermediate files, adding YAML frontmatter. (Tried to address this with manual edits)
 - Update documentation to reflect intermediate_files/ move
 - At some point, try to parallelize agents again

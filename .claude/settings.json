@@ -3,9 +3,6 @@
     "allow": [
       "LS",
       "Read",
-      "Write",
-      "Edit",
-      "MultiEdit",
       "Grep",
       "Glob",
       "WebSearch",
@@ -13,7 +10,6 @@
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(python:*)",
-      "Bash(for:*)",
       "Bash(source:*)",
       "Bash(conda:*)",
       "Bash(echo:*)"
