@@ -4,23 +4,26 @@ Multi-agent system for generating focused, insight-driven state-of-the-art liter
 
 ## Highlights
 
-- **4-phase workflow**: Plan → Research  → Synthesize → Assemble
+- **6-phase workflow**: Environment → Plan → Research → Outline → Write → Assemble
+- **Skill-based orchestration**: `/literature-review` skill coordinates specialized subagents
 - **Structured API searches**: Semantic Scholar, OpenAlex, arXiv, SEP, PhilPapers, CrossRef
 - **BibTeX-first**: Valid `.bib` files ready for Zotero import
 - **Citation integrity**: Papers verified at search time via structured APIs
 - **Resumable**: Progress tracked in `task-progress.md`
-- **Context-efficient**: Agent-individuated domain search, section-by-section writing
+- **Context-efficient**: Per-domain search, section-by-section writing
 
 ## How It Works
 
-| Phase | Agent | Output |
-|-------|-------|--------|
-| 1. Plan | `@literature-review-planner` | `lit-review-plan.md` |
-| 2. Research | `@domain-literature-researcher` | `literature-domain-*.bib` |
-| 3. Synthesize | `@synthesis-planner` → `@synthesis-writer` | `synthesis-outline.md`, section files |
-| 4. Assemble | `@research-proposal-orchestrator` | `literature-review-final.md` |
+The `/literature-review` skill orchestrates 6 phases, invoking specialized subagents via the Task tool:
 
-**Optional**: `@sota-review-editor` (polish), `@novelty-assessor` (strategic assessment)
+| Phase | Subagent | Output |
+|-------|----------|--------|
+| 1. Environment | (skill) | Verify setup, choose mode |
+| 2. Plan | `literature-review-planner` | `lit-review-plan.md` |
+| 3. Research | `domain-literature-researcher` ×N | `literature-domain-*.bib` |
+| 4. Outline | `synthesis-planner` | `synthesis-outline.md` |
+| 5. Write | `synthesis-writer` ×N | `synthesis-section-*.md` |
+| 6. Assemble | (skill) | `literature-review-final.md`, `literature-all.bib` |
 
 ## Quick Start
 
@@ -39,12 +42,14 @@ See [GETTING_STARTED.md](GETTING_STARTED.md) for setup and detailed instructions
 
 ```
 reviews/[topic]/
-├── lit-review-plan.md              # Domain decomposition
-├── literature-domain-*.bib         # BibTeX files (import to Zotero)
-├── synthesis-outline.md            # Review structure
-├── synthesis-section-*.md          # Individual sections
 ├── literature-review-final.md      # Complete review
-└── task-progress.md                # Progress tracker
+├── literature-all.bib              # Aggregated bibliography (import to Zotero)
+└── intermediate_files/
+    ├── lit-review-plan.md          # Domain decomposition
+    ├── literature-domain-*.bib     # Per-domain BibTeX files
+    ├── synthesis-outline.md        # Review structure
+    ├── synthesis-section-*.md      # Individual sections
+    └── task-progress.md            # Progress tracker
 ```
 
 ## Quality Standards

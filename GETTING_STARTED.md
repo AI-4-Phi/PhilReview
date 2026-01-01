@@ -41,11 +41,13 @@ Target: [word count, e.g., 3000-4000 words]
 Audience: [e.g., grant reviewers, journal editors]
 ```
 
-3. The orchestrator runs 4 phases automatically:
-   - **Plan**: Decomposes into searchable domains
-   - **Research**: Produces annotated BibTeX files
-   - **Synthesize**: Designs outline, then writes sections
-   - **Assemble**: Combines sections into final review
+3. The `/literature-review` skill coordinates 6 phases automatically:
+   - **Phase 1**: Verify environment and choose execution mode
+   - **Phase 2**: Decompose into searchable domains
+   - **Phase 3**: Research each domain, produce annotated BibTeX files
+   - **Phase 4**: Design synthesis outline
+   - **Phase 5**: Write review sections
+   - **Phase 6**: Assemble final review and aggregate bibliography
 
 4. All outputs are saved to `reviews/[your-topic]/`
 
@@ -55,17 +57,15 @@ After completion, you'll have:
 
 | File | Description |
 |------|-------------|
-| `lit-review-plan.md` | Domain decomposition and search strategy |
-| `literature-domain-*.bib` | BibTeX files per domain (import to Zotero) |
-| `synthesis-outline.md` | Review structure and citation selection |
 | `literature-review-final.md` | The complete literature review |
-| `task-progress.md` | Progress tracker (enables resume) |
+| `literature-all.bib` | Aggregated bibliography (import to Zotero) |
+| `intermediate_files/` | Workflow artifacts (plan, per-domain BibTeX, sections, progress tracker) |
 
 ## Importing to Zotero
 
-Import the `.bib` files directly into Zotero:
+Import the aggregated bibliography into Zotero:
 1. File → Import...
-2. Select `literature-domain-*.bib` files
+2. Select `literature-all.bib` (or individual `literature-domain-*.bib` files from `intermediate_files/`)
 3. The `note` fields contain paper summaries and relevance notes
 
 ## Resuming an Interrupted Review
@@ -75,7 +75,7 @@ If a review is interrupted, resume with:
 Resume the literature review from task-progress.md in reviews/[your-topic]/
 ```
 
-The orchestrator detects the last completed phase and continues.
+The skill detects the last completed phase and continues from there.
 
 ## Execution Modes
 

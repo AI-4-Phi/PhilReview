@@ -1,8 +1,32 @@
-# Research Proposal Orchestrator Architecture
+# Literature Review Architecture
+
+## Orchestration: Skill-Based Design
+
+The literature review workflow is coordinated by the `/literature-review` skill (`.claude/skills/literature-review/SKILL.md`), which runs in the main conversation context.
+
+**Why a skill, not a subagent?**
+- Subagents cannot spawn other subagents (Claude Code constraint)
+- The orchestrator needs to invoke multiple specialized subagents via the Task tool
+- Skills run in main conversation context, which has Task tool access
+- This enables: skill → Task tool → specialized subagents
+
+**Architecture**:
+```
+User request
+    ↓
+/literature-review skill (main conversation, has Task access)
+    ↓ Task tool
+    ├── literature-review-planner (subagent)
+    ├── domain-literature-researcher ×N (subagents)
+    ├── synthesis-planner (subagent)
+    └── synthesis-writer ×N (subagents)
+```
+
+Specialized subagents (in `.claude/agents/`) are invoked via Task tool and cannot themselves invoke other subagents.
 
 ## Design Pattern: Multi-File-Then-Assemble
 
-This orchestrator uses a consistent architectural pattern for computationally intensive phases: **multiple agents write to separate files, then orchestrator assembles the final output**.
+This workflow uses a consistent architectural pattern for computationally intensive phases: **multiple agents write to separate files, then the orchestrating skill assembles the final output**.
 
 ## Philosophy-Research Skill
 
@@ -228,8 +252,12 @@ reviews/[project-name]/
 └── literature-review-final.md            # Phase 6: Assembled with YAML frontmatter
 ```
 
+.claude/skills/literature-review/
+├── SKILL.md                              # Orchestration skill (main entry point)
+└── conventions.md                        # Symlink → ../../docs/conventions.md
+
 .claude/skills/philosophy-research/
-├── SKILL.md                              # Skill definition
+├── SKILL.md                              # API search skill
 └── scripts/
     ├── s2_search.py                      # Semantic Scholar search
     ├── s2_citations.py                   # Citation traversal
@@ -240,6 +268,12 @@ reviews/[project-name]/
     ├── search_philpapers.py              # PhilPapers search
     ├── verify_paper.py                   # CrossRef verification
     └── rate_limiter.py                   # Shared rate limiting
+
+.claude/agents/
+├── literature-review-planner.md          # Decomposes research into domains
+├── domain-literature-researcher.md       # Searches and produces BibTeX
+├── synthesis-planner.md                  # Creates review outline
+└── synthesis-writer.md                   # Writes review sections
 ```
 
 **Multi-file phases clearly visible**: Phase 3 (7 BibTeX files) and Phase 5 (5 section files)
@@ -377,7 +411,9 @@ Single Agent → reads everything → writes everything
 
 ## Conclusion
 
-The **multi-file-then-assemble** pattern is the key architectural insight that makes this orchestrator scalable and context-efficient. By breaking computationally intensive phases (Phase 3 and Phase 5) into multiple independent file outputs, we achieve:
+The **multi-file-then-assemble** pattern is the key architectural insight that makes this workflow scalable and context-efficient. Combined with the **skill-based orchestration** (which bypasses the subagent nesting constraint), this architecture enables coordinated multi-agent literature reviews.
+
+By breaking computationally intensive phases (Phase 3 and Phase 5) into multiple independent file outputs, we achieve:
 
 - **80% context reduction** per invocation
 - **Parallelization** where beneficial

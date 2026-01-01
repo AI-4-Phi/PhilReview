@@ -2,9 +2,9 @@ Repository to (a) author academic literature reviews using agent orchestration, 
 
 # Mode
 
-**Production mode** (default): Assume user wants a literature review. Invoke `research-proposal-orchestrator` immediately.
+**Production mode** (default): When the user asks for a literature review, invoke the `/literature-review` skill to begin the 6-phase workflow.
 
-**Development mode**: Only if user explicitly asks to develop, improve, or test agents. Work on agent definitions in `.claude/agents/`.
+**Development mode**: Only if user explicitly asks to develop, improve, or test agents/skills. Work on definitions in `.claude/agents/` and `.claude/skills/`.
 
 # Objectives
 
@@ -22,30 +22,33 @@ Repository to (a) author academic literature reviews using agent orchestration, 
 # File Structure
 
 - `reviews/` — All existing and new literature reviews. Each review has its own subdirectory with an informative short name.
-- `.claude/agents/` — Agent definitions for the literature review pipeline.
-  - `ARCHITECTURE.md` — Design patterns and multi-file-then-assemble workflow.
-  - `conventions.md` — Shared specifications (BibTeX format, citation style).
+- `.claude/skills/literature-review/` — Main orchestration skill for the 6-phase workflow.
 - `.claude/skills/philosophy-research/` — Structured API search scripts (Semantic Scholar, OpenAlex, arXiv, SEP, PhilPapers, CrossRef).
+- `.claude/agents/` — Specialized subagent definitions invoked by the literature-review skill.
+- `.claude/docs/` — Shared specifications (conventions.md, ARCHITECTURE.md).
 
 # Typical Usage: Literature Review
 
 When asked to perform a new literature review:
-1. Create a new directory in `reviews/` with an informative short name (e.g., `reviews/epistemic-autonomy-ai/`)
-2. This new directory becomes the working folder for the review — save all files pertaining to this review there
-3. Use the `research-proposal-orchestrator` agent to coordinate the review process
+1. Invoke the `/literature-review` skill to begin the 6-phase workflow
+2. The skill creates a new directory in `reviews/` with an informative short name (e.g., `reviews/epistemic-autonomy-ai/`)
+3. The skill coordinates specialized subagents via the Task tool to complete all phases
 
-**Default agent:** `@research-proposal-orchestrator` (see Mode section above).
+# Workflow Architecture
 
-# Agents
+**`/literature-review` skill** — Main entry point. Runs in main conversation with Task tool access. Coordinates the 6-phase workflow:
+- Phase 1: Verify environment and determine execution mode
+- Phase 2: Task tool invokes `literature-review-planner` — Decomposes research idea into domains
+- Phase 3: Task tool invokes `domain-literature-researcher` — Uses `philosophy-research` skill for API searches; outputs BibTeX files
+- Phase 4: Task tool invokes `synthesis-planner` — Reads BibTeX files; designs outline emphasizing debates and gaps
+- Phase 5: Task tool invokes `synthesis-writer` — Writes sections using relevant BibTeX subsets
+- Phase 6: Assemble final review files and move intermediate files
 
-**Core workflow (6 phases):**
-- `@research-proposal-orchestrator` — Coordinates all 6 phases, tracks progress, assembles outputs. **Default entry point.**
-  - Phase 1: Verify environment and determine execution mode
-  - Phase 2: Task tool to invoke `literature-review-planner` — Decomposes research idea into domains and search strategies.
-  - Phase 3: Task tool to invoke `domain-literature-researcher` — Uses `philosophy-research` skill for structured API searches; outputs valid BibTeX files.
-  - Phase 4: Task tool to invoke `synthesis-planner` — Reads BibTeX files; designs tight outline emphasizing debates and gaps.
-  - Phase 5: Task tool to invoke `synthesis-writer` — Writes sections one-by-one using relevant BibTeX subsets.
-  - Phase 6: Assemble final review files and move intermediate files.
+**Specialized subagents** (invoked via Task tool, cannot spawn other subagents):
+- `literature-review-planner` — Decomposes research idea into domains and search strategies
+- `domain-literature-researcher` — Searches academic sources, produces BibTeX with rich annotations
+- `synthesis-planner` — Designs tight outline from collected literature
+- `synthesis-writer` — Writes individual sections of the review
 
 # Development
 
