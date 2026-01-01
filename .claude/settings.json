@@ -11,8 +11,21 @@
       "Bash(mkdir:*)",
       "Bash(python:*)",
       "Bash(source:*)",
-      "Bash(conda:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Read(//private/tmp/**)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/setup-environment.sh"
+          }
+        ]
+      }
     ]
   }
 }

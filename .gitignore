@@ -49,10 +49,8 @@ coverage.xml
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
-
 # Environments
+# Note: .python-version is committed to specify Python version for uv
 .env
 .venv
 env/
@@ -92,5 +90,7 @@ logs/
 local_workspace/
 
 # Claude Code local files (not shared)
-.claude/CLAUDE.local.md
 .claude/settings.local.json
+
+# uv
+uv.lock

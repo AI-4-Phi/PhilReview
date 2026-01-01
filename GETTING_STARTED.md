@@ -2,9 +2,70 @@
 
 ## Prerequisites
 
-You need [Claude Code](https://claude.ai/code) installed and configured.
+1. **[Claude Code](https://claude.ai/code)** installed and configured
+2. **[uv](https://github.com/astral-sh/uv)** - Fast Python package manager
+3. **Python 3.9+**
+
+### Install uv
+
+**macOS/Linux:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows:**
+```powershell
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Or via package managers:
+```bash
+# macOS
+brew install uv
+
+# pipx
+pipx install uv
+```
 
 ## Environment Setup
+
+### Automatic Setup (Recommended)
+
+The Python environment is **automatically configured** when you start Claude Code in this repository:
+
+1. Clone this repository
+2. Start Claude Code: `claude-code` or open in your IDE
+3. The SessionStart hook automatically:
+   - Creates a virtual environment (`.venv/`)
+   - Installs all dependencies from `pyproject.toml`
+   - Activates the environment
+
+You'll see:
+```
+🔧 Setting up Python environment with uv...
+  Creating virtual environment...
+  Installing dependencies...
+✓ Virtual environment activated
+  Python: /path/to/.venv/bin/python
+  ...
+✓ Environment setup complete
+```
+
+### Manual Setup (Optional)
+
+If you want to set up manually:
+
+```bash
+# Sync environment (creates .venv and installs dependencies)
+uv sync
+
+# Activate it
+source .venv/bin/activate  # macOS/Linux
+# or
+.venv\Scripts\activate     # Windows
+```
+
+### API Keys
 
 The literature search scripts require API keys. Set these environment variables:
 
@@ -22,7 +83,7 @@ export OPENALEX_EMAIL="your@email"   # OpenAlex polite pool
 - Brave Search: https://brave.com/search/api/
 - Semantic Scholar: https://www.semanticscholar.org/product/api
 
-Verify your setup:
+**Verify your setup:**
 ```bash
 python .claude/skills/philosophy-research/scripts/check_setup.py
 ```

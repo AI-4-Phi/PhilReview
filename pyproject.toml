@@ -1,0 +1,13 @@
+[project]
+name = "philo-sota"
+version = "0.1.0"
+description = "Multi-agent system for generating focused, insight-driven state-of-the-art literature reviews"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.28.0",
+    "beautifulsoup4>=4.11.0",
+    "lxml>=4.9.0",
+    "pyalex>=0.10",
+    "arxiv>=1.4.0",
+]
