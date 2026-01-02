@@ -3,6 +3,7 @@ name: literature-review-planner
 description: Plans comprehensive literature review structure for research proposals. Analyzes research ideas and creates domain decomposition with search strategies.
 tools: Read, Write
 model: inherit
+permissionMode: acceptEdits
 ---
 
 # Literature Review Planner

@@ -1,5 +1,13 @@
 {
   "permissions": {
+    "defaultMode": "default",
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(sudo:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)"
+    ],
     "allow": [
       "Read",
       "Grep",
@@ -12,9 +20,14 @@
       "Bash(source:*)",
       "Bash(echo:*)",
       "Bash(cat:*)",
-      "Read(//private/tmp/**)",
+      "Write(reviews/**)",
+      "Edit(reviews/**)",
       "Skill(literature-review)",
       "Skill(philosophy-research)"
+    ],
+    "ask": [
+      "Write(*)",
+      "Edit(*)"
     ]
   },
   "hooks": {
