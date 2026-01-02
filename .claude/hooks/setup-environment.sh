@@ -5,39 +5,38 @@
 set -e
 
 # Add homebrew to PATH (for uv installed via homebrew)
-# Check common homebrew locations
 if [ -d "/opt/homebrew/bin" ]; then
   export PATH="/opt/homebrew/bin:$PATH"
 elif [ -d "/usr/local/bin" ]; then
   export PATH="/usr/local/bin:$PATH"
 fi
 
-echo "🔧 Setting up Python environment with uv..." >&2
-
 # Verify CLAUDE_ENV_FILE is available (only present in SessionStart hooks)
 if [ -z "$CLAUDE_ENV_FILE" ]; then
-  echo "⚠️  Warning: CLAUDE_ENV_FILE not available" >&2
-  echo "   This hook should only run during SessionStart events" >&2
-  exit 1
+  echo "Environment setup failed: CLAUDE_ENV_FILE not available. This hook should only run during SessionStart events." >&2
+  exit 2
 fi
 
 # Verify uv is installed
 if ! command -v uv &> /dev/null; then
-  echo "❌ Error: uv is not installed" >&2
-  echo "   Install with: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
-  echo "   Or visit: https://github.com/astral-sh/uv" >&2
-  exit 1
+  echo "Environment setup failed: uv is not installed. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+  exit 2
 fi
 
 # Capture environment state before activation
 ENV_BEFORE=$(export -p | sort)
 
 # Sync environment (creates .venv and uv.lock if needed)
-# Installs all dependencies from pyproject.toml
-echo "  Syncing environment..." >&2
-uv sync --quiet
+if ! uv sync --quiet 2>/dev/null; then
+  echo "Environment setup failed: uv sync failed. Check pyproject.toml and try running 'uv sync' manually." >&2
+  exit 2
+fi
 
 # Activate the virtual environment
+if [ ! -f ".venv/bin/activate" ]; then
+  echo "Environment setup failed: .venv/bin/activate not found after uv sync." >&2
+  exit 2
+fi
 source .venv/bin/activate
 
 # Capture environment state after activation
@@ -46,24 +45,13 @@ ENV_AFTER=$(export -p | sort)
 # Persist only new/changed environment variables
 comm -13 <(echo "$ENV_BEFORE") <(echo "$ENV_AFTER") >> "$CLAUDE_ENV_FILE"
 
-# Verify activation
-echo "✓ Virtual environment activated" >&2
-echo "  Python: $(which python)" >&2
-echo "  Python version: $(python --version 2>&1)" >&2
-
-# Check critical packages (package_name:import_name)
-echo "  Checking dependencies..." >&2
-PACKAGES_OK=true
-
+# Check critical packages
+MISSING_PACKAGES=""
 check_package() {
   local pkg_name="$1"
   local import_name="$2"
-  if python -c "import $import_name" 2>/dev/null; then
-    VERSION=$(python -c "import $import_name; print($import_name.__version__)" 2>/dev/null || echo "unknown")
-    echo "    ✓ $pkg_name: $VERSION" >&2
-  else
-    echo "    ✗ $pkg_name: NOT INSTALLED" >&2
-    PACKAGES_OK=false
+  if ! python -c "import $import_name" 2>/dev/null; then
+    MISSING_PACKAGES="$MISSING_PACKAGES $pkg_name"
   fi
 }
 
@@ -73,12 +61,11 @@ check_package "pyalex" "pyalex"
 check_package "arxiv" "arxiv"
 check_package "requests" "requests"
 
-if [ "$PACKAGES_OK" = false ]; then
-  echo "" >&2
-  echo "⚠️  Warning: Some required packages are missing" >&2
-  echo "   Run: uv sync" >&2
-  exit 1
+if [ -n "$MISSING_PACKAGES" ]; then
+  echo "Environment setup failed: Missing packages:$MISSING_PACKAGES. Run 'uv sync' to install dependencies." >&2
+  exit 2
 fi
 
-echo "✓ Environment setup complete" >&2
+# Success: output context for Claude (stdout is added to Claude's context)
+echo "Python environment ready: $(python --version 2>&1), venv at .venv/"
 exit 0

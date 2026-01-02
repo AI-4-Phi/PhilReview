@@ -40,16 +40,7 @@ The Python environment is **automatically configured** when you start Claude Cod
    - Installs all dependencies from `pyproject.toml`
    - Activates the environment
 
-You'll see:
-```
-🔧 Setting up Python environment with uv...
-  Creating virtual environment...
-  Installing dependencies...
-✓ Virtual environment activated
-  Python: /path/to/.venv/bin/python
-  ...
-✓ Environment setup complete
-```
+Setup runs silently on success. If there's an error (e.g., `uv` not installed, missing packages), Claude will be notified and can help you resolve it.
 
 ### Manual Setup (Optional)
 
