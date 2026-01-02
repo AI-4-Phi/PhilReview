@@ -84,7 +84,7 @@ Orchestrator:
 ```
 Input: synthesis-outline.md (identifies 5 sections)
 
-Sequential/Parallel Execution:
+Parallel Execution:
 ├── @synthesis-writer #1 → synthesis-section-1.md (Introduction)
 ├── @synthesis-writer #2 → synthesis-section-2.md (Theoretical Foundations)
 ├── @synthesis-writer #3 → synthesis-section-3.md (Current State-of-the-Art)
@@ -111,9 +111,9 @@ Orchestrator:
 - **Reduction**: 80% per invocation in Phase 5
 
 ### 2. Parallelization
-- **Phase 3**: Can run all 7 researchers simultaneously
-- **Phase 5**: Can run sections in parallel (though sequential usually fine)
-- **Speed**: 5-7x faster for Phase 3
+- **Phase 3**: Runs all domain researchers simultaneously
+- **Phase 5**: Runs all section writers simultaneously
+- **Speed**: 5-7x faster for both phases
 
 ### 3. Modularity
 - Each file is independent
@@ -364,10 +364,10 @@ Single Agent → reads everything → writes everything
 - Parallel: O(n) with 7 workers
 - **Speedup: 7x**
 
-**Phase 5 (sequential in practice)**:
+**Phase 5 (parallel)**:
 - Monolithic: O(5n) where n = time per section
-- Multi-file: O(5n) but with much better context efficiency
-- **Speedup: ~2x due to faster individual sections**
+- Multi-file parallel: O(n) with 5 writers
+- **Speedup: 5x**
 
 ### Space Complexity
 
@@ -389,22 +389,17 @@ Single Agent → reads everything → writes everything
 
 ### Potential Enhancements
 
-1. **True parallel section writing**
-   - Currently sequential for simplicity
-   - Could parallelize with careful transition management
-   - Task-progress.md already supports tracking
-
-2. **Incremental assembly**
+1. **Incremental assembly**
    - Stream sections as they complete
    - Would require more complex assembly logic
    - Current approach is sufficient
 
-3. **Dependency graphs**
+2. **Dependency graphs**
    - Some sections might depend on others
    - Could build DAG of section dependencies
    - Currently unnecessary (sections are independent)
 
-4. **Caching**
+3. **Caching**
    - Cache domain searches for similar projects
    - Cache section generation for iterative refinement
    - File-based architecture makes this natural
@@ -416,7 +411,7 @@ The **multi-file-then-assemble** pattern is the key architectural insight that m
 By breaking computationally intensive phases (Phase 3 and Phase 5) into multiple independent file outputs, we achieve:
 
 - **80% context reduction** per invocation
-- **Parallelization** where beneficial
+- **Full parallelization** of domain research and section writing
 - **Modularity** and easy revision
 - **Resilience** to failures
 - **Architectural consistency** across phases

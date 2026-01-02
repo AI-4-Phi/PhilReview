@@ -27,9 +27,9 @@ At workflow start, create `task-progress.md` in the working directory:
 
 - [ ] Phase 1: Verify environment and determine execution mode
 - [ ] Phase 2: Structure literature review domains
-- [ ] Phase 3: Research [N] domains sequentially
+- [ ] Phase 3: Research [N] domains in parallel
 - [ ] Phase 4: Outline synthesis review across domains
-- [ ] Phase 5: Write review for each section sequentially
+- [ ] Phase 5: Write review for each section in parallel
 - [ ] Phase 6: Assemble final review files and move intermediate files
 
 ## Completed Tasks
@@ -53,9 +53,9 @@ Strictly follow this workflow consisting of six distinct phases:
 
 1. Verify environment and determine execution mode
 2. Structure literature review domains (Task tool: `literature-review-planner` agent)
-3. Research domains sequentially (Task tool: `domain-literature-researcher` agents)
+3. Research domains in parallel (Task tool: `domain-literature-researcher` agents)
 4. Outline synthesis review across domains (Task tool: `synthesis-planner` agent)
-5. Write review for each section sequentially (Task tool: `synthesis-writer` agent)
+5. Write review for each section in parallel (Task tool: `synthesis-writer` agent)
 6. Assemble final review files and move intermediate files
 
 Advance only to a subsequent phase after completing the current phase.
@@ -175,15 +175,16 @@ Never advance to a next step in this phase before completing the current step.
 ## Phase 3: Research Literature in Domains
 
 1. Identify and enumerate N domains (typically 3-8) listed in `reviews/[project-name]/lit-review-plan.md`
-2. Use Task tool to sequentially invoke N `domain-literature-researcher` agents (one for each domain):
+2. **Launch all N domain researchers in parallel** using a single message with multiple Task tool calls:
    - subagent_type: "domain-literature-researcher"
    - prompt: Include domain focus, key questions, research idea, working directory, AND output filename
    - Example prompt for domain 1: "Domain: [name]. Focus: [focus]. Key questions: [questions]. Research idea: [idea]. Working directory: reviews/[project-name]/. Write output to: reviews/[project-name]/literature-domain-1.bib"
    - description: "Domain [N]: [domain name]"
-3. Wait for all N agents to finish using TaskOutput (block until complete). Expected outputs: `reviews/[project-name]/literature-domain-1.bib` through `literature-domain-N.bib`. **Update task-progress.md for each finished domain**
+   - **CRITICAL**: Include ALL Task tool calls in a single message to enable parallel execution
+3. Wait for all N agents to finish using TaskOutput (block until complete). Expected outputs: `reviews/[project-name]/literature-domain-1.bib` through `literature-domain-N.bib`. **Update task-progress.md after all domains complete**
 4. **Collect source issues**: Note any "Source issues:" reported by domain researchers for the final summary
 
-Never advance to a next step in this phase before completing the current step.
+Never advance to Phase 4 before all domain researchers have completed.
 
 ---
 
@@ -202,18 +203,19 @@ Never advance to a next step in this phase before completing the current step.
 
 ---
 
-## Phase 5: Write Review for Each Section Sequentially
+## Phase 5: Write Review Sections in Parallel
 
 1. Read synthesis outline `reviews/[project-name]/synthesis-outline.md` to identify sections
 2. For each section: identify relevant BibTeX .bib files from the outline
-3. Use Task tool to sequentially invoke N `synthesis-writer` agents (one for each section):
+3. **Launch all N synthesis writers in parallel** using a single message with multiple Task tool calls:
    - subagent_type: "synthesis-writer"
    - prompt: Include working directory, section number, section title, outline path, and relevant BibTeX files
    - Example prompt for section 1: "Working directory: reviews/[project-name]/. Section: 1. Title: [title]. Outline: synthesis-outline.md. Relevant BibTeX files: literature-domain-1.bib, literature-domain-3.bib. Write output to: reviews/[project-name]/synthesis-section-1.md"
    - description: "Write section [N]: [section name]"
-4. Wait for all N agents to finish using TaskOutput (block until complete). Expected outputs: `reviews/[project-name]/synthesis-section-1.md` through `synthesis-section-N.md`. **Update task-progress.md for each finished section**
+   - **CRITICAL**: Include ALL Task tool calls in a single message to enable parallel execution
+4. Wait for all N agents to finish using TaskOutput (block until complete). Expected outputs: `reviews/[project-name]/synthesis-section-1.md` through `synthesis-section-N.md`. **Update task-progress.md after all sections complete**
 
-Never advance to a next step in this phase before completing the current step.
+Never advance to Phase 6 before all synthesis writers have completed.
 
 ---
 
@@ -310,10 +312,10 @@ Output status updates directly as text (visible to user in real-time):
 | **Environment OK** | `Environment OK. Proceeding...` |
 | **Environment FAIL** | `Environment verification failed. [details]` |
 | **Phase transition** | `Phase 2/6: Structuring literature review into domains` |
-| **Phase transition** | `Phase 3/6: Researching literature in each domain` |
+| **Phase transition** | `Phase 3/6: Researching literature in [N] domains (parallel)` |
 | **Phase transition** | `Phase 4/6: Outlining synthesis review across domains` |
-| **Phase transition** | `Phase 5/6: Writing review for each section` |
-| **Agent launch** | `Launching domain researcher: [domain name]` |
+| **Phase transition** | `Phase 5/6: Writing [N] review sections (parallel)` |
+| **Agent launch (parallel)** | `Launching [N] domain researchers in parallel...` |
 | **Agent completion** | `Domain [N] complete: literature-domain-[N].bib ([number of sources included] sources)` |
 | **Phase completion** | `Phase [N] complete: [summary]` |
 | **Assembly** | `Assembling final review with YAML frontmatter...` |

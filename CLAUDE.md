@@ -39,9 +39,9 @@ When asked to perform a new literature review:
 **`/literature-review` skill** — Main entry point. Runs in main conversation with Task tool access. Coordinates the 6-phase workflow:
 - Phase 1: Verify environment and determine execution mode
 - Phase 2: Task tool invokes `literature-review-planner` — Decomposes research idea into domains
-- Phase 3: Task tool invokes `domain-literature-researcher` — Uses `philosophy-research` skill for API searches; outputs BibTeX files
+- Phase 3: Task tool invokes `domain-literature-researcher` ×N (parallel) — Uses `philosophy-research` skill for API searches; outputs BibTeX files
 - Phase 4: Task tool invokes `synthesis-planner` — Reads BibTeX files; designs outline emphasizing debates and gaps
-- Phase 5: Task tool invokes `synthesis-writer` — Writes sections using relevant BibTeX subsets
+- Phase 5: Task tool invokes `synthesis-writer` ×N (parallel) — Writes sections using relevant BibTeX subsets
 - Phase 6: Assemble final review files and move intermediate files
 
 **Specialized subagents** (invoked via Task tool, cannot spawn other subagents):

@@ -8,7 +8,6 @@ Last updated: Jan 1, 2026
 
 - [ ] Reduce use of conventions.md - simple instructions in agent definition instead (potential for confusion too great)
 - [ ] Remove use of `cat` in last phase of literature-review skill - inconsistent with agent role (should use Read, Write, and Edit tools)
-- [ ] Try to parallelize agents again
 - [ ] Try domain-literature-researcher with Haiku
 - [ ] Manually review all agents and files - some are very verbose (e.g. ARCHITECTURE.md)
 - [ ] Consider reintegrating editor and novelty assessor agents
@@ -35,6 +34,7 @@ Last updated: Jan 1, 2026
 - [x] Update documentation to reflect intermediate_files/ move
 - [x] Improve agent namespace
 - [x] adjust model: parameter to inherit
+- [x] Try to parallelize agents again
 
 ## Deferred
 

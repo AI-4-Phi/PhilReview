@@ -5,6 +5,7 @@ Multi-agent system for generating focused, insight-driven state-of-the-art liter
 ## Highlights
 
 - **6-phase workflow**: Environment → Plan → Research → Outline → Write → Assemble
+- **Parallel execution**: Domain researchers and section writers run concurrently
 - **Skill-based orchestration**: `/literature-review` skill coordinates specialized subagents
 - **Structured API searches**: Semantic Scholar, OpenAlex, arXiv, SEP, PhilPapers, CrossRef
 - **BibTeX-first**: Valid `.bib` files ready for Zotero import
@@ -20,9 +21,9 @@ The `/literature-review` skill orchestrates 6 phases, invoking specialized subag
 |-------|----------|--------|
 | 1. Environment | (skill) | Verify setup, choose mode |
 | 2. Plan | `literature-review-planner` | `lit-review-plan.md` |
-| 3. Research | `domain-literature-researcher` ×N | `literature-domain-*.bib` |
+| 3. Research | `domain-literature-researcher` ×N (parallel) | `literature-domain-*.bib` |
 | 4. Outline | `synthesis-planner` | `synthesis-outline.md` |
-| 5. Write | `synthesis-writer` ×N | `synthesis-section-*.md` |
+| 5. Write | `synthesis-writer` ×N (parallel) | `synthesis-section-*.md` |
 | 6. Assemble | (skill) | `literature-review-final.md`, `literature-all.bib` |
 
 ## Quick Start
