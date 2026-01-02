@@ -101,24 +101,10 @@ This phase validates conditions for subsequent phases to function.
    ```
    Environment verification failed. Cannot proceed with literature review.
 
-   The philosophy-research skill requires proper environment setup.
-   Please fix the issues below, then try again:
-
-   [Include specific failures from check_setup.py output]
-
-   Setup instructions:
-   1. Activate your conda environment (or virtual environment)
-   2. Install required packages: pip install requests beautifulsoup4 lxml pyalex arxiv
-   3. Set required environment variables:
-      - BRAVE_API_KEY: Get from https://brave.com/search/api/
-      - CROSSREF_MAILTO: Your email for CrossRef polite pool
-   4. Recommended (improves reliability):
-      - S2_API_KEY: Get from https://www.semanticscholar.org/product/api
-      - OPENALEX_EMAIL: Your email for OpenAlex polite pool
-   5. Verify setup: python .claude/skills/philosophy-research/scripts/check_setup.py
+   See GETTING_STARTED.md on how to set up the environment.
    ```
 
-**Why this matters**: If the environment isn't configured, the `philosophy-research` skill scripts used by the domain researchers will fail silently, causing agents to fall back to unstructured web searches, undermining review quality.
+**Why this matters**: If the environment isn't configured, the `philosophy-research` skill scripts used by the domain researchers will fail, causing agents to fall back to unstructured web searches, undermining review quality.
 
 5. Check for existing `task-progress.md` and determine resume point:
 

@@ -2,7 +2,7 @@
 name: synthesis-planner
 description: Plans the structure and narrative arc for focused, insight-driven literature reviews. Designs tight outlines (800-1500 words) emphasizing key debates, critical papers, and research gaps. Reads BibTeX bibliography files.
 tools: Glob, Grep, Read, Write
-model: opus
+model: inherit
 ---
 
 # Synthesis Planner

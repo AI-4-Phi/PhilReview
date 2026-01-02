@@ -7,15 +7,14 @@ Last updated: Jan 1, 2026
 ## Pending
 
 - [ ] Reduce use of conventions.md - simple instructions in agent definition instead (potential for confusion too great)
-- [ ] Improve agent namespace
 - [ ] Remove use of `cat` in last phase of literature-review skill - inconsistent with agent role (should use Read, Write, and Edit tools)
-- [ ] Fix orchestrator forgetting last steps: aggregating bib files, moving intermediate files, adding YAML frontmatter (tried to address with manual edits)
-- [ ] Update documentation to reflect intermediate_files/ move
 - [ ] Try to parallelize agents again
+- [ ] Try domain-literature-researcher with Haiku
 - [ ] Manually review all agents and files - some are very verbose (e.g. ARCHITECTURE.md)
 - [ ] Consider reintegrating editor and novelty assessor agents
 - [ ] Remove task-progress.md updating - orchestrator now uses improved Claude-internal tool, tends to forget to update task-progress.md; earlier conversations can be resumed with /resume
 - [ ] Agent idea: based on .bib file, download PDFs of sources in final report, add path to PDFs in bib files (check first: does this allow for Zotero import?)
+- [ ] Explain how users store API keys? Should offer an .env file (and read from in StartSession hook script)?
 
 ## Done
 
@@ -32,6 +31,10 @@ Last updated: Jan 1, 2026
   - task-progress.md
   - unverified-sources.bib
 - [x] Check permissions changes in Claude Code - suspicion: new version default is no permissions
+- [x] Fix orchestrator forgetting last steps: aggregating bib files, moving intermediate files, adding YAML frontmatter (tried to address with manual edits)
+- [x] Update documentation to reflect intermediate_files/ move
+- [x] Improve agent namespace
+- [x] adjust model: parameter to inherit
 
 ## Deferred
 
@@ -42,3 +45,15 @@ Last updated: Jan 1, 2026
 
 
 - [ ] Check Anthropic docs for agent refactoring - some agents seem extensive (harder to steer, context expensive); could some be skills?
+
+---
+
+## Johannes' Debug Prompt
+
+```
+Now, help me debug. Check the whole literature reivew process in this session. What obstactles did Claude encounter (errors, lack of permissions, confusions and ambiguities)? Is there anything that could have gone better? 
+
+Take your time evaluating the whole workflow progress. Keep a list of things that didn't work right or that could be improved.
+
+Let me know if you require clarification or direction. If you are unsure or would prefer further information or access to other potentially relevant documents, ask the user. 
+```

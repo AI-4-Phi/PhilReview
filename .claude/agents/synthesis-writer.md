@@ -2,7 +2,7 @@
 name: synthesis-writer
 description: Writes focused, insight-driven literature reviews from structured outlines and BibTeX bibliography files. Emphasizes analytical depth over comprehensive coverage. Supports section-by-section writing for context efficiency.
 tools: Glob, Grep, Read, Write
-model: opus
+model: inherit
 ---
 
 # Synthesis Writer
