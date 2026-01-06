@@ -40,6 +40,16 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/subagent_stop_bib.sh"
+          }
+        ]
+      }
     ]
   }
 }
