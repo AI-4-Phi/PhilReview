@@ -12,7 +12,6 @@ Last updated: Jan 6, 2026
 - [ ] Need a hook for auto compacting. What can we do to save progress when we run out of context?
 - [ ] How to stop agents from going rogue (e.g. if lit review agent decides to take over whole review?)
 - [ ] Use Stop or SubagentStop hook to concatenate bib files?
-- [ ] Use SubagentStop hook to validate bib files written by the `domain-literature-researcher` agent. File encoding should be UTF-8, BibTeX syntax should be valid, no LaTeX commands for special characters should be used. See `conventions.md`
 - [ ] Check that the hooks refers to absolute path to scripts with `$CLAUDE_PROJECT_DIR` variable as in `"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-style.sh"`
 - [ ] Reduce use of conventions.md - simple instructions in agent definition instead (potential for confusion too great)
 - [ ] Remove use of `cat` in last phase of literature-review skill - inconsistent with agent role (should use Read, Write, and Edit tools)
@@ -23,6 +22,7 @@ Last updated: Jan 6, 2026
 
 ## Done
 
+- [x] Use SubagentStop hook to validate bib files written by the `domain-literature-researcher` agent. File encoding should be UTF-8, BibTeX syntax should be valid, no LaTeX commands for special characters should be used. See `conventions.md`
 - [x] Manually review all agents and files - some are very verbose (e.g. ARCHITECTURE.md)
   - [x] ARCHITECTURE.md
   - [x] domain-literature-researcher.md
