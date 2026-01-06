@@ -99,8 +99,7 @@ Each invocation:
 
 Orchestrator:
 - Tracks completion in task-progress.md
-- After all sections complete:
-  cat synthesis-section-*.md > state-of-the-art-review-draft.md
+- After all sections complete: Use Glob+Read+Write to assemble synthesis-section-*.md into final review
 ```
 
 ## File Organization

@@ -366,10 +366,4 @@ KEY_POSITIONS:
 
 ### Combining Section Files
 
-Use proper spacing for markdown parsing:
-
-```bash
-for f in synthesis-section-*.md; do cat "$f"; echo; echo; done > literature-review-final.md
-```
-
-Two blank lines between sections ensures pandoc parses headings correctly.
+Use **Glob** to find all `synthesis-section-*.md` files (sorted by name). For each file, use the **Read** tool to get its content. Concatenate all content with two blank lines between sections (ensures pandoc parses headings correctly), then use **Write** to create `literature-review-final.md`.

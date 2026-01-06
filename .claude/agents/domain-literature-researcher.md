@@ -223,12 +223,12 @@ python .claude/skills/philosophy-research/scripts/search_arxiv.py "moral respons
 
 # Wait for all searches to complete
 wait
-
-# Check results
-cat s2_results.json
-cat openalex_results.json
-cat arxiv_results.json
 ```
+
+Use the **Read** tool to examine each result file:
+- Read `s2_results.json`
+- Read `openalex_results.json`
+- Read `arxiv_results.json`
 
 ### Best Practices for Parallel Execution
 
@@ -261,10 +261,9 @@ python .claude/skills/philosophy-research/scripts/search_arxiv.py "explainable A
 
 # Wait for completion
 wait
-
-# Process all results
-cat stage3_*.json
 ```
+
+Use **Glob** to find all `stage3_*.json` files, then use the **Read** tool to examine each result file.
 
 ## BibTeX File Structure
 

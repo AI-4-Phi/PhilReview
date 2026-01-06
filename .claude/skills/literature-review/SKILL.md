@@ -227,26 +227,21 @@ Never advance to Phase 6 before all synthesis writers have completed.
 - `literature-all.bib` — aggregated bibliography
 
 1. Assemble final review and add YAML frontmatter:
-   ```bash
-   cd reviews/[project-name]
 
-   # Create YAML frontmatter
-   cat > literature-review-final.md << 'EOF'
+   Use the **Write** tool to create `literature-review-final.md` with YAML frontmatter:
+   ```yaml
    ---
    title: "[Research Topic]"
    date: [YYYY-MM-DD]
    ---
 
-   EOF
-
-   # Append all sections
-   for f in synthesis-section-*.md; do cat "$f"; echo; echo; done >> literature-review-final.md
    ```
+
+   Then use **Glob** to find all `synthesis-section-*.md` files (sorted by name). For each file, use the **Read** tool to get its content. Concatenate all content with two blank lines between sections, then use **Edit** to append to `literature-review-final.md`.
 
 2. Aggregate all domain BibTeX files into single file:
-   ```bash
-   for f in literature-domain-*.bib; do echo; cat "$f"; done > literature-all.bib
-   ```
+
+   Use **Glob** to find all `literature-domain-*.bib` files. For each file, use the **Read** tool to get its content. Concatenate all content with a blank line between files, then use **Write** to create `literature-all.bib`.
 
 3. Clean up intermediate files:
    ```bash
