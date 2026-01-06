@@ -7,11 +7,8 @@ Last updated: Jan 6, 2026
 ## Pending
 
 - [ ] Reconcile duplicate entries across different domain .bib files. Combined final .bib file often has duplicate entries. Not necessarily with identical keys.
-- [ ] Do final review assembly with a hook and script? Sometimes it takes very long for Claude to do the final step
-- [ ] Unexpected behavior Writing Phase: `All 9 synthesis-writer agents completed. The agents drafted sections but couldn't write files due to permission restrictions. Now I'll create the sections directory and write all files, then assemble the final review.`
 - [ ] Need a hook for auto compacting. What can we do to save progress when we run out of context?
 - [ ] How to stop agents from going rogue (e.g. if lit review agent decides to take over whole review?)
-- [ ] Use Stop or SubagentStop hook to concatenate bib files?
 - [ ] Check that the hooks refers to absolute path to scripts with `$CLAUDE_PROJECT_DIR` variable as in `"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-style.sh"`
 - [ ] Reduce use of conventions.md - simple instructions in agent definition instead (potential for confusion too great)
 - [ ] Remove use of `cat` in last phase of literature-review skill - inconsistent with agent role (should use Read, Write, and Edit tools)
@@ -55,6 +52,9 @@ Last updated: Jan 6, 2026
 
 ## Deferred
 
+- [ ] Do final review assembly with a hook and script? Sometimes it takes very long for Claude to do the final step (Can't do: no hooks for skill Stop)
+- [ ] Use Stop or SubagentStop hook to concatenate bib files? (Same reason for why can't do as above: no Stop hook for skills)
+- [ ] Unexpected behavior Writing Phase: `All 9 synthesis-writer agents completed. The agents drafted sections but couldn't write files due to permission restrictions. Now I'll create the sections directory and write all files, then assemble the final review.`
 - [ ] Augment agents with skills for reading/writing .bib files or handling text files
   - https://claude-plugins.dev/skills/@K-Dense-AI/claude-scientific-skills/citation-management
   - https://github.com/cadrianmae/claude-marketplace/tree/main/plugins/pandoc

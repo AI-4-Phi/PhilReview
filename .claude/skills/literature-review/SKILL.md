@@ -223,6 +223,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
 
 **Expected outputs of this phase** (final):
 - `literature-review-final.md` — complete review with YAML frontmatter
+- `literature-review-final.docx` — DOCX version (if pandoc is installed)
 - `literature-all.bib` — aggregated bibliography
 
 1. Assemble final review and add YAML frontmatter:
@@ -257,7 +258,8 @@ Never advance to Phase 6 before all synthesis writers have completed.
 **After cleanup** (final state):
 ```
 reviews/[project-name]/
-├── literature-review-final.md    # Final review (pandoc-ready)
+├── literature-review-final.md    # Final review (markdown)
+├── literature-review-final.docx  # Final review (if pandoc available)
 ├── literature-all.bib            # Aggregated bibliography
 └── intermediate_files/           # Workflow artifacts
     ├── task-progress.md
@@ -276,6 +278,20 @@ reviews/[project-name]/
    - Domain [name]: [source]: [issue]
    ```
    If no issues: omit this message.
+
+5. **Optional: Convert to DOCX** (if pandoc is installed):
+   ```bash
+   if command -v pandoc &> /dev/null; then
+     pandoc "literature-review-final.md" \
+       --from markdown \
+       --to docx \
+       --output "literature-review-final.docx" \
+       --citeproc \
+       --bibliography="literature-all.bib" \
+       && echo "Converted to DOCX: literature-review-final.docx"
+   fi
+   ```
+   If pandoc is not installed, skip silently (DOCX is optional).
 
 ---
 
@@ -319,6 +335,7 @@ Output status updates directly as text (visible to user in real-time):
 | **Assembly** | `Assembling final review with YAML frontmatter...` |
 | **BibTeX aggregation** | `Aggregating BibTeX files -> literature-all.bib` |
 | **Cleanup** | `Moving intermediate files -> intermediate_files/` |
+| **DOCX conversion** | `Converted to DOCX: literature-review-final.docx` |
 | **Workflow complete** | `Literature review complete: literature-review-final.md ([wordcount])` |
 | **Source issues (if any)** | `⚠️ Source issues: [aggregated list from domain researchers]` |
 
