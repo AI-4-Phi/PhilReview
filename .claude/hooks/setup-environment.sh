@@ -87,6 +87,7 @@ check_package "lxml" "lxml"
 check_package "pyalex" "pyalex"
 check_package "arxiv" "arxiv"
 check_package "requests" "requests"
+check_package "pybtex" "pybtex"
 
 if [ -n "$MISSING_PACKAGES" ]; then
   echo "Environment setup failed: Missing packages:$MISSING_PACKAGES. Run 'uv sync' to install dependencies." >&2

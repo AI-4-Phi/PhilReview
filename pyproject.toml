@@ -10,4 +10,5 @@ dependencies = [
     "lxml>=4.9.0",
     "pyalex>=0.10",
     "arxiv>=1.4.0",
+    "pybtex>=0.24.0",
 ]
