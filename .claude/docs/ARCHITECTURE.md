@@ -111,6 +111,7 @@ reviews/[project-name]/
 ├── literature-all.bib                    # Aggregated BibTeX (Zotero/pandoc)
 │
 ├── intermediate_files/                   # Archived workflow artifacts
+│   ├── json/                             # API response files (archived)
 │   ├── task-progress.md
 │   ├── lit-review-plan.md
 │   ├── synthesis-outline.md
