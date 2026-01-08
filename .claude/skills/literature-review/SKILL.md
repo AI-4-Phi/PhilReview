@@ -247,12 +247,14 @@ Never advance to Phase 6 before all synthesis writers have completed.
    - Upgrade importance level if a later domain assigned higher importance
    - Log which duplicates were removed to console
 
-3. Clean up intermediate files:
+3. Clean up intermediate files (use absolute paths to avoid cwd issues):
    ```bash
-   mkdir -p intermediate_files
-   mv task-progress.md lit-review-plan.md synthesis-outline.md intermediate_files/
-   mv synthesis-section-*.md literature-domain-*.bib intermediate_files/
+   mkdir -p reviews/[project-name]/intermediate_files
+   mv reviews/[project-name]/task-progress.md reviews/[project-name]/lit-review-plan.md reviews/[project-name]/synthesis-outline.md reviews/[project-name]/intermediate_files/
+   mv reviews/[project-name]/synthesis-section-*.md reviews/[project-name]/literature-domain-*.bib reviews/[project-name]/intermediate_files/
    ```
+
+   **Note:** Do NOT use `cd` to change directories. Always use paths relative to the repo root or absolute paths to prevent working directory mismatches in subsequent commands.
 
 **After cleanup** (final state):
 ```
@@ -281,16 +283,19 @@ reviews/[project-name]/
 5. **Optional: Convert to DOCX** (if pandoc is installed):
    ```bash
    if command -v pandoc &> /dev/null; then
-     pandoc "literature-review-final.md" \
+     pandoc "reviews/[project-name]/literature-review-final.md" \
        --from markdown \
        --to docx \
-       --output "literature-review-final.docx" \
+       --output "reviews/[project-name]/literature-review-final.docx" \
        --citeproc \
-       --bibliography="literature-all.bib" \
+       --bibliography="reviews/[project-name]/literature-all.bib" \
        && echo "Converted to DOCX: literature-review-final.docx"
+   else
+     echo "Pandoc not installed, skipping DOCX conversion"
    fi
    ```
-   If pandoc is not installed, skip silently (DOCX is optional).
+
+   **Important:** Use paths relative to repo root (not bare filenames). Do NOT use `&&/||` chaining for this check, as Pandoc errors would trigger the wrong fallback message.
 
 ---
 
