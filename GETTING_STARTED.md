@@ -1,48 +1,56 @@
 # Getting Started
 
-## Prerequisites
+This guide covers setup for both local development and Claude's cloud environment.
 
-1. **[Claude Code](https://claude.ai/code)** installed and configured
+## Quick Start: Claude Cloud Environment
+
+If you're using Claude Code in the cloud (via claude.ai, the Claude desktop app, or the Claude mobile app):
+
+1. **Fork this repository** (optional but recommended for persistence)
+2. **Open in Claude Code** via the GitHub integration
+3. **Provide your API keys** by pasting them in the chat:
+
+Tell Claude:
+```
+Please create a .env file with these keys:
+
+BRAVE_API_KEY=your-brave-api-key
+CROSSREF_MAILTO=your@email.com
+S2_API_KEY=your-semantic-scholar-key
+OPENALEX_EMAIL=your@email.com
+```
+
+**Note:**
+- The environment is ephemeral—`.env` files are not persisted between sessions
+- You'll need to provide API keys at the start of each new session
+
+**Alternative: Persistent keys via private fork**
+1. Fork this repo and make it private
+2. Add `.env` to your fork (it's already in `.gitignore`)
+3. Use your private fork with Claude Code
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+1. **[Claude Code CLI](https://claude.ai/code)** installed and configured
 2. **[uv](https://github.com/astral-sh/uv)** - Fast Python package manager
 3. **Python 3.9+**
 
-### Install uv
+Clone this repository 
 
-**macOS/Linux:**
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+git clone https://github.com/marco2meyer/philo-sota.git
 ```
+### Environment Setup
 
-**Windows:**
-```powershell
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
+#### Automatic Setup (Recommended)
 
-Or via package managers:
-```bash
-# macOS
-brew install uv
+The Python environment is **automatically configured** when you start Claude Code in this repository.
 
-# pipx
-pipx install uv
-```
-
-## Environment Setup
-
-### Automatic Setup (Recommended)
-
-The Python environment is **automatically configured** when you start Claude Code in this repository:
-
-1. Clone this repository
-2. Start Claude Code: `claude-code` or open in your IDE
-3. The SessionStart hook automatically:
-   - Creates a virtual environment (`.venv/`)
-   - Installs all dependencies from `pyproject.toml`
-   - Activates the environment
-
-Setup runs silently on success. If there's an error (e.g., `uv` not installed, missing packages), Claude will be notified and can help you resolve it.
-
-### Manual Setup (Optional)
+#### Manual Setup (Optional)
 
 If you want to set up manually:
 
@@ -58,26 +66,14 @@ source .venv/bin/activate  # macOS/Linux
 
 ### API Keys
 
-The literature search scripts require API keys. Either set these as shell environment variables manually or the create a `.env` file in the project root:
+The literature search scripts require API keys. Create a `.env` file in the project root:
 
 ```bash
 cp .env.example .env
 # Edit .env with your values
 ```
 
-The `.env` file should contain:
-
-```bash
-# Required
-BRAVE_API_KEY=your-key        # For SEP/PhilPapers discovery
-CROSSREF_MAILTO=your@email    # For CrossRef polite pool
-
-# Recommended (improves rate limits)
-S2_API_KEY=your-key           # Semantic Scholar
-OPENALEX_EMAIL=your@email     # OpenAlex polite pool
-```
-
-Variables in `.env` take priority over your shell environment and are automatically loaded when Claude Code starts.
+See `.env.example` for required and recommended variables. Variables in `.env` take priority over your shell environment and are automatically loaded when Claude Code starts.
 
 **Get API keys:**
 - Brave Search: https://brave.com/search/api/
@@ -94,12 +90,9 @@ python .claude/skills/philosophy-research/scripts/check_setup.py
 2. Provide your research idea:
 
 ```
-I need a state-of-the-art literature review for my research on [topic].
+I need a literature review for my research on [topic].
 
 [2-5 paragraph description of your research idea]
-
-Target: [word count, e.g., 3000-4000 words]
-Audience: [e.g., grant reviewers, journal editors]
 ```
 
 3. The `/literature-review` skill coordinates 6 phases automatically:
@@ -129,6 +122,8 @@ Import the aggregated bibliography into Zotero:
 2. Select `literature-all.bib` (or individual `literature-domain-*.bib` files from `intermediate_files/`)
 3. The `note` fields contain paper summaries and relevance notes
 
+Then use [Zotero's function `Find Full Text`](https://guides.library.oregonstate.edu/zotero/fulltextresolver) to download PDFs.
+
 ## Resuming an Interrupted Review
 
 If a review is interrupted, resume with:
@@ -137,15 +132,6 @@ Resume the literature review from task-progress.md in reviews/[your-topic]/
 ```
 
 The skill detects the last completed phase and continues from there.
-
-## Execution Modes
-
-**Autopilot** (default): Runs all phases automatically.
-
-**Human-in-the-loop**: Add checkpoints for review:
-```
-Run the literature review with approval checkpoints after each phase.
-```
 
 ## Tips
 

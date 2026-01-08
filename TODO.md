@@ -6,13 +6,13 @@ Last updated: Jan 8, 2026
 
 ## Pending
 
-- [ ] Clean up CLAUDE.md: Don't need all these links to Claude documentation, Claude uses claude-code-guide agent when needed.
-- [ ] Update the documentation on how to run this skill in the Claude default cloud environment. (Esp. GETTING_STARTED.md). Complication: probably need to give Claude `.env` file. Not sure how to best get API keys into repo non-persistently preferably? Can a user drop `.env` or the keys in the chat? Less good (because adds keys to repo): Fork the repo, make it private, add the `.env` in the repo root.
-- [ ] Does Claude need a prompt editor? I.e. give user feedback on a bad prompt, ask user to clarify it etc.
+- [ ] Evaluate whether SKILL.md should be updated to encourage Claude to ask Users for direction and clarification about the literature review that they are looking or IF AND ONLY IF Claude assesses that a prompt is incoplete, vague, contradictory, over-ambitious, ambiguous, etc -- or if the prompt is otherwise defective. 
 
 
 ## Done
 
+- [x] Update the documentation on how to run this skill in the Claude default cloud environment. (Esp. GETTING_STARTED.md). Complication: probably need to give Claude `.env` file. Not sure how to best get API keys into repo non-persistently preferably? Can a user drop `.env` or the keys in the chat? Less good (because adds keys to repo): Fork the repo, make it private, add the `.env` in the repo root.
+- [x] Clean up CLAUDE.md: Don't need all these links to Claude documentation, Claude uses claude-code-guide agent when needed.
 - [x] Have Claude check all the python scripts in philosophy-research/scripts
   - [x] Fix message logging again, which the refactor seems to have broken
   - [-] Make sure all the JSON files are neatly written to some `tmp/` again and not dumped in the middle of the repository. (NOTE: Claude seems to handle locations of temporary python script files well on its own without further instruction)
