@@ -248,10 +248,13 @@ Never advance to Phase 6 before all synthesis writers have completed.
    - Log which duplicates were removed to console
 
 3. Clean up intermediate files (use absolute paths to avoid cwd issues):
+
+   Move JSON API response files to `intermediate_files/json/` for archival (allows debugging while keeping review directory clean):
    ```bash
-   mkdir -p reviews/[project-name]/intermediate_files
-   mv reviews/[project-name]/task-progress.md reviews/[project-name]/lit-review-plan.md reviews/[project-name]/synthesis-outline.md reviews/[project-name]/intermediate_files/
-   mv reviews/[project-name]/synthesis-section-*.md reviews/[project-name]/literature-domain-*.bib reviews/[project-name]/intermediate_files/
+   mkdir -p "reviews/[project-name]/intermediate_files/json"
+   mv "reviews/[project-name]"/*.json "reviews/[project-name]/intermediate_files/json/" 2>/dev/null || true
+   mv "reviews/[project-name]/task-progress.md" "reviews/[project-name]/lit-review-plan.md" "reviews/[project-name]/synthesis-outline.md" "reviews/[project-name]/intermediate_files/"
+   mv "reviews/[project-name]/synthesis-section-"*.md "reviews/[project-name]/literature-domain-"*.bib "reviews/[project-name]/intermediate_files/"
    ```
 
    **Note:** Do NOT use `cd` to change directories. Always use paths relative to the repo root or absolute paths to prevent working directory mismatches in subsequent commands.
@@ -263,6 +266,9 @@ reviews/[project-name]/
 ├── literature-review-final.docx  # Final review (if pandoc available)
 ├── literature-all.bib            # Aggregated bibliography
 └── intermediate_files/           # Workflow artifacts
+    ├── json/                     # JSON files archived here
+    │   ├── openalex_results.json
+    │   └── stage3_*.json
     ├── task-progress.md
     ├── lit-review-plan.md
     ├── synthesis-outline.md

@@ -218,10 +218,13 @@ WebSearch: "[topic] [author/org] blog/report/whitepaper"
 Use bash background processes (`&`) and `wait` to run searches concurrently:
 
 ```bash
+# Capture absolute review directory path
+REVIEW_DIR="$PWD"
+
 # Stage 3: Run all API searches in parallel
-python .claude/skills/philosophy-research/scripts/s2_search.py "free will compatibilism" --field Philosophy --year 2015-2025 --limit 30 > s2_results.json 2>&1 &
-python .claude/skills/philosophy-research/scripts/search_openalex.py "free will compatibilism" --year 2015-2025 --limit 30 > openalex_results.json 2>&1 &
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "moral responsibility determinism" --category cs.AI --limit 20 > arxiv_results.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/s2_search.py "free will compatibilism" --field Philosophy --year 2015-2025 --limit 30 > "$REVIEW_DIR/s2_results.json" &
+python .claude/skills/philosophy-research/scripts/search_openalex.py "free will compatibilism" --year 2015-2025 --limit 30 > "$REVIEW_DIR/openalex_results.json" &
+python .claude/skills/philosophy-research/scripts/search_arxiv.py "moral responsibility determinism" --category cs.AI --limit 20 > "$REVIEW_DIR/arxiv_results.json" &
 
 # Wait for all searches to complete
 wait
@@ -255,11 +258,14 @@ tail -f s2_results.json openalex_results.json arxiv_results.json
 
 **Example: Complete parallel Stage 3**:
 ```bash
+# Capture absolute review directory path
+REVIEW_DIR="$PWD"
+
 # Launch all Stage 3 searches concurrently
-python .claude/skills/philosophy-research/scripts/s2_search.py "mechanistic interpretability" --field Philosophy --year 2020-2025 --limit 40 > stage3_s2.json 2>&1 &
-python .claude/skills/philosophy-research/scripts/search_openalex.py "mechanistic interpretability" --year 2020-2025 --min-citations 5 --limit 40 > stage3_openalex.json 2>&1 &
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "interpretability neural networks" --category cs.AI --recent --limit 30 > stage3_arxiv.json 2>&1 &
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "explainable AI" --category cs.AI --year 2023 --limit 20 > stage3_arxiv2.json 2>&1 &
+python .claude/skills/philosophy-research/scripts/s2_search.py "mechanistic interpretability" --field Philosophy --year 2020-2025 --limit 40 > "$REVIEW_DIR/stage3_s2.json" &
+python .claude/skills/philosophy-research/scripts/search_openalex.py "mechanistic interpretability" --year 2020-2025 --min-citations 5 --limit 40 > "$REVIEW_DIR/stage3_openalex.json" &
+python .claude/skills/philosophy-research/scripts/search_arxiv.py "interpretability neural networks" --category cs.AI --recent --limit 30 > "$REVIEW_DIR/stage3_arxiv.json" &
+python .claude/skills/philosophy-research/scripts/search_arxiv.py "explainable AI" --category cs.AI --year 2023 --limit 20 > "$REVIEW_DIR/stage3_arxiv2.json" &
 
 # Wait for completion
 wait

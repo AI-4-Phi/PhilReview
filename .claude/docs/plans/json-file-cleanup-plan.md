@@ -14,11 +14,13 @@
 
 **Move JSON files to `intermediate_files/json/` subfolder during Phase 6 cleanup**
 
-Based on Claude Code documentation review:
+Based on Claude Code documentation review (see "Environment Variable Assessment" section below):
 - ✅ Use absolute paths (required for reliable file operations)
+- ✅ `REVIEW_DIR` environment variable is safe (persists within single bash call)
 - ✅ Avoid `rm` command (blocked by security permissions)
 - ✅ Keep files for debugging/transparency
 - ✅ Maintain existing parallel execution pattern
+- ✅ Validated against built-in `$CLAUDE_PROJECT_DIR` alternative (current approach is simpler)
 
 **Pattern**:
 ```bash
@@ -132,6 +134,14 @@ mv "reviews/[project-name]/synthesis-section-"*.md "reviews/[project-name]/liter
    - Reliable file operations (Claude Code requirement)
    - Agents may have different working directories than expected
    - Explicit > implicit
+   - **Environment variable safety**: `REVIEW_DIR` is safe because:
+     - All commands using it execute in a single Bash tool call (via `&` and `wait`)
+     - Variables persist within a single bash call (per Claude Code docs)
+     - No naming conflicts with built-in `CLAUDE_*` or `ANTHROPIC_*` variables
+   - **Alternative considered**: `$CLAUDE_PROJECT_DIR` (built-in pointing to project root)
+     - Not used because agent would need to construct full path with project name
+     - Current approach (`$PWD`) is simpler since agent cd's to working directory
+     - Both approaches produce absolute paths (meet Claude Code requirements)
 
 2. **Remove `2>&1`**
    - Keeps JSON files clean (only stdout content)
@@ -147,6 +157,34 @@ mv "reviews/[project-name]/synthesis-section-"*.md "reviews/[project-name]/liter
    - Single location for cleanup logic
    - Consistent with existing workflow pattern
    - Agents stay focused on search task
+
+---
+
+## Environment Variable Assessment
+
+**Findings from Claude Code Documentation Review**:
+
+1. **Built-in variables available**:
+   - `$CLAUDE_PROJECT_DIR` — Absolute path to project root (always available)
+   - `$CLAUDE_ENV_FILE` — SessionStart hook variable for persisting environment vars
+   - `$CLAUDE_CODE_REMOTE` — Indicates web vs. local environment
+
+2. **Bash environment behavior** (critical):
+   - Each Bash tool call runs in a fresh shell environment
+   - Variables set in one bash call do NOT persist to subsequent calls
+   - **Exception**: Variables persist within a single multi-command bash call
+
+3. **Best practices**:
+   - Always use absolute paths for reliable file operations
+   - Quote variable references (`"$VAR"` not `$VAR`) for spaces in paths
+   - Use SessionStart hooks + `$CLAUDE_ENV_FILE` for cross-command persistence
+   - Avoid `cd` when possible; use absolute paths instead
+
+4. **Application to this plan**:
+   - ✅ `REVIEW_DIR="$PWD"` is safe: all usages in same bash call (via `&` and `wait`)
+   - ✅ Produces absolute paths (meets "always use absolute paths" requirement)
+   - ✅ No persistence needed across separate bash calls for this use case
+   - ℹ️ Alternative `$CLAUDE_PROJECT_DIR` available but adds complexity without benefit
 
 ---
 

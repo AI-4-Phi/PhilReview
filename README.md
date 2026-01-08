@@ -43,6 +43,7 @@ reviews/[topic]/
 ├── literature-review-final.md      # Complete review
 ├── literature-all.bib              # Aggregated bibliography (import to Zotero)
 └── intermediate_files/
+    ├── json/                       # API response files (archived)
     ├── lit-review-plan.md          # Domain decomposition
     ├── literature-domain-*.bib     # Per-domain BibTeX files
     ├── synthesis-outline.md        # Review structure
