@@ -29,12 +29,9 @@ The `/literature-review` skill orchestrates 6 phases, invoking specialized subag
 ## Quick Start
 
 ```
-I need a state-of-the-art literature review for [topic].
+I need a literature review for [topic].
 
 [Your research idea in 2-5 paragraphs]
-
-Target: 3000-4000 words
-Audience: Grant reviewers
 ```
 
 See [GETTING_STARTED.md](GETTING_STARTED.md) for setup and detailed instructions.

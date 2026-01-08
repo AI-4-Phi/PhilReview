@@ -6,8 +6,6 @@ Last updated: Jan 8, 2026
 
 ## Pending
 
-- [ ] Evaluate whether SKILL.md should be updated to encourage Claude to ask Users for direction and clarification about the literature review that they are looking or IF AND ONLY IF Claude assesses that a prompt is incoplete, vague, contradictory, over-ambitious, ambiguous, etc -- or if the prompt is otherwise defective. 
-
 
 ## Done
 
@@ -60,6 +58,7 @@ Last updated: Jan 8, 2026
 
 ## Deferred
 
+- [ ] Evaluate whether SKILL.md should be updated to encourage Claude to ask Users for direction and clarification about the literature review that they are looking or IF AND ONLY IF Claude assesses that a prompt is incoplete, vague, contradictory, over-ambitious, ambiguous, etc -- or if the prompt is otherwise defective. (NOTE: no new features now, Johannes has an implementation plan in his OmniFocus)
 - [ ] Consider reintegrating editor and novelty assessor agents (DROPPED: too complicated, dilutes focus)
 - [ ] Agent idea: based on .bib file, download PDFs of sources in final report, add path to PDFs in bib files (check first: does this allow for Zotero import?) (NO NEED: Zotero has this function: "Find Full Text".)
 - [ ] Need a hook for auto compacting. What can we do to save progress when we run out of context? (Check first if this is really needed. We already have a resume logic)
