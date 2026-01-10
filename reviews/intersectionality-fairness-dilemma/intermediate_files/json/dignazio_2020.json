@@ -1,0 +1,18 @@
+{
+  "status": "error",
+  "source": "crossref",
+  "query": {
+    "title": "Data Feminism",
+    "author": "D'Ignazio",
+    "year": 2020
+  },
+  "results": [],
+  "count": 0,
+  "errors": [
+    {
+      "type": "not_found",
+      "message": "Best match score (19.4) below threshold (30)",
+      "recoverable": false
+    }
+  ]
+}
