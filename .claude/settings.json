@@ -2,8 +2,6 @@
   "permissions": {
     "defaultMode": "default",
     "deny": [
-      "Bash(rm:*)",
-      "Bash(rmdir:*)",
       "Bash(sudo:*)",
       "Bash(dd:*)",
       "Bash(mkfs:*)"
@@ -28,7 +26,9 @@
     ],
     "ask": [
       "Write(*)",
-      "Edit(*)"
+      "Edit(*)",
+      "Bash(rm:*)",
+      "Bash(rmdir:*)"
     ]
   },
   "hooks": {
