@@ -55,6 +55,10 @@ When asked to perform a new literature review:
 
 For agent architecture and design patterns, see `.claude/docs/ARCHITECTURE.md`.
 
+## Windows Compatibility
+
+This repository works natively on Windows without WSL. Claude Code on Windows requires Git for Windows and uses Git Bash to execute hooks and commands. The SessionStart hook (`.claude/hooks/setup-environment.sh`) detects the platform and activates the correct venv path (`.venv/Scripts/activate` on Windows, `.venv/bin/activate` on Unix).
+
 ## Testing
 
 Run tests with: `pytest tests/`
@@ -65,7 +69,7 @@ Run tests with: `pytest tests/`
 - **Single source of truth** — Dependencies in `pyproject.toml`, agent definitions in `.claude/agents/`, skill definitions in `.claude/skills/`. Avoid duplicating information across files.
 - **Simple and concise** — Prefer simple solutions. Keep agent/skill instructions brief and effective. Avoid verbosity.
 - **Verify assumptions empirically** — Test bash patterns and environment behavior in actual subagent context before codifying. Don't assume documentation is accurate.
-- **Cross-platform** — Implementations must work in Claude Code Cloud, Linux, macOS. Use forward slashes in paths.
+- **Cross-platform** — Implementations must work in Claude Code Cloud, Linux, macOS, and Windows. Use forward slashes in paths. Handle platform-specific paths (e.g., venv activation scripts differ between Unix and Windows).
 
 ## Adding Python Dependencies
 

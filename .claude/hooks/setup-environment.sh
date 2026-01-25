@@ -59,12 +59,15 @@ if ! uv sync --quiet 2>/dev/null; then
   exit 2
 fi
 
-# Activate the virtual environment
-if [ ! -f ".venv/bin/activate" ]; then
-  echo "Environment setup failed: .venv/bin/activate not found after uv sync." >&2
+# Activate the virtual environment (cross-platform: Windows uses Scripts/, Unix uses bin/)
+if [ -f ".venv/Scripts/activate" ]; then
+  source .venv/Scripts/activate
+elif [ -f ".venv/bin/activate" ]; then
+  source .venv/bin/activate
+else
+  echo "Environment setup failed: .venv activation script not found after uv sync." >&2
   exit 2
 fi
-source .venv/bin/activate
 
 # Capture environment state after activation
 ENV_AFTER=$(export -p | sort)
