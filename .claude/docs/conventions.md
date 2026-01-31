@@ -50,20 +50,53 @@ author = {Smith, John and Jones, Mary and Brown, David}
 
 ### Required Fields by Entry Type
 
-**@article**: author, title, journal, year, volume, pages
+**@article**: author, title, journal, year
+- Include volume, pages only if API provides them
 - Optional: number, doi
+- Note: If API doesn't provide journal/venue, use `@misc` instead
 
 **@book**: author, title, publisher, year
 - Optional: address, doi, edition
 
-**@incollection**: author, title, booktitle, publisher, year, pages
+**@incollection**: author, title, booktitle, publisher, year
+- Include pages only if API provides them
 - Optional: editor, address
+
+**@misc**: author, title, year, howpublished OR url
+- Use for papers with no venue info, web sources, preprints
 
 ### DOI Field
 
 - Only include verified DOIs from publisher sites or CrossRef
 - Format: `doi = {10.XXXX/xxxxx}` (no URL prefix)
 - If DOI unavailable, omit the field — never fabricate
+
+### Field Grounding — CRITICAL
+
+**ALL bibliographic fields must come ONLY from API/tool output.**
+
+This prevents hallucination of any metadata. The rule applies to EVERY field, not just journal names.
+
+**Metadata source priority** (for papers with DOIs):
+1. **CrossRef** (via `verify_paper.py --doi`) — authoritative source for publication metadata
+2. **S2/OpenAlex/arXiv** — fallback if CrossRef unavailable
+
+| Field | Preferred Source | Fallback Source | If Missing Everywhere |
+|-------|-----------------|-----------------|----------------------|
+| `author` | Any API | — | Required — don't include paper |
+| `title` | Any API | — | Required — don't include paper |
+| `year` | Any API | — | Required — don't include paper |
+| `journal`/`booktitle` | CrossRef `container_title` | S2 `venue`, OpenAlex `source.name` | **Omit field entirely** |
+| `volume` | CrossRef | S2/OpenAlex | **Omit field entirely** |
+| `number` (issue) | CrossRef `issue` | S2/OpenAlex | **Omit field entirely** |
+| `pages` | CrossRef `page` | S2/OpenAlex | **Omit field entirely** |
+| `publisher` | CrossRef | S2/OpenAlex | **Omit field entirely** |
+| `editor` | API output | — | **Omit field entirely** |
+| `doi` | Any API or verify_paper.py | — | **Omit field entirely** |
+
+**Never fill in missing fields from model knowledge** — even if you "recognize" the paper. This applies to ALL fields. A BibTeX entry with missing fields is preferable to one with hallucinated data.
+
+If no venue information is available from any source, use `@misc` entry type instead of `@article`.
 
 ### Keywords Field
 
