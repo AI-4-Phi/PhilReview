@@ -15,6 +15,7 @@
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(python:*)",
+      "Bash(*python .claude/skills/philosophy-research/scripts*)",
       "Bash(source:*)",
       "Bash(echo:*)",
       "Bash(cat:*)",
