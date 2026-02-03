@@ -50,6 +50,24 @@ fi
 # Load project .env file (overrides existing environment)
 load_dotenv ".env"
 
+# Detect stale venv (created at a different path) and recreate if necessary
+EXPECTED_VENV_PATH="$(pwd)/.venv"
+if [ -f ".venv/bin/activate" ]; then
+  # Unix: extract VIRTUAL_ENV path from activate script
+  VENV_PATH=$(grep "^VIRTUAL_ENV=" .venv/bin/activate 2>/dev/null | head -1 | cut -d"'" -f2)
+  if [ -n "$VENV_PATH" ] && [ "$VENV_PATH" != "$EXPECTED_VENV_PATH" ]; then
+    echo "Detected stale venv (was at: $VENV_PATH). Recreating..."
+    rm -rf .venv
+  fi
+elif [ -f ".venv/Scripts/activate" ]; then
+  # Windows: extract VIRTUAL_ENV path from activate script
+  VENV_PATH=$(grep "^VIRTUAL_ENV=" .venv/Scripts/activate 2>/dev/null | head -1 | cut -d"'" -f2)
+  if [ -n "$VENV_PATH" ] && [ "$VENV_PATH" != "$EXPECTED_VENV_PATH" ]; then
+    echo "Detected stale venv (was at: $VENV_PATH). Recreating..."
+    rm -rf .venv
+  fi
+fi
+
 # Capture environment state before activation
 ENV_BEFORE=$(export -p | sort)
 
