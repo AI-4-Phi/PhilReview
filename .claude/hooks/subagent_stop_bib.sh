@@ -29,7 +29,7 @@ fi
 # Validate each .bib file using CLAUDE_PROJECT_DIR for the validator path
 ALL_ERRORS=""
 for bib_file in $BIB_FILES; do
-    # Run validator and capture result
+    # Run BibTeX syntax validator
     RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/bib_validator.py" "$bib_file" 2>&1 || true)
     VALID=$(echo "$RESULT" | jq -r '.valid // "true"')
 
@@ -38,6 +38,19 @@ for bib_file in $BIB_FILES; do
         ERRORS=$(echo "$RESULT" | jq -r '.errors[]' 2>/dev/null || echo "$RESULT")
         ALL_ERRORS="${ALL_ERRORS}${ERRORS}
 "
+    fi
+
+    # Run metadata provenance validator (checks fields against API JSON output)
+    JSON_DIR="${WORKING_DIR}/intermediate_files/json"
+    if [[ -d "$JSON_DIR" ]]; then
+        METADATA_RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/metadata_validator.py" "$bib_file" "$JSON_DIR" 2>&1 || true)
+        METADATA_VALID=$(echo "$METADATA_RESULT" | jq -r '.valid // "true"')
+
+        if [[ "$METADATA_VALID" == "false" ]]; then
+            METADATA_ERRORS=$(echo "$METADATA_RESULT" | jq -r '.errors[]' 2>/dev/null || echo "$METADATA_RESULT")
+            ALL_ERRORS="${ALL_ERRORS}${METADATA_ERRORS}
+"
+        fi
     fi
 done
 
