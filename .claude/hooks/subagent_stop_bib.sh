@@ -1,6 +1,8 @@
 #!/bin/bash
-# BibTeX validation hook for SubagentStop
-# Validates .bib files when domain-literature-researcher agent exits.
+# BibTeX validation and cleaning hook for SubagentStop
+# When domain-literature-researcher agent exits:
+# 1. Validates BibTeX syntax (blocks on errors - must be fixed)
+# 2. Cleans hallucinated metadata fields (removes unverifiable fields, does not block)
 # Returns JSON with decision: "allow" or "block" with reason.
 
 set -e
@@ -12,54 +14,63 @@ SUBAGENT_CONTEXT=$(cat)
 AGENT_NAME=$(echo "$SUBAGENT_CONTEXT" | jq -r '.agent_name // .subagent_type // empty')
 WORKING_DIR=$(echo "$SUBAGENT_CONTEXT" | jq -r '.cwd // "."')
 
-# Only validate for domain-literature-researcher agent
+# Only process for domain-literature-researcher agent
 if [[ "$AGENT_NAME" != "domain-literature-researcher" ]]; then
     echo '{"decision": "allow"}'
     exit 0
 fi
 
-# Find .bib files in working directory
-BIB_FILES=$(find "$WORKING_DIR" -maxdepth 1 -name "*.bib" -type f 2>/dev/null || true)
-
-if [[ -z "$BIB_FILES" ]]; then
+# Check if any .bib files exist in working directory
+if ! find "$WORKING_DIR" -maxdepth 1 -name "*.bib" -type f -print -quit 2>/dev/null | grep -q .; then
     echo '{"decision": "allow"}'
     exit 0
 fi
 
-# Validate each .bib file using CLAUDE_PROJECT_DIR for the validator path
-ALL_ERRORS=""
-for bib_file in $BIB_FILES; do
-    # Run BibTeX syntax validator
+# Track syntax errors (these block) and cleaning summaries (informational)
+SYNTAX_ERRORS=""
+CLEANING_SUMMARY=""
+
+# Process .bib files with proper null-delimiter handling for filenames with spaces
+while IFS= read -r -d '' bib_file; do
+    # Step 1: BibTeX syntax validation (blocks on errors)
     RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/bib_validator.py" "$bib_file" 2>&1 || true)
     VALID=$(echo "$RESULT" | jq -r '.valid // "true"')
 
     if [[ "$VALID" == "false" ]]; then
-        # Extract errors and append to collection
         ERRORS=$(echo "$RESULT" | jq -r '.errors[]' 2>/dev/null || echo "$RESULT")
-        ALL_ERRORS="${ALL_ERRORS}${ERRORS}
+        SYNTAX_ERRORS="${SYNTAX_ERRORS}${ERRORS}
 "
     fi
 
-    # Run metadata provenance validator (checks fields against API JSON output)
+    # Step 2: Metadata provenance cleaning (removes hallucinated fields, does NOT block)
     JSON_DIR="${WORKING_DIR}/intermediate_files/json"
     if [[ -d "$JSON_DIR" ]]; then
-        METADATA_RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/metadata_validator.py" "$bib_file" "$JSON_DIR" 2>&1 || true)
-        METADATA_VALID=$(echo "$METADATA_RESULT" | jq -r '.valid // "true"')
+        CLEAN_RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/metadata_cleaner.py" "$bib_file" "$JSON_DIR" --backup 2>&1 || true)
+        FIELDS_REMOVED=$(echo "$CLEAN_RESULT" | jq -r '.total_fields_removed // 0')
+        ENTRIES_CLEANED=$(echo "$CLEAN_RESULT" | jq -r '.entries_cleaned // 0')
 
-        if [[ "$METADATA_VALID" == "false" ]]; then
-            METADATA_ERRORS=$(echo "$METADATA_RESULT" | jq -r '.errors[]' 2>/dev/null || echo "$METADATA_RESULT")
-            ALL_ERRORS="${ALL_ERRORS}${METADATA_ERRORS}
+        if [[ "$FIELDS_REMOVED" =~ ^[0-9]+$ ]] && [[ "$FIELDS_REMOVED" -gt 0 ]]; then
+            # Log what was cleaned (informational, not blocking)
+            CLEANED_ENTRIES=$(echo "$CLEAN_RESULT" | jq -r '.cleaned_entries | to_entries[] | "  - \(.key): \(.value | join(", "))"' 2>/dev/null || true)
+            CLEANING_SUMMARY="${CLEANING_SUMMARY}
+Cleaned $(basename "$bib_file"): Removed $FIELDS_REMOVED unverifiable field(s) from $ENTRIES_CLEANED entry(ies):
+$CLEANED_ENTRIES
 "
         fi
     fi
-done
+done < <(find "$WORKING_DIR" -maxdepth 1 -name "*.bib" -type f -print0 2>/dev/null)
 
-# If there are errors, block with reason
-if [[ -n "$ALL_ERRORS" ]]; then
-    # Format errors as JSON-safe string
-    REASON=$(printf '%s' "$ALL_ERRORS" | jq -Rs .)
+# Block only on syntax errors (not on metadata cleaning)
+if [[ -n "$SYNTAX_ERRORS" ]]; then
+    REASON=$(printf '%s' "$SYNTAX_ERRORS" | jq -Rs .)
     echo "{\"decision\": \"block\", \"reason\": $REASON}"
     exit 2
+fi
+
+# If we cleaned any fields, include summary in allow message (informational)
+if [[ -n "$CLEANING_SUMMARY" ]]; then
+    # Log to stderr for visibility (Claude Code shows this)
+    echo "METADATA CLEANING PERFORMED:$CLEANING_SUMMARY" >&2
 fi
 
 echo '{"decision": "allow"}'
