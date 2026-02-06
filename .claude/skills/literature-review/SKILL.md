@@ -99,15 +99,16 @@ This phase validates conditions for subsequent phases to function.
 
 **Why this matters**: If the environment isn't configured, the `philosophy-research` skill scripts used by the domain researchers will fail, causing agents to fall back to unstructured web searches, undermining review quality.
 
-5. Check for existing `task-progress.md` and determine resume point:
+5. Check for an active review pointer and determine resume point:
 
-   **If `task-progress.md` does NOT exist**: Create new `task-progress.md` and proceed to step 6.
+   **Check `reviews/.active-review`** to find the review directory:
+   - If `reviews/.active-review` exists → read the path from it (e.g., `reviews/epistemic-autonomy-ai`), use that as the working directory, and check file state below
+   - If `reviews/.active-review` does NOT exist → this is a fresh review, proceed to step 6
+     (If you suspect an orphaned review from a previous interruption, scan `reviews/*/task-progress.md` to locate it.)
 
-   **If `task-progress.md` EXISTS**: Resume from interruption using this logic:
+   **Resume logic** (check files in the review directory, in order):
 
    ```
-   Resume Logic (check in order):
-
    1. If literature-review-final.md exists -> Workflow complete, inform user
 
    2. If synthesis-section-*.md files exist:
@@ -126,7 +127,9 @@ This phase validates conditions for subsequent phases to function.
 
    5. If lit-review-plan.md exists -> Resume at Phase 3
 
-   6. Otherwise -> Resume at Phase 2
+   6. If task-progress.md exists but no other files -> Resume at Phase 2
+
+   7. Otherwise -> Treat as fresh review (proceed to step 6)
    ```
 
    Output: "Resuming from Phase [N]: [phase name]..."
@@ -137,11 +140,16 @@ This phase validates conditions for subsequent phases to function.
    - **Full Autopilot**: Execute all phases automatically
    - **Human-in-the-Loop**: Phase-by-phase with feedback
 
-7. Create working directory for this review:
+7. Create working directory and write the active-review pointer:
    ```bash
    mkdir -p reviews/[project-short-name]
+   echo "reviews/[project-short-name]" > reviews/.active-review
    ```
    Use a short, descriptive name (e.g., `epistemic-autonomy-ai`, `mechanistic-interp`).
+
+   **Guard — name collision**: If `reviews/[project-short-name]/literature-review-final.md` already exists, warn the user that a completed review occupies that path. Ask whether to overwrite or choose a different name (e.g., append `-2`).
+
+   **Guard — concurrent review**: If `reviews/.active-review` already exists and points to a *different* directory, warn the user that another review appears to be in progress. Ask whether to abandon the previous review or resume it instead.
 
    **CRITICAL**: All subsequent file operations happen in `reviews/[project-short-name]/`. Pass this path to ALL subagents.
 
@@ -260,8 +268,22 @@ Never advance to Phase 6 before all synthesis writers have completed.
    ```bash
    mkdir -p "reviews/[project-name]/intermediate_files/json"
    mv "reviews/[project-name]"/*.json "reviews/[project-name]/intermediate_files/json/" 2>/dev/null || true
+   ```
+
+   Move stray API-result files from project root (agents sometimes omit the `$REVIEW_DIR/` prefix).
+   Use targeted prefixes — never bare `*.json`, which could swallow unrelated files:
+   ```bash
+   for prefix in philpapers_ pp_ s2_ openalex_ stage3_ arxiv_; do
+       mv ${prefix}*.json "reviews/[project-name]/intermediate_files/json/" 2>/dev/null || true
+   done
+   mv *.bib "reviews/[project-name]/intermediate_files/" 2>/dev/null || true
+   ```
+
+   Move remaining intermediate files and remove the active-review pointer:
+   ```bash
    mv "reviews/[project-name]/task-progress.md" "reviews/[project-name]/lit-review-plan.md" "reviews/[project-name]/synthesis-outline.md" "reviews/[project-name]/intermediate_files/"
    mv "reviews/[project-name]/synthesis-section-"*.md "reviews/[project-name]/literature-domain-"*.bib "reviews/[project-name]/intermediate_files/"
+   rm -f reviews/.active-review
    ```
 
    **Note:** Do NOT use `cd` to change directories. Always use paths relative to the repo root or absolute paths to prevent working directory mismatches in subsequent commands.

@@ -10,18 +10,52 @@ set -e
 # Parse subagent context from stdin (Claude Code passes JSON via stdin)
 SUBAGENT_CONTEXT=$(cat)
 
-# Extract agent name and working directory
-AGENT_NAME=$(echo "$SUBAGENT_CONTEXT" | jq -r '.agent_name // .subagent_type // empty')
-WORKING_DIR=$(echo "$SUBAGENT_CONTEXT" | jq -r '.cwd // "."')
+# Extract agent type (documented field with fallback for older versions)
+AGENT_TYPE=$(echo "$SUBAGENT_CONTEXT" | jq -r '.agent_type // .subagent_type // .agent_name // empty')
 
 # Only process for domain-literature-researcher agent
-if [[ "$AGENT_NAME" != "domain-literature-researcher" ]]; then
+if [[ "$AGENT_TYPE" != "domain-literature-researcher" ]]; then
     echo '{"decision": "allow"}'
     exit 0
 fi
 
-# Check if any .bib files exist in working directory
-if ! find "$WORKING_DIR" -maxdepth 1 -name "*.bib" -type f -print -quit 2>/dev/null | grep -q .; then
+# Read .active-review pointer to find review directory
+POINTER="$CLAUDE_PROJECT_DIR/reviews/.active-review"
+if [[ ! -f "$POINTER" ]]; then
+    echo "WARNING: No .active-review pointer found — skipping BibTeX validation" >&2
+    echo '{"decision": "allow"}'
+    exit 0
+fi
+
+POINTER_CONTENT=$(tr -d '\r\n' < "$POINTER")
+
+# Validate pointer content (must start with reviews/)
+if [[ ! "$POINTER_CONTENT" =~ ^reviews/ ]]; then
+    echo "WARNING: Invalid .active-review pointer content: $POINTER_CONTENT" >&2
+    echo '{"decision": "allow"}'
+    exit 0
+fi
+
+REVIEW_DIR="$CLAUDE_PROJECT_DIR/$POINTER_CONTENT"
+
+# Validate directory exists
+if [[ ! -d "$REVIEW_DIR" ]]; then
+    echo "WARNING: Review directory $REVIEW_DIR does not exist" >&2
+    echo '{"decision": "allow"}'
+    exit 0
+fi
+
+# Collect .bib files from review directory AND project root (strays)
+BIB_FILES=()
+while IFS= read -r -d '' f; do
+    BIB_FILES+=("$f")
+done < <(find "$REVIEW_DIR" -maxdepth 1 -name "*.bib" -type f -print0 2>/dev/null)
+while IFS= read -r -d '' f; do
+    BIB_FILES+=("$f")
+done < <(find "$CLAUDE_PROJECT_DIR" -maxdepth 1 -name "*.bib" -type f -print0 2>/dev/null)
+
+# No .bib files found — nothing to validate
+if [[ ${#BIB_FILES[@]} -eq 0 ]]; then
     echo '{"decision": "allow"}'
     exit 0
 fi
@@ -30,8 +64,7 @@ fi
 SYNTAX_ERRORS=""
 CLEANING_SUMMARY=""
 
-# Process .bib files with proper null-delimiter handling for filenames with spaces
-while IFS= read -r -d '' bib_file; do
+for bib_file in "${BIB_FILES[@]}"; do
     # Step 1: BibTeX syntax validation (blocks on errors)
     RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/bib_validator.py" "$bib_file" 2>&1 || true)
     VALID=$(echo "$RESULT" | jq -r '.valid // "true"')
@@ -43,20 +76,27 @@ while IFS= read -r -d '' bib_file; do
     fi
 
     # Step 2: Metadata provenance cleaning (removes hallucinated fields, does NOT block)
-    # JSON files are in working directory during subagent execution,
-    # moved to intermediate_files/json/ only during Phase 6 assembly
-    JSON_DIR="${WORKING_DIR}"
-    # Fall back to intermediate_files/json if no JSON files in working directory
-    if ! find "$JSON_DIR" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
-        JSON_DIR="${WORKING_DIR}/intermediate_files/json"
+    # Find JSON files via 3-location fallback:
+    #   1. Same directory as .bib file
+    #   2. $REVIEW_DIR/intermediate_files/json/
+    #   3. Project root
+    BIB_DIR=$(dirname "$bib_file")
+    JSON_DIR=""
+
+    if find "$BIB_DIR" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
+        JSON_DIR="$BIB_DIR"
+    elif [[ -d "$REVIEW_DIR/intermediate_files/json" ]] && find "$REVIEW_DIR/intermediate_files/json" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
+        JSON_DIR="$REVIEW_DIR/intermediate_files/json"
+    elif find "$CLAUDE_PROJECT_DIR" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
+        JSON_DIR="$CLAUDE_PROJECT_DIR"
     fi
-    if [[ -d "$JSON_DIR" ]] && find "$JSON_DIR" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
+
+    if [[ -n "$JSON_DIR" ]]; then
         CLEAN_RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/metadata_cleaner.py" "$bib_file" "$JSON_DIR" --backup 2>&1 || true)
         FIELDS_REMOVED=$(echo "$CLEAN_RESULT" | jq -r '.total_fields_removed // 0')
         ENTRIES_CLEANED=$(echo "$CLEAN_RESULT" | jq -r '.entries_cleaned // 0')
 
         if [[ "$FIELDS_REMOVED" =~ ^[0-9]+$ ]] && [[ "$FIELDS_REMOVED" -gt 0 ]]; then
-            # Log what was cleaned (informational, not blocking)
             CLEANED_ENTRIES=$(echo "$CLEAN_RESULT" | jq -r '.cleaned_entries | to_entries[] | "  - \(.key): \(.value | join(", "))"' 2>/dev/null || true)
             CLEANING_SUMMARY="${CLEANING_SUMMARY}
 Cleaned $(basename "$bib_file"): Removed $FIELDS_REMOVED unverifiable field(s) from $ENTRIES_CLEANED entry(ies):
@@ -64,7 +104,7 @@ $CLEANED_ENTRIES
 "
         fi
     fi
-done < <(find "$WORKING_DIR" -maxdepth 1 -name "*.bib" -type f -print0 2>/dev/null)
+done
 
 # Block only on syntax errors (not on metadata cleaning)
 if [[ -n "$SYNTAX_ERRORS" ]]; then
@@ -75,7 +115,6 @@ fi
 
 # If we cleaned any fields, include summary in allow message (informational)
 if [[ -n "$CLEANING_SUMMARY" ]]; then
-    # Log to stderr for visibility (Claude Code shows this)
     echo "METADATA CLEANING PERFORMED:$CLEANING_SUMMARY" >&2
 fi
 
