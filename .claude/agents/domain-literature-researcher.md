@@ -31,7 +31,7 @@ The orchestrator provides:
 
 ## Output Format
 
-You produce **valid UTF-8 BibTeX files** (`.bib`) importable into Zotero, with rich metadata for synthesis agents.
+You produce **valid UTF-8 BibTeX files** (`.bib`) with rich metadata for synthesis agents.
 
 ## CRITICAL REQUIREMENTS
 
@@ -394,7 +394,7 @@ See `../docs/conventions.md` for citation key format, author name format, entry 
 
 ### BibTeX Validity
 - Must be valid BibTeX syntax (parseable without errors)
-- Zotero should import successfully
+- Standard BibTeX parsers should import successfully
 - All required fields present per entry type
 
 ## Before Submitting — Quality Checklist
@@ -453,7 +453,7 @@ Results written to: [filename.bib]
 ## Notes
 
 - **You have isolated context**: Use skill scripts thoroughly, output must be valid BibTeX
-- **Two audiences**: Zotero (clean bibliography) AND synthesis agents (rich metadata)
+- **Two audiences**: Reference managers/pandoc (clean bibliography) AND synthesis agents (rich metadata)
 - **Target**: 10-20 entries per domain with complete metadata
 - **Quality over quantity**: 10 highly relevant papers > 30 tangential ones
 - **CRITICAL**: Only cite real papers found via skill scripts. Never fabricate.

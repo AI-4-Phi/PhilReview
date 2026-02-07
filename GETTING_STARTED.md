@@ -94,17 +94,15 @@ After completion, you'll have:
 | File | Description |
 |------|-------------|
 | `literature-review-final.md` | The complete literature review |
-| `literature-all.bib` | Aggregated bibliography (import to Zotero) |
+| `literature-all.bib` | Aggregated bibliography (BibTeX) |
 | `intermediate_files/` | Workflow artifacts (plan, per-domain BibTeX, sections, progress tracker) |
 
-## Importing to Zotero
+## Using the Bibliography
 
-Import the aggregated bibliography into Zotero:
-1. File → Import...
-2. Select `literature-all.bib` (or individual `literature-domain-*.bib` files from `intermediate_files/`)
-3. The `note` fields contain paper summaries and relevance notes
-
-Then use [Zotero's function `Find Full Text`](https://guides.library.oregonstate.edu/zotero/fulltextresolver) to download PDFs.
+The `.bib` files are standard BibTeX and can be:
+- Imported into reference managers (Zotero, BibDesk, Mendeley, etc.)
+- Used with pandoc or LaTeX for formatted citations
+- Read directly — `note` fields contain paper summaries and relevance notes
 
 ## Resuming an Interrupted Review
 

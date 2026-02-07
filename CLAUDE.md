@@ -13,7 +13,7 @@
 1. **Accurate** — Only cite verified papers; never fabricate references
 2. **Comprehensive** — Cover all major positions and key debates
 3. **Rigorous and concise** — Analytical depth, tight prose, specific gaps
-4. **Reproducible** — Structured workflow, BibTeX files importable to Zotero
+4. **Reproducible** — Structured workflow, standard BibTeX output
 
 **NOT priorities**:
 - ❌ Speed — Quality over fast completion
@@ -21,13 +21,14 @@
 
 # File Structure
 
-- `reviews/` — All existing and new literature reviews. Each review has its own subdirectory with an informative short name.
+- `reviews/` — All existing and new literature reviews. Each review has its own subdirectory with an informative short name. Gitignored (local only).
 - `.claude/skills/literature-review/` — Main orchestration skill for the 6-phase workflow. `scripts/` contains Phase 6 tools: `assemble_review.py`, `dedupe_bib.py`, `generate_bibliography.py`, `lint_md.py`.
-- `.claude/skills/philosophy-research/` — Structured API search scripts (Semantic Scholar, OpenAlex, arXiv, SEP, PhilPapers, CrossRef).
+- `.claude/skills/philosophy-research/` — API search scripts for academic sources (Semantic Scholar, OpenAlex, arXiv, SEP, PhilPapers) and citation verification (CrossRef). Includes Brave web search fallback and caching.
 - `.claude/agents/` — Specialized subagent definitions invoked by the literature-review skill.
 - `.claude/hooks/` — Git/Claude hooks: `bib_validator.py`, `metadata_validator.py`, `metadata_cleaner.py`, `subagent_stop_bib.sh`, `setup-environment.sh`.
 - `.claude/docs/` — Shared specifications (ARCHITECTURE.md, conventions.md, permissions-guide.md).
 - `tests/` — pytest tests for API scripts and hooks.
+- `GETTING_STARTED.md` — Setup guide for local and cloud environments, API key configuration.
 
 # Typical Usage: Literature Review
 
@@ -64,6 +65,11 @@ This repository works natively on Windows without WSL. Claude Code on Windows re
 
 ```bash
 uv sync          # Create venv and install dependencies
+```
+
+API keys are required for literature searches. See `GETTING_STARTED.md` for setup instructions, or run:
+```bash
+python .claude/skills/philosophy-research/scripts/check_setup.py
 ```
 
 ## Testing

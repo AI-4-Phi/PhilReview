@@ -44,6 +44,10 @@ Domain researchers and citation validators use the `philosophy-research` skill (
 | `fetch_sep.py` | SEP content extraction | Direct SEP |
 | `search_philpapers.py` | PhilPapers search | Brave → PhilPapers |
 | `verify_paper.py` | DOI verification | CrossRef |
+| `brave_search.py` | Web search fallback | Brave Search |
+| `search_cache.py` | Search result caching | — |
+| `rate_limiter.py` | Shared rate limiting | — |
+| `output.py` | Shared output utilities | — |
 | `check_setup.py` | Environment verification | — |
 
 **Key benefit**: Papers discovered via structured APIs are verified at search time, eliminating the need for a separate validation phase.
@@ -111,7 +115,7 @@ Orchestrator:
 ```
 reviews/[project-name]/
 ├── literature-review-final.md            # Final review (pandoc-ready, YAML frontmatter)
-├── literature-all.bib                    # Aggregated BibTeX (Zotero/pandoc)
+├── literature-all.bib                    # Aggregated BibTeX
 │
 ├── intermediate_files/                   # Archived workflow artifacts
 │   ├── json/                             # API response files (archived)

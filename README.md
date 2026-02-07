@@ -6,12 +6,10 @@ PhilReview is a multi-agent system for generating focused, insight-driven litera
 
 - **6-phase workflow**: Environment → Plan → Research → Outline → Write → Assemble
 - **Parallel execution**: Domain researchers and section writers run concurrently
-- **Skill-based orchestration**: `/literature-review` skill coordinates specialized subagents
 - **Structured API searches**: Semantic Scholar, OpenAlex, arXiv, SEP, PhilPapers, CrossRef
-- **BibTeX-first**: Valid `.bib` files ready for Zotero import
+- **BibTeX-first**: Valid `.bib` files for reference managers, pandoc, or direct use
 - **Citation integrity**: Papers verified at search time via structured APIs
 - **Resumable**: Progress tracked in `task-progress.md`
-- **Context-efficient**: Per-domain search, section-by-section writing
 
 ## How It Works
 
@@ -28,20 +26,22 @@ The `/literature-review` skill orchestrates 6 phases, invoking specialized subag
 
 ## Quick Start
 
+Requires [Claude Code](https://claude.ai/code). See [GETTING_STARTED.md](GETTING_STARTED.md) for setup.
+
+Once set up, provide your research idea:
+
 ```
 I need a literature review for [topic].
 
 [Your research idea in 2-5 paragraphs]
 ```
 
-See [GETTING_STARTED.md](GETTING_STARTED.md) for setup and detailed instructions.
-
 ## Output Structure
 
 ```
 reviews/[topic]/
 ├── literature-review-final.md      # Complete review
-├── literature-all.bib              # Aggregated bibliography (import to Zotero)
+├── literature-all.bib              # Aggregated bibliography
 └── intermediate_files/
     ├── json/                       # API response files (archived)
     ├── lit-review-plan.md          # Domain decomposition
