@@ -362,7 +362,7 @@ def find_cited_entries(review_text: str, bib_data) -> list[tuple[str, object]]:
         if not matched:
             continue
 
-        # DOI deduplication
+        # DOI deduplication (defense-in-depth; dedupe_bib.py handles this upstream)
         doi = _get_field(entry, "doi")
         if doi:
             norm_doi = _normalize_doi(doi)
