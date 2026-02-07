@@ -7,6 +7,13 @@
 
 set -e
 
+# Require jq for JSON parsing
+if ! command -v jq &> /dev/null; then
+    echo "WARNING: jq not installed — skipping BibTeX validation. Install with: brew install jq (macOS), apt install jq (Linux), or choco install jq (Windows)" >&2
+    echo '{"decision": "allow"}'
+    exit 0
+fi
+
 # Parse subagent context from stdin (Claude Code passes JSON via stdin)
 SUBAGENT_CONTEXT=$(cat)
 
@@ -46,13 +53,16 @@ if [[ ! -d "$REVIEW_DIR" ]]; then
 fi
 
 # Collect .bib files from review directory AND project root (strays)
+# Uses globs instead of find+process substitution for Windows/Git Bash compatibility
+shopt -s nullglob
 BIB_FILES=()
-while IFS= read -r -d '' f; do
-    BIB_FILES+=("$f")
-done < <(find "$REVIEW_DIR" -maxdepth 1 -name "*.bib" -type f -print0 2>/dev/null)
-while IFS= read -r -d '' f; do
-    BIB_FILES+=("$f")
-done < <(find "$CLAUDE_PROJECT_DIR" -maxdepth 1 -name "*.bib" -type f -print0 2>/dev/null)
+for f in "$REVIEW_DIR"/*.bib; do
+    [[ -f "$f" ]] && BIB_FILES+=("$f")
+done
+for f in "$CLAUDE_PROJECT_DIR"/*.bib; do
+    [[ -f "$f" ]] && BIB_FILES+=("$f")
+done
+shopt -u nullglob
 
 # No .bib files found — nothing to validate
 if [[ ${#BIB_FILES[@]} -eq 0 ]]; then
@@ -83,13 +93,22 @@ for bib_file in "${BIB_FILES[@]}"; do
     BIB_DIR=$(dirname "$bib_file")
     JSON_DIR=""
 
-    if find "$BIB_DIR" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
+    shopt -s nullglob
+    json_matches=("$BIB_DIR"/*.json)
+    if [[ ${#json_matches[@]} -gt 0 ]]; then
         JSON_DIR="$BIB_DIR"
-    elif [[ -d "$REVIEW_DIR/intermediate_files/json" ]] && find "$REVIEW_DIR/intermediate_files/json" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
-        JSON_DIR="$REVIEW_DIR/intermediate_files/json"
-    elif find "$CLAUDE_PROJECT_DIR" -maxdepth 1 -name "*.json" -type f -print -quit 2>/dev/null | grep -q .; then
-        JSON_DIR="$CLAUDE_PROJECT_DIR"
+    else
+        json_matches=("$REVIEW_DIR/intermediate_files/json"/*.json)
+        if [[ -d "$REVIEW_DIR/intermediate_files/json" ]] && [[ ${#json_matches[@]} -gt 0 ]]; then
+            JSON_DIR="$REVIEW_DIR/intermediate_files/json"
+        else
+            json_matches=("$CLAUDE_PROJECT_DIR"/*.json)
+            if [[ ${#json_matches[@]} -gt 0 ]]; then
+                JSON_DIR="$CLAUDE_PROJECT_DIR"
+            fi
+        fi
     fi
+    shopt -u nullglob
 
     if [[ -n "$JSON_DIR" ]]; then
         CLEAN_RESULT=$(python "$CLAUDE_PROJECT_DIR/.claude/hooks/metadata_cleaner.py" "$bib_file" "$JSON_DIR" --backup 2>&1 || true)
