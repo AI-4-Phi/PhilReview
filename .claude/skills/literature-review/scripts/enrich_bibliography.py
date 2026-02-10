@@ -227,6 +227,10 @@ def add_field_to_entry(entry_text: str, field_name: str, field_value: str) -> st
         lines = entry_text.split('\n')
         for i in range(len(lines) - 1, -1, -1):
             if '=' in lines[i] and not lines[i].strip().startswith('}'):
+                # Ensure preceding field line ends with a comma
+                stripped = lines[i].rstrip()
+                if stripped.endswith('}') and not stripped.endswith('},'):
+                    lines[i] = stripped + ','
                 # Insert after this line
                 indent = '  '  # Default indent
                 match = re.match(r'^(\s+)', lines[i])
