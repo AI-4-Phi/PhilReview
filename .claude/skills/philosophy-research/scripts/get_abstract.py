@@ -3,15 +3,15 @@
 Resolve paper abstracts from multiple sources.
 
 This script attempts to find a paper's actual abstract using a fallback chain:
-1. Semantic Scholar (if S2 ID provided)
+1. Semantic Scholar (by S2 ID, or by DOI via DOI:{doi} endpoint)
 2. OpenAlex (if DOI provided)
 3. CORE API (by DOI or title+author)
 
 Usage:
-    # By DOI (tries OpenAlex first, then CORE)
+    # By DOI (tries S2 first via DOI:{doi}, then OpenAlex, then CORE)
     python get_abstract.py --doi "10.1111/nous.12191"
 
-    # By S2 ID (tries Semantic Scholar first)
+    # By S2 ID (tries Semantic Scholar first by ID)
     python get_abstract.py --s2-id "abc123def"
 
     # By title and author (uses CORE)
@@ -83,16 +83,33 @@ def output_error(query: dict, error_type: str, message: str, exit_code: int = 2)
 # =============================================================================
 
 def get_abstract_from_s2(
-    s2_id: str,
-    api_key: Optional[str],
-    limiter,
-    backoff: ExponentialBackoff,
-    debug: bool = False
+    s2_id: Optional[str] = None,
+    api_key: Optional[str] = None,
+    limiter=None,
+    backoff: ExponentialBackoff = None,
+    debug: bool = False,
+    doi: Optional[str] = None
 ) -> Optional[str]:
-    """Try to get abstract from Semantic Scholar by paper ID."""
-    log_progress(f"Trying Semantic Scholar: {s2_id}")
+    """Try to get abstract from Semantic Scholar by paper ID or DOI.
 
-    url = f"https://api.semanticscholar.org/graph/v1/paper/{s2_id}"
+    When s2_id is provided, uses it directly. Otherwise falls back to DOI:{doi}.
+    """
+    if s2_id:
+        identifier = s2_id
+    elif doi:
+        # Clean DOI prefix
+        clean_doi = doi
+        if clean_doi.startswith("https://doi.org/"):
+            clean_doi = clean_doi[16:]
+        elif clean_doi.startswith("http://doi.org/"):
+            clean_doi = clean_doi[15:]
+        identifier = f"DOI:{clean_doi}"
+    else:
+        return None
+
+    log_progress(f"Trying Semantic Scholar: {identifier}")
+
+    url = f"https://api.semanticscholar.org/graph/v1/paper/{identifier}"
     params = {"fields": "abstract"}
 
     headers = {}
@@ -346,9 +363,12 @@ def resolve_abstract(
 
     backoff = ExponentialBackoff(max_attempts=3, base_delay=1.0)
 
-    # Source 1: Semantic Scholar (if S2 ID provided)
-    if s2_id:
-        abstract = get_abstract_from_s2(s2_id, s2_api_key, s2_limiter, backoff, debug)
+    # Source 1: Semantic Scholar (by S2 ID or DOI)
+    if s2_id or doi:
+        abstract = get_abstract_from_s2(
+            s2_id=s2_id, api_key=s2_api_key, limiter=s2_limiter,
+            backoff=backoff, debug=debug, doi=doi
+        )
         if abstract:
             return abstract, "s2"
 

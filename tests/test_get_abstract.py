@@ -177,6 +177,67 @@ class TestS2Source:
         assert result is None
 
     @patch("requests.get")
+    def test_get_abstract_from_s2_by_doi(self, mock_get):
+        """Should use DOI:{doi} endpoint when no s2_id."""
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            json=lambda: {"abstract": "Abstract found via DOI."}
+        )
+
+        import get_abstract
+        from rate_limiter import get_limiter, ExponentialBackoff
+
+        limiter = get_limiter("semantic_scholar")
+        backoff = ExponentialBackoff(max_attempts=2)
+
+        result = get_abstract.get_abstract_from_s2(
+            doi="10.1234/test", limiter=limiter, backoff=backoff
+        )
+
+        assert result == "Abstract found via DOI."
+        call_url = mock_get.call_args[0][0]
+        assert "DOI:10.1234/test" in call_url
+
+    @patch("requests.get")
+    def test_get_abstract_from_s2_prefers_id_over_doi(self, mock_get):
+        """Should use s2_id when both s2_id and doi provided."""
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            json=lambda: {"abstract": "Abstract by ID."}
+        )
+
+        import get_abstract
+        from rate_limiter import get_limiter, ExponentialBackoff
+
+        limiter = get_limiter("semantic_scholar")
+        backoff = ExponentialBackoff(max_attempts=2)
+
+        result = get_abstract.get_abstract_from_s2(
+            s2_id="abc123", doi="10.1234/test", limiter=limiter, backoff=backoff
+        )
+
+        assert result == "Abstract by ID."
+        call_url = mock_get.call_args[0][0]
+        assert "abc123" in call_url
+        assert "DOI:" not in call_url
+
+    @patch("requests.get")
+    def test_get_abstract_from_s2_returns_none_no_identifiers(self, mock_get):
+        """Should return None when neither s2_id nor doi provided."""
+        import get_abstract
+        from rate_limiter import get_limiter, ExponentialBackoff
+
+        limiter = get_limiter("semantic_scholar")
+        backoff = ExponentialBackoff(max_attempts=2)
+
+        result = get_abstract.get_abstract_from_s2(
+            limiter=limiter, backoff=backoff
+        )
+
+        assert result is None
+        mock_get.assert_not_called()
+
+    @patch("requests.get")
     def test_get_abstract_from_s2_404(self, mock_get):
         """Should return None on 404."""
         mock_get.return_value = MagicMock(status_code=404)
@@ -188,7 +249,7 @@ class TestS2Source:
         backoff = ExponentialBackoff(max_attempts=2)
 
         result = get_abstract.get_abstract_from_s2(
-            "nonexistent", None, limiter, backoff
+            s2_id="nonexistent", limiter=limiter, backoff=backoff
         )
 
         assert result is None
@@ -403,9 +464,12 @@ class TestFallbackChain:
 
     @patch("get_abstract.get_abstract_from_core")
     @patch("get_abstract.get_abstract_from_openalex")
-    def test_skips_s2_when_no_id(self, mock_openalex, mock_core):
-        """Should skip S2 when no S2 ID provided."""
-        mock_openalex.return_value = "OpenAlex abstract"
+    @patch("get_abstract.get_abstract_from_s2")
+    def test_s2_tried_via_doi_when_no_id(
+        self, mock_s2, mock_openalex, mock_core
+    ):
+        """S2 should be tried via DOI when no S2 ID provided."""
+        mock_s2.return_value = "S2 abstract via DOI"
 
         import get_abstract
 
@@ -413,8 +477,61 @@ class TestFallbackChain:
             doi="10.1234/test"
         )
 
-        assert abstract == "OpenAlex abstract"
-        assert source == "openalex"
+        assert abstract == "S2 abstract via DOI"
+        assert source == "s2"
+        mock_s2.assert_called_once()
+        # Verify doi was passed to s2
+        call_kwargs = mock_s2.call_args
+        assert call_kwargs.kwargs.get("doi") == "10.1234/test"
+        mock_openalex.assert_not_called()
+
+    @patch("get_abstract.get_abstract_from_core")
+    @patch("get_abstract.get_abstract_from_openalex")
+    @patch("get_abstract.get_abstract_from_s2")
+    def test_s2_by_id_takes_priority_over_doi(
+        self, mock_s2, mock_openalex, mock_core
+    ):
+        """S2 ID should be passed alongside DOI, with ID taking priority."""
+        mock_s2.return_value = "S2 abstract by ID"
+
+        import get_abstract
+
+        abstract, source = get_abstract.resolve_abstract(
+            s2_id="abc123",
+            doi="10.1234/test"
+        )
+
+        assert abstract == "S2 abstract by ID"
+        assert source == "s2"
+        # Both s2_id and doi should be passed
+        call_kwargs = mock_s2.call_args
+        assert call_kwargs.kwargs.get("s2_id") == "abc123"
+        assert call_kwargs.kwargs.get("doi") == "10.1234/test"
+
+    @patch("get_abstract.get_abstract_from_core")
+    @patch("get_abstract.get_abstract_from_openalex")
+    @patch("get_abstract.get_abstract_from_s2")
+    def test_full_fallback_s2_doi_to_openalex_to_core(
+        self, mock_s2, mock_openalex, mock_core
+    ):
+        """Full fallback: S2-by-DOI -> OpenAlex -> CORE."""
+        mock_s2.return_value = None
+        mock_openalex.return_value = None
+        mock_core.return_value = "CORE abstract"
+
+        import get_abstract
+
+        abstract, source = get_abstract.resolve_abstract(
+            doi="10.1234/test",
+            title="Test Paper",
+            author="Author"
+        )
+
+        assert abstract == "CORE abstract"
+        assert source == "core"
+        mock_s2.assert_called_once()
+        mock_openalex.assert_called_once()
+        mock_core.assert_called_once()
 
     @patch("get_abstract.get_abstract_from_core")
     def test_title_only_uses_core(self, mock_core):
