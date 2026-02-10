@@ -258,6 +258,32 @@ class TestEntryModification:
 
 
 # =============================================================================
+# Abstract Resolution Passthrough Tests
+# =============================================================================
+
+class TestResolveAbstractForEntry:
+    """Tests for resolve_abstract_for_entry parameter passing."""
+
+    @patch("get_abstract.resolve_abstract")
+    def test_passes_title_and_author_with_doi(self, mock_resolve):
+        """Should pass title and author even when DOI is present."""
+        mock_resolve.return_value = ("Abstract", "s2")
+
+        import enrich_bibliography
+
+        entries = enrich_bibliography.parse_bibtex_entries(SAMPLE_ENTRY_NO_ABSTRACT)
+        enrich_bibliography.resolve_abstract_for_entry(
+            entries[0], None, None, None
+        )
+
+        mock_resolve.assert_called_once()
+        call_kwargs = mock_resolve.call_args
+        assert call_kwargs.kwargs.get("doi") == "10.2307/2024717"
+        assert call_kwargs.kwargs.get("title") == "Freedom of the Will and the Concept of a Person"
+        assert call_kwargs.kwargs.get("author") == "Frankfurt"
+
+
+# =============================================================================
 # Enrichment Tests
 # =============================================================================
 

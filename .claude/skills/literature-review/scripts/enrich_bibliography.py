@@ -189,8 +189,8 @@ def resolve_abstract_for_entry(
 
     return get_abstract.resolve_abstract(
         doi=doi,
-        title=title if not doi else None,  # Only use title if no DOI
-        author=author if not doi else None,
+        title=title or None,
+        author=author or None,
         year=year,
         s2_api_key=s2_api_key,
         openalex_email=openalex_email,

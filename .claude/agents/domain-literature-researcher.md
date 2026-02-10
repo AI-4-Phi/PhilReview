@@ -132,6 +132,7 @@ python .claude/skills/philosophy-research/scripts/fetch_iep.py {entry_name} --se
 - Read preamble and key sections for domain overview
 - Parse bibliography for foundational works cited
 - Use bibliography entries as seeds for further search
+- **Save discovered entry slugs** for Stage 5.6: write a JSON file at `$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json` with format `{"sep_entries": ["slug1", ...], "iep_entries": ["slug1", ...]}`. Create the directory if needed. This enables context extraction later.
 
 ### Stage 2: PhilPapers
 
@@ -226,19 +227,33 @@ After running, read the enriched file to check results. Note any INCOMPLETE entr
 - Entries marked `INCOMPLETE` are **excluded from literature review synthesis**
 - Update your CORE ARGUMENT notes to be grounded in the abstract where available
 
-### Stage 5.6: Encyclopedia Context Extraction (Optional)
+### Stage 5.6: Encyclopedia Context Extraction (REQUIRED for High importance papers)
 
-For High importance papers, extract how they're discussed in authoritative philosophy encyclopedias:
+Extract how High importance papers are discussed in authoritative philosophy encyclopedias. This provides synthesis agents with expert framing of each paper's significance.
+
+**Steps**:
+1. Read `$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json` (saved in Stage 1)
+2. Identify High importance BibTeX entries whose authors/years match SEP/IEP bibliography references
+3. For each match, run the context extraction script:
 
 ```bash
-# Extract citation context from SEP for a specific paper
-python .claude/skills/philosophy-research/scripts/get_sep_context.py {sep_entry} --author "{Author}" --year {YYYY}
+# Read saved encyclopedia entries
+ENTRIES_FILE="$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json"
 
-# Extract from IEP
-python .claude/skills/philosophy-research/scripts/get_iep_context.py {iep_entry} --author "{Author}" --year {YYYY}
+# Extract context for each High importance paper from each relevant SEP entry
+for sep_slug in $(python -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('sep_entries',[])))"); do
+  python .claude/skills/philosophy-research/scripts/get_sep_context.py "$sep_slug" --author "{Author}" --year {YYYY}
+done
+
+# Same for IEP entries
+for iep_slug in $(python -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('iep_entries',[])))"); do
+  python .claude/skills/philosophy-research/scripts/get_iep_context.py "$iep_slug" --author "{Author}" --year {YYYY}
+done
 ```
 
-Add results to BibTeX entries as `sep_context` or `iep_context` fields. Only use for High importance papers where you already have SEP/IEP entries from Stage 1.
+4. Add results to BibTeX entries as `sep_context` or `iep_context` fields
+
+**Skip conditions**: Only skip if Stage 1 found zero SEP/IEP entries for this domain, or if no High importance papers match any encyclopedia bibliography.
 
 ### Stage 6: Web Search Fallback (When Needed)
 
@@ -453,6 +468,10 @@ See `../docs/conventions.md` for citation key format, author name format, entry 
 ✅ **Abstract Coverage**:
 - [ ] `enrich_bibliography.py` was run on the output file
 - [ ] INCOMPLETE entries noted in NOTABLE_GAPS section
+
+✅ **Encyclopedia Context**:
+- [ ] `encyclopedia_entries.json` saved in Stage 1 (or noted that none found)
+- [ ] Context extracted for High importance papers matching SEP/IEP bibliographies
 
 ✅ **Citation Verification**:
 - [ ] Every paper verified through skill scripts
