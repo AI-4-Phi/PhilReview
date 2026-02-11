@@ -94,6 +94,7 @@ After completion, you'll have:
 | File | Description |
 |------|-------------|
 | `literature-review-final.md` | The complete literature review |
+| `literature-review-final.docx` | DOCX version (if pandoc is installed) |
 | `literature-all.bib` | Aggregated bibliography (BibTeX) |
 | `intermediate_files/` | Workflow artifacts (plan, per-domain BibTeX, sections, progress tracker) |
 

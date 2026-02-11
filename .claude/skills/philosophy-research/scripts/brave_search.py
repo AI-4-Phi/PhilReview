@@ -57,6 +57,15 @@ PHILPAPERS_CONFIG = BraveSearchConfig(
     title_suffix=" - PhilPapers",
 )
 
+IEP_CONFIG = BraveSearchConfig(
+    source_name="iep_via_brave",
+    site_domain="iep.utm.edu",
+    url_path_filter="/",
+    id_pattern=r"iep\.utm\.edu/([a-z0-9-]+)/?$",
+    id_field_name="entry_name",
+    title_suffix=" | Internet Encyclopedia of Philosophy",
+)
+
 
 def extract_id(url: str, config: BraveSearchConfig) -> Optional[str]:
     """Extract resource ID from URL using config pattern."""
@@ -171,7 +180,11 @@ def brave_site_search(
                         # Only include URLs matching the path filter
                         if config.url_path_filter in item.get("url", ""):
                             if len(all_results) < limit:
-                                all_results.append(format_result(item, config))
+                                formatted = format_result(item, config)
+                                if formatted.get(config.id_field_name) is not None:
+                                    all_results.append(formatted)
+                                elif debug:
+                                    log(f"Dropped result (no {config.id_field_name}): {item.get('url', '')}")
 
                     log(f"Retrieved {len(all_results)} entries...")
                     break
@@ -181,6 +194,15 @@ def brave_site_search(
                     if not backoff.wait(attempt):
                         log(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({"type": "rate_limit", "message": "Rate limit exceeded", "recoverable": True})
+                        return all_results, errors
+                    log(f"Retrying after {backoff.last_delay:.1f}s backoff...")
+                    continue
+
+                elif response.status_code >= 500:
+                    log(f"Server error {response.status_code}, retrying (attempt {attempt + 1}/{backoff.max_attempts})...")
+                    if not backoff.wait(attempt):
+                        log(f"Max retries reached after server errors, returning {len(all_results)} partial results")
+                        errors.append({"type": "server_error", "message": f"Brave API server error: {response.status_code}", "recoverable": True})
                         return all_results, errors
                     log(f"Retrying after {backoff.last_delay:.1f}s backoff...")
                     continue

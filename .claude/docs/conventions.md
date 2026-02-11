@@ -32,6 +32,14 @@ Requirements:
 | `@phdthesis` | Dissertations |
 | `@misc` | SEP entries, online resources |
 
+**Determining entry type from CrossRef**: When `verify_paper.py` returns a `suggested_bibtex_type` field, **use it**. CrossRef knows whether a DOI is a journal article or a book chapter. Common mapping:
+- CrossRef `journal-article` → `@article` (use `container_title` as `journal`)
+- CrossRef `book-chapter` → `@incollection` (use `container_title` as `booktitle`, include `publisher`)
+- CrossRef `book` / `edited-book` → `@book` (for `edited-book`, use `editor` instead of `author`)
+- CrossRef `proceedings-article` → `@inproceedings` (use `container_title` as `booktitle`)
+
+See `CROSSREF_TO_BIBTEX_TYPE` in `verify_paper.py` for the full mapping.
+
 ### Citation Keys
 
 Format: `authorYYYYkeyword`
@@ -103,7 +111,7 @@ This prevents hallucination of any metadata. The rule applies to EVERY field, no
 | `author` | Any API | — | Required — don't include paper |
 | `title` | Any API | — | Required — don't include paper |
 | `year` | Any API | — | Required — don't include paper |
-| `journal`/`booktitle` | CrossRef `container_title` | S2 `venue`, OpenAlex `source.name` | **Omit field entirely** |
+| `journal`/`booktitle` | CrossRef `container_title` (field name depends on `suggested_bibtex_type`: `journal` for articles, `booktitle` for incollection/inproceedings) | S2 `venue`, OpenAlex `source.name` | **Omit field entirely** |
 | `volume` | CrossRef | S2/OpenAlex | **Omit field entirely** |
 | `number` (issue) | CrossRef `issue` | S2/OpenAlex | **Omit field entirely** |
 | `pages` | CrossRef `page` | S2/OpenAlex | **Omit field entirely** |
@@ -125,6 +133,55 @@ Importance levels:
 - `Low` — Peripheral but relevant
 
 Example: `keywords = {compatibilism, free-will, High}`
+
+### abstract Field
+
+The paper's actual abstract. Must come from API sources only (S2, OpenAlex, CORE).
+
+- Populated from API `abstract` field or via `enrich_bibliography.py`
+- Never written by agent from memory
+- If missing from all sources: Omit field, add INCOMPLETE to keywords
+
+### abstract_source Field
+
+Indicates provenance of abstract content:
+- `s2` — Semantic Scholar API
+- `openalex` — OpenAlex API
+- `core` — CORE API
+- `ndpr` — Notre Dame Philosophical Reviews (first 8 substantive paragraphs extracted from book reviews — primarily descriptive of the book's content and arguments, but may include some reviewer evaluation; not author/publisher abstracts)
+
+Example: `abstract_source = {openalex}`
+
+### sep_context Field (Optional)
+
+Citation context extracted from Stanford Encyclopedia of Philosophy entries.
+Contains how the paper is discussed in authoritative SEP articles.
+
+- Source: `get_sep_context.py` script
+- Use for High importance papers to capture how experts position them
+
+Example:
+```bibtex
+sep_context = {Cited in 'freewill' entry: "Frankfurt (1971) argues that alternative possibilities are not required for moral responsibility."}
+```
+
+### iep_context Field (Optional)
+
+Citation context extracted from Internet Encyclopedia of Philosophy entries.
+Similar to sep_context but from IEP.
+
+- Source: `get_iep_context.py` script
+
+### INCOMPLETE Keyword Flag
+
+Added to `keywords` field when entry lacks required content:
+- `INCOMPLETE` — Entry missing abstract
+- `no-abstract` — Specifically missing abstract
+
+Entries with INCOMPLETE flag:
+- **REMAIN in BibTeX file** (for transparency, reference manager import)
+- Are **EXCLUDED from literature review synthesis**
+- Should be noted in domain's NOTABLE_GAPS section
 
 ---
 
@@ -185,12 +242,15 @@ The `SubagentStop` hook automatically validates BibTeX files written by `domain-
 - `year`
 - `doi`
 
-**Exempt fields** (LLM-generated, not validated):
+**Exempt fields** (LLM-generated or enrichment-added, not validated):
 - `note` (annotations)
 - `keywords`
 - `howpublished`
 - `url`
 - `abstract`
+- `abstract_source`
+- `sep_context`
+- `iep_context`
 
 **How it works**:
 1. Scans `intermediate_files/json/` for API output files (S2, OpenAlex, CrossRef, arXiv, PhilPapers)
