@@ -68,7 +68,11 @@ python .claude/skills/philosophy-research/scripts/check_setup.py
 
 ## Your First Review
 
-1. Start Claude Code in this repository
+1. Start Claude Code in the project directory and select **Sonnet** as the model:
+   ```bash
+   cd PhilReview
+   claude
+   ```
 2. Provide your research idea:
 
 ```
@@ -103,7 +107,8 @@ After completion, you'll have:
 The `.bib` files are standard BibTeX and can be:
 - Imported into reference managers (Zotero, BibDesk, Mendeley, etc.)
 - Used with pandoc or LaTeX for formatted citations
-- Read directly — `note` fields contain paper summaries and relevance notes
+
+**Tip:** The `.bib` files contain substantial metadata beyond what reference managers display — paper summaries, relevance assessments, importance ratings, and abstract sources are stored in BibTeX comments and `note`/`keywords` fields. Open the files in a text editor to access this information.
 
 ## Resuming an Interrupted Review
 
