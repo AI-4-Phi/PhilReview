@@ -77,6 +77,20 @@ python scripts/s2_recommend.py --positive "PAPER_ID1,PAPER_ID2"
 python scripts/s2_batch.py --ids "PAPER_ID1,PAPER_ID2,DOI:10.xxx/yyy"
 ```
 
+### Phase 4.5: NDPR Book Reviews (Optional)
+
+For books without abstracts, NDPR (Notre Dame Philosophical Reviews) provides substantive book reviews that can serve as content summaries:
+
+```bash
+# Discover NDPR reviews for a book
+python scripts/search_ndpr.py "book title or author"
+
+# Extract content from an NDPR review
+python scripts/fetch_ndpr.py REVIEW_URL
+```
+
+NDPR extracts are tagged with `abstract_source = {ndpr}` in BibTeX entries. Note: NDPR content is primarily descriptive of the book's arguments but may include reviewer evaluation.
+
 ### Phase 5.5: Abstract Resolution
 
 After gathering papers, resolve abstracts for entries that lack them:
@@ -168,6 +182,8 @@ python scripts/fetch_iep.py freewill --bibliography-only
 | `get_abstract.py` | Multi-source abstract resolution | `--doi`, `--s2-id`, `--title`, `--author` |
 | `get_sep_context.py` | SEP citation context extraction | `--author`, `--year`, `--coauthor` |
 | `get_iep_context.py` | IEP citation context extraction | `--author`, `--year`, `--coauthor` |
+| `search_ndpr.py` | NDPR book review discovery | `--limit` |
+| `fetch_ndpr.py` | NDPR content extraction | `--sections` |
 | `check_setup.py` | Environment check | (no options) |
 
 ## Output Format

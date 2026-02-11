@@ -50,6 +50,8 @@ Domain researchers and citation validators use the `philosophy-research` skill (
 | `get_abstract.py` | Multi-source abstract resolution | S2 → OpenAlex → CORE |
 | `get_sep_context.py` | SEP citation context extraction | Direct SEP |
 | `get_iep_context.py` | IEP citation context extraction | Direct IEP |
+| `search_ndpr.py` | NDPR discovery | Brave → NDPR |
+| `fetch_ndpr.py` | NDPR content extraction | Direct NDPR |
 | `brave_search.py` | Web search fallback | Brave Search |
 | `search_cache.py` | Search result caching | — |
 | `rate_limiter.py` | Shared rate limiting | — |
@@ -190,6 +192,8 @@ reviews/[project-name]/
     ├── get_abstract.py                   # Multi-source abstract resolution
     ├── get_sep_context.py                # SEP citation context extraction
     ├── get_iep_context.py                # IEP citation context extraction
+    ├── search_ndpr.py                    # NDPR discovery
+    ├── fetch_ndpr.py                     # NDPR content extraction
     ├── search_cache.py                   # Search result caching
     ├── rate_limiter.py                   # Shared rate limiting
     ├── output.py                         # Shared output utilities
@@ -198,6 +202,7 @@ reviews/[project-name]/
 .claude/hooks/
 ├── setup-environment.sh                  # SessionStart: activate venv
 ├── subagent_stop_bib.sh                  # SubagentStop: validate BibTeX
+├── validate_bib_write.py                 # PreToolUse: validate BibTeX on Write
 ├── bib_validator.py                      # BibTeX validation logic
 ├── metadata_validator.py                 # Metadata provenance validation
 └── metadata_cleaner.py                   # Metadata year/type cleanup
