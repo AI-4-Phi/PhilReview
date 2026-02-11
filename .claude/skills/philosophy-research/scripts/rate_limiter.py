@@ -196,11 +196,14 @@ class ExponentialBackoff:
 # These are factory functions to ensure each caller gets a fresh instance
 LIMITERS = {
     "semantic_scholar": lambda: RateLimiter("semantic_scholar", 1.1),
-    "brave": lambda: RateLimiter("brave", 1.1),
+    "brave": lambda: RateLimiter("brave", 1.5),
     "crossref": lambda: RateLimiter("crossref", 0.05),  # 50/sec but conservative
     "openalex": lambda: RateLimiter("openalex", 0.11),  # 10/sec
     "arxiv": lambda: RateLimiter("arxiv", 3.0),
     "sep_fetch": lambda: RateLimiter("sep_fetch", 1.0),
+    "iep_fetch": lambda: RateLimiter("iep_fetch", 1.0),
+    "core": lambda: RateLimiter("core", 2.0),  # 5 req/10 sec = 1 req/2 sec
+    "ndpr": lambda: RateLimiter("ndpr", 1.0),  # 1 req/sec, conservative for web scraping
 }
 
 
@@ -209,7 +212,7 @@ def get_limiter(api_name: str) -> RateLimiter:
     Get a pre-configured rate limiter for the specified API.
 
     Args:
-        api_name: One of: semantic_scholar, brave, crossref, openalex, arxiv, sep_fetch
+        api_name: One of: semantic_scholar, brave, crossref, openalex, arxiv, sep_fetch, iep_fetch, core, ndpr
 
     Returns:
         Configured RateLimiter instance

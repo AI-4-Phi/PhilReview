@@ -88,13 +88,25 @@ Current patterns like `Bash(python:*)` can potentially be bypassed:
 3. **Explicit over implicit**: `defaultMode` and `deny` rules make security stance clear
 4. **Safe defaults**: Read-only operations allowed, destructive operations require approval or are blocked
 
-## Agent-Specific Permissions
+## Hook Configuration
 
-Agents can override the global `defaultMode` with their own `permissionMode`:
+Beyond permissions, `settings.json` configures hooks that run automatically:
 
-- **domain-literature-researcher**: `permissionMode: default` (uses Bash/Web, requires visibility)
-- **synthesis-planner**: `permissionMode: acceptEdits` (low-risk writing tasks)
-- **synthesis-writer**: `permissionMode: acceptEdits` (low-risk writing tasks)
-- **literature-review-planner**: `permissionMode: acceptEdits` (low-risk writing tasks)
+| Hook | Trigger | Script | Purpose |
+|------|---------|--------|---------|
+| SessionStart | Session begins | `setup-environment.sh` | Activate venv |
+| PreToolUse (Write) | Before any Write tool call | `validate_bib_write.py` | Validate BibTeX syntax before writing `.bib` files |
+| SubagentStop | After subagent finishes | `subagent_stop_bib.sh` | Validate BibTeX output from domain researchers |
 
-See individual agent definitions in `.claude/agents/` for details.
+## Agent-Specific Configuration
+
+Agents specify `model` and `tools` in their frontmatter (see `.claude/agents/`):
+
+| Agent | Model | Tools |
+|-------|-------|-------|
+| `domain-literature-researcher` | `sonnet` | Bash, Glob, Grep, Read, Write, WebFetch, WebSearch |
+| `synthesis-planner` | `inherit` | Glob, Grep, Read, Write |
+| `synthesis-writer` | `sonnet` | Glob, Grep, Read, Write |
+| `literature-review-planner` | `inherit` | Read, Write |
+
+Agents inherit the project-level `allow`/`deny`/`ask` rules from `settings.json`. They do not set their own `permissionMode`.

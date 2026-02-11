@@ -1,6 +1,6 @@
 ---
 name: domain-literature-researcher
-description: Conducts focused literature searches for specific domains in research. Searches SEP, PhilPapers, Semantic Scholar, OpenAlex, arXiv and produces accurate BibTeX bibliography files with rich content summaries and metadata for synthesis agents.
+description: Conducts focused literature searches for specific domains in research. Searches SEP, IEP, PhilPapers, Semantic Scholar, OpenAlex, CORE, arXiv and produces accurate BibTeX bibliography files with rich content summaries and metadata for synthesis agents.
 tools: Bash, Glob, Grep, Read, Write, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
@@ -31,7 +31,7 @@ The orchestrator provides:
 
 ## Output Format
 
-You produce **valid UTF-8 BibTeX files** (`.bib`) with rich metadata for synthesis agents.
+You produce **valid UTF-8 BibTeX files** (`.bib`) importable into reference managers, with rich metadata for synthesis agents.
 
 ## CRITICAL REQUIREMENTS
 
@@ -117,19 +117,22 @@ Output brief status after each search phase. Users should see progress every 2-3
 
 Use the `philosophy-research` skill scripts via Bash. All scripts are in `.claude/skills/philosophy-research/scripts/`.
 
-### Stage 1: SEP (Most Authoritative)
+### Stage 1: SEP & IEP (Most Authoritative)
 
 ```bash
 # Discover relevant SEP articles
 python .claude/skills/philosophy-research/scripts/search_sep.py "{topic}"
-
-# Extract structured content from an entry
 python .claude/skills/philosophy-research/scripts/fetch_sep.py {entry_name} --sections "preamble,1,2,bibliography"
+
+# Discover relevant IEP articles (different coverage from SEP)
+python .claude/skills/philosophy-research/scripts/search_iep.py "{topic}"
+python .claude/skills/philosophy-research/scripts/fetch_iep.py {entry_name} --sections "1,2,3,bibliography"
 ```
 
 - Read preamble and key sections for domain overview
 - Parse bibliography for foundational works cited
 - Use bibliography entries as seeds for further search
+- **Save discovered entry slugs** for Stage 5.6: write a JSON file at `$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json` with format `{"sep_entries": ["slug1", ...], "iep_entries": ["slug1", ...]}`. Create the directory if needed. This enables context extraction later.
 
 ### Stage 2: PhilPapers
 
@@ -150,6 +153,9 @@ python .claude/skills/philosophy-research/scripts/s2_search.py "{topic}" --field
 # OpenAlex - 250M+ works, cross-disciplinary coverage
 python .claude/skills/philosophy-research/scripts/search_openalex.py "{topic}" --year 2015-2025
 
+# CORE - 431M papers with abstracts, excellent for finding paper content
+python .claude/skills/philosophy-research/scripts/search_core.py "{topic}" --year 2020-2024
+
 # arXiv - preprints, AI ethics, recent work
 python .claude/skills/philosophy-research/scripts/search_arxiv.py "{topic}" --category cs.AI --recent
 ```
@@ -157,6 +163,8 @@ python .claude/skills/philosophy-research/scripts/search_arxiv.py "{topic}" --ca
 **When to prioritize arXiv**: AI ethics, AI alignment, computational philosophy, cross-disciplinary CS/philosophy.
 
 **When to prioritize OpenAlex**: Broad coverage needs, cross-disciplinary topics, finding open access versions.
+
+**When to prioritize CORE**: Papers needing abstracts, open access content, papers missing from other sources.
 
 ### Stage 4: Citation Chaining
 
@@ -183,11 +191,13 @@ python .claude/skills/philosophy-research/scripts/verify_paper.py --doi "10.2307
 ```
 
 CrossRef returns:
-- `container_title` → use as `journal` or `booktitle` in BibTeX
+- `suggested_bibtex_type` → **USE THIS** for the BibTeX entry type. If it says `incollection`, use `@incollection` with `booktitle` (not `@article` with `journal`). If it says `article`, use `@article` with `journal`.
+- `container_title` → use as `journal` (for articles) or `booktitle` (for incollection/inproceedings)
+- `editors` → if non-empty, use as `editor` field in BibTeX. For edited books (`suggested_bibtex_type: book` with editors but no authors), use `editor` instead of `author`.
 - `volume`, `issue`, `page` → use directly in BibTeX
-- `type` → helps determine entry type (@article, @incollection, etc.)
+- `type` → raw CrossRef type (the mapping to BibTeX is already done in `suggested_bibtex_type`)
 
-**Why this matters**: S2/OpenAlex often return incomplete or null venue/journal fields. CrossRef is the authoritative source for publication metadata because it's the DOI registry.
+**Why this matters**: S2/OpenAlex often return incomplete or null venue/journal fields. CrossRef is the authoritative source for publication metadata because it's the DOI registry. It also knows whether a DOI is a journal article vs. book chapter — follow `suggested_bibtex_type` to avoid misclassifying book chapters as articles.
 
 **Other verification tools**:
 
@@ -198,6 +208,55 @@ python .claude/skills/philosophy-research/scripts/s2_batch.py --ids "{id1},{id2}
 # Search for DOI when paper has none (fallback)
 python .claude/skills/philosophy-research/scripts/verify_paper.py --title "Paper Title" --author "Author" --year 2020
 ```
+
+### Stage 5.5: Abstract Resolution
+
+After writing the initial BibTeX file (with all entries and notes), run the enrichment script to add abstracts:
+
+```bash
+python .claude/skills/literature-review/scripts/enrich_bibliography.py "$REVIEW_DIR/literature-domain-N.bib"
+```
+
+This script automatically:
+1. Resolves abstracts for entries missing them (S2 → OpenAlex → CORE fallback)
+2. For `@book` entries still without abstracts: tries NDPR (Notre Dame Philosophical Reviews) to extract opening summary paragraphs from book reviews
+3. Adds `abstract` and `abstract_source` fields for entries where abstract is found
+4. Marks entries `INCOMPLETE` (adds to keywords) if no abstract available
+
+After running, read the enriched file to check results. Note any INCOMPLETE entries in the NOTABLE_GAPS section of your @comment block.
+
+**Handling INCOMPLETE entries**:
+- Entries marked `INCOMPLETE` **remain in the BibTeX file** (for transparency and reference manager import)
+- Entries marked `INCOMPLETE` are **excluded from literature review synthesis**
+- Update your CORE ARGUMENT notes to be grounded in the abstract where available
+
+### Stage 5.6: Encyclopedia Context Extraction (REQUIRED for High importance papers)
+
+Extract how High importance papers are discussed in authoritative philosophy encyclopedias. This provides synthesis agents with expert framing of each paper's significance.
+
+**Steps**:
+1. Read `$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json` (saved in Stage 1)
+2. Identify High importance BibTeX entries whose authors/years match SEP/IEP bibliography references
+3. For each match, run the context extraction script:
+
+```bash
+# Read saved encyclopedia entries
+ENTRIES_FILE="$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json"
+
+# Extract context for each High importance paper from each relevant SEP entry
+for sep_slug in $(python -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('sep_entries',[])))"); do
+  python .claude/skills/philosophy-research/scripts/get_sep_context.py "$sep_slug" --author "{Author}" --year {YYYY}
+done
+
+# Same for IEP entries
+for iep_slug in $(python -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('iep_entries',[])))"); do
+  python .claude/skills/philosophy-research/scripts/get_iep_context.py "$iep_slug" --author "{Author}" --year {YYYY}
+done
+```
+
+4. Add results to BibTeX entries as `sep_context` or `iep_context` fields
+
+**Skip conditions**: Only skip if Stage 1 found zero SEP/IEP entries for this domain, or if no High importance papers match any encyclopedia bibliography.
 
 ### Stage 6: Web Search Fallback (When Needed)
 
@@ -270,6 +329,7 @@ REVIEW_DIR="$PWD/reviews/[project-name]"
 # Stage 3: Run all API searches in parallel
 python .claude/skills/philosophy-research/scripts/s2_search.py "free will compatibilism" --field Philosophy --year 2015-2025 --limit 30 > "$REVIEW_DIR/s2_results.json" &
 python .claude/skills/philosophy-research/scripts/search_openalex.py "free will compatibilism" --year 2015-2025 --limit 30 > "$REVIEW_DIR/openalex_results.json" &
+python .claude/skills/philosophy-research/scripts/search_core.py "free will compatibilism" --year 2020-2024 > "$REVIEW_DIR/core_results.json" &
 python .claude/skills/philosophy-research/scripts/search_arxiv.py "moral responsibility determinism" --category cs.AI --limit 20 > "$REVIEW_DIR/arxiv_results.json" &
 
 # Wait for all searches to complete
@@ -329,7 +389,7 @@ Write to specified filename (e.g., `literature-domain-compatibilism.bib`):
 DOMAIN: [Domain Name]
 SEARCH_DATE: [YYYY-MM-DD]
 PAPERS_FOUND: [N total] (High: [X], Medium: [Y], Low: [Z])
-SEARCH_SOURCES: SEP, PhilPapers, Semantic Scholar, OpenAlex, arXiv
+SEARCH_SOURCES: SEP, IEP, PhilPapers, Semantic Scholar, OpenAlex, CORE, arXiv
 ====================================================================
 
 DOMAIN_OVERVIEW:
@@ -407,6 +467,14 @@ See `../docs/conventions.md` for citation key format, author name format, entry 
 - [ ] Notes connect *specifically* to the research project
 - [ ] No empty phrases ("important contribution", "raises questions")
 - [ ] Quality prioritized over rigid 3-component format
+
+✅ **Abstract Coverage**:
+- [ ] `enrich_bibliography.py` was run on the output file
+- [ ] INCOMPLETE entries noted in NOTABLE_GAPS section
+
+✅ **Encyclopedia Context**:
+- [ ] `encyclopedia_entries.json` saved in Stage 1 (or noted that none found)
+- [ ] Context extracted for High importance papers matching SEP/IEP bibliographies
 
 ✅ **Citation Verification**:
 - [ ] Every paper verified through skill scripts
