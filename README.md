@@ -54,6 +54,12 @@ I need a literature review on [topic].
 [Describe the topic in 1-5 paragraphs]
 ```
 
+## Example Reviews
+
+- [Extended Mind and Cognitive Offloading](reviews/extended-mind-cognitive-offloading/)
+- [Metaphilosophy of Literature Reviews](reviews/metaphilosophy-literature-reviews/)
+- [Moral Value of DIY](reviews/moral-value-diy/)
+
 ## Output Structure
 
 ```
