@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SessionStart hook for PhilReview beta testing.
+SessionStart hook for PhilLit beta testing.
 
 Checks for and applies updates from the beta-testing branch at session start.
 
@@ -9,7 +9,7 @@ Behavior:
 2. Check for uncommitted changes; skip if any
 3. Fetch from origin
 4. If behind: git pull --ff-only
-5. Print current git short hash (PHILREVIEW_VERSION)
+5. Print current git short hash (PHILLIT_VERSION)
 6. If pyproject.toml or uv.lock changed: run uv sync
 
 Note: Environment variables set in subprocesses don't persist to the parent.
@@ -122,18 +122,18 @@ def run_uv_sync(cwd: Path) -> bool:
 
 
 def export_version(version: str) -> None:
-    """Export PHILREVIEW_VERSION environment variable.
+    """Export PHILLIT_VERSION environment variable.
 
     Note: Environment variables set in a subprocess don't persist to the parent.
     The calling hook system needs to handle this. We print for visibility and
     write to a file that can be sourced.
     """
-    print(f"PhilReview version: {version}")
+    print(f"PhilLit version: {version}")
 
     # Write version to a file that the hook system can source
     version_file = get_script_dir() / ".version"
     try:
-        version_file.write_text(f"export PHILREVIEW_VERSION={version}\n")
+        version_file.write_text(f"export PHILLIT_VERSION={version}\n")
     except OSError:
         pass
 

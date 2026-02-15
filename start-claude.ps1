@@ -1,4 +1,4 @@
-# PhilReview Beta Testing Launcher (Windows)
+# PhilLit Beta Testing Launcher (Windows)
 #
 # This script loads your .env file before starting Claude Code,
 # ensuring telemetry and credentials are properly configured.
@@ -14,7 +14,7 @@ if (-not (Test-Path ".env")) {
     Write-Host "Error: .env file not found in $(Get-Location)"
     Write-Host ""
     Write-Host "Please copy your personalized .env file (provided by the research team)"
-    Write-Host "to this directory before running PhilReview."
+    Write-Host "to this directory before running PhilLit."
     exit 1
 }
 

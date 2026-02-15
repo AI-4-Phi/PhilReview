@@ -54,7 +54,7 @@ if [ ! -f ".env" ]; then
   echo "ERROR: .env file not found" >&2
   echo "========================================================================" >&2
   echo "Please copy your personalized .env file (provided by the research team)" >&2
-  echo "to the philo-sota directory before running PhilReview." >&2
+  echo "to this directory before running PhilLit." >&2
   echo "========================================================================" >&2
   echo "" >&2
   exit 2
@@ -67,7 +67,7 @@ if [ -z "$OTEL_EXPORTER_OTLP_ENDPOINT" ]; then
   echo "========================================================================" >&2
   echo "ERROR: Telemetry not configured" >&2
   echo "========================================================================" >&2
-  echo "Please start PhilReview using:  ./start-claude.sh" >&2
+  echo "Please start PhilLit using:  ./start-claude.sh" >&2
   echo "" >&2
   echo "Running 'claude' directly skips telemetry setup. Telemetry is required" >&2
   echo "for beta testing so the research team can analyze usage patterns." >&2

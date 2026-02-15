@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Stop hook for PhilReview beta testing.
+Stop hook for PhilLit beta testing.
 
 Triggered after every Claude response. Checks for completion markers and
 uploads review data to B2 for analysis.
 
 Behavior:
-1. Check for .philreview_complete marker in any reviews/*/ directory
+1. Check for .phillit_complete marker in any reviews/*/ directory
 2. If no marker: exit silently (normal case)
 3. If marker found:
    - Upload *.md and *.bib files from that review directory to B2
@@ -19,11 +19,11 @@ Behavior:
      through Claude's response instead)
 
 Environment variables:
-- PHILREVIEW_TESTER_ID (required)
+- PHILLIT_TESTER_ID (required)
 - B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY (required for upload)
-- PHILREVIEW_B2_BUCKET (required)
-- PHILREVIEW_QUALTRICS_URL (required for survey)
-- PHILREVIEW_VERSION (set by update script)
+- PHILLIT_B2_BUCKET (required)
+- PHILLIT_QUALTRICS_URL (required for survey)
+- PHILLIT_VERSION (set by update script)
 """
 
 import html
@@ -99,7 +99,7 @@ def get_git_version(cwd: Path) -> str:
 
 
 def find_completion_markers(project_root: Path) -> list[Path]:
-    """Find all .philreview_complete markers in reviews/*/."""
+    """Find all .phillit_complete markers in reviews/*/."""
     reviews_dir = project_root / "reviews"
     if not reviews_dir.exists():
         return []
@@ -107,7 +107,7 @@ def find_completion_markers(project_root: Path) -> list[Path]:
     markers = []
     for review_dir in reviews_dir.iterdir():
         if review_dir.is_dir():
-            marker = review_dir / ".philreview_complete"
+            marker = review_dir / ".phillit_complete"
             if marker.exists():
                 markers.append(marker)
     return markers
@@ -146,9 +146,9 @@ def handle_survey(review_id: str, tester_id: str, review_name: str) -> str | Non
 
     Returns the survey URL on success, None if not configured.
     """
-    qualtrics_url = os.environ.get("PHILREVIEW_QUALTRICS_URL")
+    qualtrics_url = os.environ.get("PHILLIT_QUALTRICS_URL")
     if not qualtrics_url:
-        print("Survey URL not configured (PHILREVIEW_QUALTRICS_URL)", file=sys.stderr)
+        print("Survey URL not configured (PHILLIT_QUALTRICS_URL)", file=sys.stderr)
         return None
 
     # Build survey URL with review_id, tester_id, and review_name parameters
@@ -182,7 +182,7 @@ def write_survey_files(review_dir: Path, survey_url: str) -> None:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PhilReview Feedback Survey</title>
+<title>PhilLit Feedback Survey</title>
 <style>
   body {{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -209,9 +209,9 @@ def write_survey_files(review_dir: Path, survey_url: str) -> None:
 </style>
 </head>
 <body>
-<h1>PhilReview Feedback Survey</h1>
+<h1>PhilLit Feedback Survey</h1>
 <p>
-  Thank you for completing a literature review with PhilReview.
+  Thank you for completing a literature review with PhilLit.
   Please take a few minutes to share your feedback once you have
   read through the review.
 </p>
@@ -222,9 +222,9 @@ def write_survey_files(review_dir: Path, survey_url: str) -> None:
 """
 
     md_content = f"""\
-# PhilReview Feedback Survey
+# PhilLit Feedback Survey
 
-Thank you for completing a literature review with PhilReview.
+Thank you for completing a literature review with PhilLit.
 Please take a few minutes to share your feedback once you have
 read through the review.
 
@@ -263,16 +263,16 @@ def process_marker(marker_path: Path) -> tuple[bool, str | None]:
     status = marker_data.get("status", "unknown")
 
     # Get required environment variables
-    tester_id = os.environ.get("PHILREVIEW_TESTER_ID")
+    tester_id = os.environ.get("PHILLIT_TESTER_ID")
     if not tester_id:
-        print("Error: PHILREVIEW_TESTER_ID not set", file=sys.stderr)
+        print("Error: PHILLIT_TESTER_ID not set", file=sys.stderr)
         return False, None
 
-    bucket_name = os.environ.get("PHILREVIEW_B2_BUCKET")
+    bucket_name = os.environ.get("PHILLIT_B2_BUCKET")
     if not bucket_name:
-        print("Error: PHILREVIEW_B2_BUCKET not set", file=sys.stderr)
+        print("Error: PHILLIT_B2_BUCKET not set", file=sys.stderr)
         return False, None
-    version = os.environ.get("PHILREVIEW_VERSION") or get_git_version(get_project_root())
+    version = os.environ.get("PHILLIT_VERSION") or get_git_version(get_project_root())
 
     # Check B2 credentials
     key_id = os.environ.get("B2_APPLICATION_KEY_ID")
@@ -352,7 +352,7 @@ def process_marker(marker_path: Path) -> tuple[bool, str | None]:
         try:
             marker_path.unlink()
             # Also delete review_id file
-            review_id_file = review_dir / ".philreview_review_id"
+            review_id_file = review_dir / ".phillit_review_id"
             if review_id_file.exists():
                 review_id_file.unlink()
         except OSError as e:
@@ -412,7 +412,7 @@ def main() -> int:
             "has been uploaded successfully. Please tell the user:\n\n"
             "1. Their literature review is complete and has been saved.\n"
             "2. Please complete the feedback survey — it takes about 6-8 "
-            "minutes and helps improve PhilReview.\n"
+            "minutes and helps improve PhilLit.\n"
             f"3. Survey link: {survey_url}\n"
             "4. The survey has also been opened in their browser.\n"
             "5. If they prefer to take the survey later (e.g. after reading "

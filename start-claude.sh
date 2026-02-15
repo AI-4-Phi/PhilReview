@@ -1,5 +1,5 @@
 #!/bin/bash
-# PhilReview Beta Testing Launcher
+# PhilLit Beta Testing Launcher
 #
 # This script sources your .env file before starting Claude Code,
 # ensuring telemetry and credentials are properly configured.
@@ -15,7 +15,7 @@ if [ ! -f ".env" ]; then
   echo "Error: .env file not found in $(pwd)"
   echo ""
   echo "Please copy your personalized .env file (provided by the research team)"
-  echo "to this directory before running PhilReview."
+  echo "to this directory before running PhilLit."
   exit 1
 fi
 

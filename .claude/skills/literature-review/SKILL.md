@@ -155,7 +155,7 @@ This phase validates conditions for subsequent phases to function.
 
 8. **Beta testing instrumentation**: Generate a unique review ID for tracking:
    ```bash
-   python -c "import uuid; print(uuid.uuid4())" > "reviews/[project-short-name]/.philreview_review_id"
+   python -c "import uuid; print(uuid.uuid4())" > "reviews/[project-short-name]/.phillit_review_id"
    ```
    Read and store this ID for use in Phase 6.
 
@@ -316,14 +316,14 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 review_dir = Path('reviews/[project-short-name]')
-review_id_file = review_dir / '.philreview_review_id'
+review_id_file = review_dir / '.phillit_review_id'
 review_id = review_id_file.read_text().strip() if review_id_file.exists() else 'unknown'
 marker = {
     'review_id': review_id,
     'status': 'complete',
     'timestamp': datetime.now(timezone.utc).isoformat()
 }
-(review_dir / '.philreview_complete').write_text(json.dumps(marker))
+(review_dir / '.phillit_complete').write_text(json.dumps(marker))
 print(f'Beta testing marker written: {review_id}')
 "
    ```
@@ -403,7 +403,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 review_dir = Path('reviews/[project-short-name]')
-review_id_file = review_dir / '.philreview_review_id'
+review_id_file = review_dir / '.phillit_review_id'
 review_id = review_id_file.read_text().strip() if review_id_file.exists() else 'unknown'
 marker = {
     'review_id': review_id,
@@ -412,7 +412,7 @@ marker = {
     'error': '[error_description]',
     'timestamp': datetime.now(timezone.utc).isoformat()
 }
-(review_dir / '.philreview_complete').write_text(json.dumps(marker))
+(review_dir / '.phillit_complete').write_text(json.dumps(marker))
 "
 ```
 

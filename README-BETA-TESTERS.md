@@ -1,6 +1,6 @@
-# PhilReview Beta Testing Guide
+# PhilLit Beta Testing Guide
 
-Thank you for participating in the PhilReview beta test. This guide will help you set up your environment and run literature reviews.
+Thank you for participating in the PhilLit beta test. This guide will help you set up your environment and run literature reviews.
 
 ## Prerequisites
 
@@ -16,8 +16,8 @@ Before starting, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone -b beta-testing https://github.com/[repo]/philo-sota.git
-cd philo-sota
+git clone -b beta-testing https://github.com/AI-4-Phi/PhilLit.git
+cd PhilLit
 ```
 
 ### 2. Install Python Dependencies
@@ -30,11 +30,11 @@ uv sync
 
 You will receive a personalized environment file (`.env`) from the research team with your credentials pre-filled.
 
-Copy this file to your philo-sota repository root:
+Copy this file to your PhilLit repository root:
 
 ```bash
 # The file should be at:
-philo-sota/.env
+PhilLit/.env
 ```
 
 This file is gitignored and will be loaded automatically by Claude Code when you start a session.
@@ -45,11 +45,11 @@ Start Claude Code using the provided launcher script:
 
 ```bash
 # macOS/Linux
-cd philo-sota
+cd PhilLit
 ./start-claude.sh
 
 # Windows (PowerShell)
-cd philo-sota
+cd PhilLit
 .\start-claude.ps1
 ```
 
@@ -66,7 +66,7 @@ Your .env file configures these variables:
 | Variable | Description |
 |----------|-------------|
 | `ANTHROPIC_API_KEY` | Your workspace-specific API key |
-| `PHILREVIEW_TESTER_ID` | Your tester identifier (e.g., `tester-01`) |
+| `PHILLIT_TESTER_ID` | Your tester identifier (e.g., `tester-01`) |
 
 ### File Upload (for data collection)
 
@@ -74,13 +74,13 @@ Your .env file configures these variables:
 |----------|-------------|
 | `B2_APPLICATION_KEY_ID` | Backblaze key ID |
 | `B2_APPLICATION_KEY` | Backblaze application key |
-| `PHILREVIEW_B2_BUCKET` | Bucket name |
+| `PHILLIT_B2_BUCKET` | Bucket name |
 
 ### Survey (for feedback)
 
 | Variable | Description |
 |----------|-------------|
-| `PHILREVIEW_QUALTRICS_URL` | Survey URL base |
+| `PHILLIT_QUALTRICS_URL` | Survey URL base |
 
 ### Telemetry (for debugging/analytics)
 
@@ -99,7 +99,7 @@ Your .env file configures these variables:
 
 | Variable | Description |
 |----------|-------------|
-| `PHILREVIEW_VERSION` | Current git commit (read from git at upload time) |
+| `PHILLIT_VERSION` | Current git commit (read from git at upload time) |
 
 ## Running a Literature Review
 
@@ -137,11 +137,11 @@ When complete, your review will be in `reviews/[topic-name]/`:
 
 ### 4. Provide Feedback
 
-After each review, you'll be prompted to complete a feedback survey. This helps us improve PhilReview.
+After each review, you'll be prompted to complete a feedback survey. This helps us improve PhilLit.
 
 ## Automatic Updates
 
-PhilReview automatically checks for updates at session start:
+PhilLit automatically checks for updates at session start:
 
 - If you're on the `beta-testing` branch with no uncommitted changes, updates are applied automatically
 - If dependencies change (`pyproject.toml` or `uv.lock`), `uv sync` runs automatically
@@ -213,7 +213,7 @@ If you approach your limit, contact the research team to request an increase.
 For technical issues or questions:
 
 - Email: [research team email]
-- GitHub Issues: [repo]/issues (for non-sensitive issues)
+- GitHub Issues: https://github.com/AI-4-Phi/PhilLit/issues (for non-sensitive issues)
 
 ## Privacy Note
 
@@ -223,4 +223,4 @@ The beta testing infrastructure collects:
 - Session telemetry (API calls, timing, errors)
 - Survey responses
 
-All data is used solely for improving PhilReview and is handled according to the consent agreement you signed. You may withdraw at any time by contacting the research team.
+All data is used solely for improving PhilLit and is handled according to the consent agreement you signed. You may withdraw at any time by contacting the research team.
