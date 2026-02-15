@@ -7,7 +7,7 @@ PhilLit is a multi-agent system that generates academic literature reviews for p
 1. Fork the repository and clone your fork
 2. Set up your environment:
    ```bash
-   uv sync
+   uv sync          # installs all dependencies including dev (pytest)
    $PYTHON .claude/skills/philosophy-research/scripts/check_setup.py
    ```
    See `GETTING_STARTED.md` for API key configuration and platform-specific details.

@@ -67,8 +67,10 @@ This repository works natively on Windows without WSL. Claude Code on Windows re
 ## Setup
 
 ```bash
-uv sync          # Create venv and install dependencies
+uv sync          # Create venv and install all dependencies (including dev)
 ```
+
+Regular users get only production dependencies — the SessionStart hook runs `uv sync --no-group dev`.
 
 API keys are required for literature searches. See `GETTING_STARTED.md` for setup instructions, or run:
 ```bash

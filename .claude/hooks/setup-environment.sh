@@ -77,7 +77,8 @@ ENV_BEFORE=$(export -p | sort)
 load_dotenv ".env"
 
 # Sync environment (creates .venv and uv.lock if needed)
-if ! uv sync --quiet 2>/dev/null; then
+# --no-group dev: skip pytest and other dev-only packages for regular users
+if ! uv sync --quiet --no-group dev 2>/dev/null; then
   echo "Environment setup failed: uv sync failed. Check pyproject.toml and try running 'uv sync' manually." >&2
   exit 2
 fi
