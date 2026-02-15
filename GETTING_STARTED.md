@@ -63,7 +63,11 @@ The literature search scripts require API keys. Create a `.env` file in the proj
 
 **Verify your setup:** (optional, Claude Code will run this before any review)
 ```bash
-python .claude/skills/philosophy-research/scripts/check_setup.py
+# Unix (macOS/Linux):
+.venv/bin/python .claude/skills/philosophy-research/scripts/check_setup.py
+
+# Windows (Git Bash):
+.venv/Scripts/python .claude/skills/philosophy-research/scripts/check_setup.py
 ```
 
 ## Your First Review

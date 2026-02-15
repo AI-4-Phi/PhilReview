@@ -124,12 +124,12 @@ Use the `philosophy-research` skill scripts via Bash. All scripts are in `.claud
 
 ```bash
 # Discover relevant SEP articles
-python .claude/skills/philosophy-research/scripts/search_sep.py "{topic}"
-python .claude/skills/philosophy-research/scripts/fetch_sep.py {entry_name} --sections "preamble,1,2,bibliography"
+$PYTHON .claude/skills/philosophy-research/scripts/search_sep.py "{topic}"
+$PYTHON .claude/skills/philosophy-research/scripts/fetch_sep.py {entry_name} --sections "preamble,1,2,bibliography"
 
 # Discover relevant IEP articles (different coverage from SEP)
-python .claude/skills/philosophy-research/scripts/search_iep.py "{topic}"
-python .claude/skills/philosophy-research/scripts/fetch_iep.py {entry_name} --sections "1,2,3,bibliography"
+$PYTHON .claude/skills/philosophy-research/scripts/search_iep.py "{topic}"
+$PYTHON .claude/skills/philosophy-research/scripts/fetch_iep.py {entry_name} --sections "1,2,3,bibliography"
 ```
 
 - Read preamble and key sections for domain overview
@@ -140,8 +140,8 @@ python .claude/skills/philosophy-research/scripts/fetch_iep.py {entry_name} --se
 ### Stage 2: PhilPapers
 
 ```bash
-python .claude/skills/philosophy-research/scripts/search_philpapers.py "{topic}"
-python .claude/skills/philosophy-research/scripts/search_philpapers.py "{topic}" --recent
+$PYTHON .claude/skills/philosophy-research/scripts/search_philpapers.py "{topic}"
+$PYTHON .claude/skills/philosophy-research/scripts/search_philpapers.py "{topic}" --recent
 ```
 
 - Cross-reference with SEP bibliography entries
@@ -151,16 +151,16 @@ python .claude/skills/philosophy-research/scripts/search_philpapers.py "{topic}"
 
 ```bash
 # Semantic Scholar - broad academic search with filtering
-python .claude/skills/philosophy-research/scripts/s2_search.py "{topic}" --field Philosophy --year 2015-2025
+$PYTHON .claude/skills/philosophy-research/scripts/s2_search.py "{topic}" --field Philosophy --year 2015-2025
 
 # OpenAlex - 250M+ works, cross-disciplinary coverage
-python .claude/skills/philosophy-research/scripts/search_openalex.py "{topic}" --year 2015-2025
+$PYTHON .claude/skills/philosophy-research/scripts/search_openalex.py "{topic}" --year 2015-2025
 
 # CORE - 431M papers with abstracts, excellent for finding paper content
-python .claude/skills/philosophy-research/scripts/search_core.py "{topic}" --year 2020-2024
+$PYTHON .claude/skills/philosophy-research/scripts/search_core.py "{topic}" --year 2020-2024
 
 # arXiv - preprints, AI ethics, recent work
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "{topic}" --category cs.AI --recent
+$PYTHON .claude/skills/philosophy-research/scripts/search_arxiv.py "{topic}" --category cs.AI --recent
 ```
 
 **When to prioritize arXiv**: AI ethics, AI alignment, computational philosophy, cross-disciplinary CS/philosophy.
@@ -173,10 +173,10 @@ python .claude/skills/philosophy-research/scripts/search_arxiv.py "{topic}" --ca
 
 ```bash
 # Get references and citing papers for foundational works
-python .claude/skills/philosophy-research/scripts/s2_citations.py {paper_id} --both --influential-only
+$PYTHON .claude/skills/philosophy-research/scripts/s2_citations.py {paper_id} --both --influential-only
 
 # Find recommendations based on seed papers
-python .claude/skills/philosophy-research/scripts/s2_recommend.py --positive "{paper_id1},{paper_id2}"
+$PYTHON .claude/skills/philosophy-research/scripts/s2_recommend.py --positive "{paper_id1},{paper_id2}"
 ```
 
 - Identify foundational papers from SEP bibliography + PhilPapers + S2 search
@@ -190,7 +190,7 @@ For every paper with a DOI, use CrossRef to get authoritative publication metada
 
 ```bash
 # Get authoritative metadata from CrossRef (journal name, volume, pages)
-python .claude/skills/philosophy-research/scripts/verify_paper.py --doi "10.2307/2024717"
+$PYTHON .claude/skills/philosophy-research/scripts/verify_paper.py --doi "10.2307/2024717"
 ```
 
 CrossRef returns:
@@ -206,10 +206,10 @@ CrossRef returns:
 
 ```bash
 # Efficiently fetch metadata for multiple papers from S2
-python .claude/skills/philosophy-research/scripts/s2_batch.py --ids "{id1},{id2},DOI:10.xxx/yyy"
+$PYTHON .claude/skills/philosophy-research/scripts/s2_batch.py --ids "{id1},{id2},DOI:10.xxx/yyy"
 
 # Search for DOI when paper has none (fallback)
-python .claude/skills/philosophy-research/scripts/verify_paper.py --title "Paper Title" --author "Author" --year 2020
+$PYTHON .claude/skills/philosophy-research/scripts/verify_paper.py --title "Paper Title" --author "Author" --year 2020
 ```
 
 ### Stage 5.5: Abstract Resolution
@@ -217,7 +217,7 @@ python .claude/skills/philosophy-research/scripts/verify_paper.py --title "Paper
 After writing the initial BibTeX file (with all entries and notes), run the enrichment script to add abstracts:
 
 ```bash
-python .claude/skills/literature-review/scripts/enrich_bibliography.py "$REVIEW_DIR/literature-domain-N.bib"
+$PYTHON .claude/skills/literature-review/scripts/enrich_bibliography.py "$REVIEW_DIR/literature-domain-N.bib"
 ```
 
 This script automatically:
@@ -247,13 +247,13 @@ Extract how High importance papers are discussed in authoritative philosophy enc
 ENTRIES_FILE="$REVIEW_DIR/intermediate_files/json/encyclopedia_entries.json"
 
 # Extract context for each High importance paper from each relevant SEP entry
-for sep_slug in $(python -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('sep_entries',[])))"); do
-  python .claude/skills/philosophy-research/scripts/get_sep_context.py "$sep_slug" --author "{Author}" --year {YYYY}
+for sep_slug in $($PYTHON -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('sep_entries',[])))"); do
+  $PYTHON .claude/skills/philosophy-research/scripts/get_sep_context.py "$sep_slug" --author "{Author}" --year {YYYY}
 done
 
 # Same for IEP entries
-for iep_slug in $(python -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('iep_entries',[])))"); do
-  python .claude/skills/philosophy-research/scripts/get_iep_context.py "$iep_slug" --author "{Author}" --year {YYYY}
+for iep_slug in $($PYTHON -c "import json; d=json.load(open('$ENTRIES_FILE')); print(' '.join(d.get('iep_entries',[])))"); do
+  $PYTHON .claude/skills/philosophy-research/scripts/get_iep_context.py "$iep_slug" --author "{Author}" --year {YYYY}
 done
 ```
 
@@ -325,15 +325,15 @@ REVIEW_DIR="$PWD/reviews/[project-name]"
 
 > **CRITICAL: ALL output files MUST use `$REVIEW_DIR` paths.** Never redirect to bare filenames (e.g., `> results.json`). Files without the full path land in the project root, not the review directory.
 >
-> - Bad:  `python script.py "query" > results.json`
-> - Good: `python script.py "query" > "$REVIEW_DIR/results.json"`
+> - Bad:  `$PYTHON script.py "query" > results.json`
+> - Good: `$PYTHON script.py "query" > "$REVIEW_DIR/results.json"`
 
 ```bash
 # Stage 3: Run all API searches in parallel
-python .claude/skills/philosophy-research/scripts/s2_search.py "free will compatibilism" --field Philosophy --year 2015-2025 --limit 30 > "$REVIEW_DIR/s2_results.json" &
-python .claude/skills/philosophy-research/scripts/search_openalex.py "free will compatibilism" --year 2015-2025 --limit 30 > "$REVIEW_DIR/openalex_results.json" &
-python .claude/skills/philosophy-research/scripts/search_core.py "free will compatibilism" --year 2020-2024 > "$REVIEW_DIR/core_results.json" &
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "moral responsibility determinism" --category cs.AI --limit 20 > "$REVIEW_DIR/arxiv_results.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/s2_search.py "free will compatibilism" --field Philosophy --year 2015-2025 --limit 30 > "$REVIEW_DIR/s2_results.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/search_openalex.py "free will compatibilism" --year 2015-2025 --limit 30 > "$REVIEW_DIR/openalex_results.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/search_core.py "free will compatibilism" --year 2020-2024 > "$REVIEW_DIR/core_results.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/search_arxiv.py "moral responsibility determinism" --category cs.AI --limit 20 > "$REVIEW_DIR/arxiv_results.json" &
 
 # Wait for all searches to complete
 wait
@@ -371,10 +371,10 @@ tail -f s2_results.json openalex_results.json arxiv_results.json
 REVIEW_DIR="$PWD/reviews/[project-name]"
 
 # Launch all Stage 3 searches concurrently
-python .claude/skills/philosophy-research/scripts/s2_search.py "mechanistic interpretability" --field Philosophy --year 2020-2025 --limit 40 > "$REVIEW_DIR/stage3_s2.json" &
-python .claude/skills/philosophy-research/scripts/search_openalex.py "mechanistic interpretability" --year 2020-2025 --min-citations 5 --limit 40 > "$REVIEW_DIR/stage3_openalex.json" &
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "interpretability neural networks" --category cs.AI --recent --limit 30 > "$REVIEW_DIR/stage3_arxiv.json" &
-python .claude/skills/philosophy-research/scripts/search_arxiv.py "explainable AI" --category cs.AI --year 2023 --limit 20 > "$REVIEW_DIR/stage3_arxiv2.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/s2_search.py "mechanistic interpretability" --field Philosophy --year 2020-2025 --limit 40 > "$REVIEW_DIR/stage3_s2.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/search_openalex.py "mechanistic interpretability" --year 2020-2025 --min-citations 5 --limit 40 > "$REVIEW_DIR/stage3_openalex.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/search_arxiv.py "interpretability neural networks" --category cs.AI --recent --limit 30 > "$REVIEW_DIR/stage3_arxiv.json" &
+$PYTHON .claude/skills/philosophy-research/scripts/search_arxiv.py "explainable AI" --category cs.AI --year 2023 --limit 20 > "$REVIEW_DIR/stage3_arxiv2.json" &
 
 # Wait for completion
 wait

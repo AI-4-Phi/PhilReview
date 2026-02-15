@@ -72,7 +72,7 @@ uv sync          # Create venv and install dependencies
 
 API keys are required for literature searches. See `GETTING_STARTED.md` for setup instructions, or run:
 ```bash
-python .claude/skills/philosophy-research/scripts/check_setup.py
+$PYTHON .claude/skills/philosophy-research/scripts/check_setup.py
 ```
 
 ## Testing
@@ -91,9 +91,10 @@ Run tests with: `pytest tests/`
 
 Claude Code runs each hook command in its own shell process — the SessionStart venv activation does NOT carry over. **All hooks that invoke Python must use the project venv explicitly**, never bare `python`.
 
+- **`.env` loading**: API keys in `.env` are loaded at two layers for defense-in-depth: (1) by `setup-environment.sh` at SessionStart — loaded after `ENV_BEFORE` capture so the before/after diff writes them to `CLAUDE_ENV_FILE`, making them available in all Bash tool calls and subagents; (2) by each Python script's `load_dotenv(override=True)` call in `main()` — kept as fallback for manual script runs, mid-session `.env` edits, and edge cases where `CLAUDE_ENV_FILE` fails (e.g., `comm` missing on Windows). The `load_dotenv` call must stay before `argparse.ArgumentParser()` since argparse defaults use `os.environ.get()` at definition time. `.env` values always take priority over shell environment.
 - **Shell hooks** (`.sh`): Resolve `$PYTHON` at the top of the script with cross-platform fallback (`.venv/bin/python` on Unix, `.venv/Scripts/python` on Windows). Gracefully skip validation if venv not found.
 - **Inline commands** (`settings.json`): Use `"$CLAUDE_PROJECT_DIR"/.venv/bin/python ... 2>/dev/null || "$CLAUDE_PROJECT_DIR"/.venv/Scripts/python ... 2>/dev/null || <fallback>`.
-- **Bash tool calls**: `$CLAUDE_PROJECT_DIR` is NOT available. Use absolute paths or paths relative to the repo root.
+- **Bash tool calls**: Use `$PYTHON` to invoke Python — it is set by `setup-environment.sh` and propagated via `CLAUDE_ENV_FILE` to all Bash tool calls (main session and subagents). Resolves to `.venv/bin/python` on Unix, `.venv/Scripts/python` on Windows. Note: `$CLAUDE_PROJECT_DIR` is NOT available in Bash tool calls.
 - **PreToolUse hooks in agent frontmatter** do NOT fire for Task-spawned subagents. Use SubagentStop hooks (project-level) for validating subagent output.
 - **`set -e` + `jq`**: When parsing JSON output from Python scripts, guard against non-JSON output (e.g., tracebacks) with `if ! VAR=$(... | jq ... 2>/dev/null); then ... fi` to avoid silent `set -e` deaths.
 

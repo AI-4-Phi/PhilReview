@@ -47,9 +47,6 @@ if ! command -v uv &> /dev/null; then
   exit 2
 fi
 
-# Load project .env file (overrides existing environment)
-load_dotenv ".env"
-
 # Detect stale venv (created at a different path) and recreate if necessary
 EXPECTED_VENV_PATH="$(pwd)/.venv"
 if [ -f ".venv/bin/activate" ]; then
@@ -71,6 +68,9 @@ fi
 # Capture environment state before activation
 ENV_BEFORE=$(export -p | sort)
 
+# Load project .env file (after ENV_BEFORE so diff captures these vars for CLAUDE_ENV_FILE)
+load_dotenv ".env"
+
 # Sync environment (creates .venv and uv.lock if needed)
 if ! uv sync --quiet 2>/dev/null; then
   echo "Environment setup failed: uv sync failed. Check pyproject.toml and try running 'uv sync' manually." >&2
@@ -85,6 +85,13 @@ elif [ -f ".venv/bin/activate" ]; then
 else
   echo "Environment setup failed: .venv activation script not found after uv sync." >&2
   exit 2
+fi
+
+# Set cross-platform $PYTHON path (captured by ENV_AFTER diff → CLAUDE_ENV_FILE)
+if [ -f ".venv/Scripts/python" ]; then
+  export PYTHON=".venv/Scripts/python"
+else
+  export PYTHON=".venv/bin/python"
 fi
 
 # Capture environment state after activation

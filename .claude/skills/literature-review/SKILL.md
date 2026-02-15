@@ -83,7 +83,7 @@ This phase validates conditions for subsequent phases to function.
 
 2. Run the environment verification check:
    ```bash
-   python .claude/skills/philosophy-research/scripts/check_setup.py --json
+   $PYTHON .claude/skills/philosophy-research/scripts/check_setup.py --json
    ```
 
 3. Parse the JSON output and check the `status` field:
@@ -230,7 +230,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
 1. Assemble final review with YAML frontmatter:
 
    ```bash
-   python .claude/skills/literature-review/scripts/assemble_review.py \
+   $PYTHON .claude/skills/literature-review/scripts/assemble_review.py \
      "reviews/[project-name]/literature-review-final.md" \
      --title "[Research Topic]" \
      reviews/[project-name]/synthesis-section-*.md
@@ -243,7 +243,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
    Use **Glob** to find all `literature-domain-*.bib` files. Run the deduplication script to create `literature-all.bib`:
 
    ```bash
-   python .claude/skills/literature-review/scripts/dedupe_bib.py \
+   $PYTHON .claude/skills/literature-review/scripts/dedupe_bib.py \
      "reviews/[project-name]/literature-all.bib" \
      reviews/[project-name]/literature-domain-*.bib
    ```
@@ -259,7 +259,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
 3. Generate bibliography and append to final review:
 
    ```bash
-   python .claude/skills/literature-review/scripts/generate_bibliography.py \
+   $PYTHON .claude/skills/literature-review/scripts/generate_bibliography.py \
      "reviews/[project-name]/literature-review-final.md" \
      "reviews/[project-name]/literature-all.bib"
    ```
@@ -273,7 +273,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
 4. Lint the final markdown file:
 
    ```bash
-   python .claude/skills/literature-review/scripts/lint_md.py \
+   $PYTHON .claude/skills/literature-review/scripts/lint_md.py \
      "reviews/[project-name]/literature-review-final.md"
    ```
 
