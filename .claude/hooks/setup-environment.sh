@@ -47,9 +47,6 @@ if ! command -v uv &> /dev/null; then
   exit 2
 fi
 
-# Load project .env file (overrides existing environment)
-load_dotenv ".env"
-
 # Detect stale venv (created at a different path) and recreate if necessary
 EXPECTED_VENV_PATH="$(pwd)/.venv"
 if [ -f ".venv/bin/activate" ]; then
@@ -61,7 +58,12 @@ if [ -f ".venv/bin/activate" ]; then
   fi
 elif [ -f ".venv/Scripts/activate" ]; then
   # Windows: extract VIRTUAL_ENV path from activate script
+  # Normalize both paths with cygpath — $(pwd) returns POSIX paths (/c/Users/...)
+  # but the activate script contains Windows paths (C:\Users\...), so they never
+  # match without conversion.
   VENV_PATH=$(grep "^VIRTUAL_ENV=" .venv/Scripts/activate 2>/dev/null | head -1 | cut -d"'" -f2)
+  VENV_PATH="$(cygpath -u "$VENV_PATH" 2>/dev/null || echo "$VENV_PATH")"
+  EXPECTED_VENV_PATH="$(cygpath -u "$EXPECTED_VENV_PATH" 2>/dev/null || echo "$EXPECTED_VENV_PATH")"
   if [ -n "$VENV_PATH" ] && [ "$VENV_PATH" != "$EXPECTED_VENV_PATH" ]; then
     echo "Detected stale venv (was at: $VENV_PATH). Recreating..."
     rm -rf .venv
@@ -70,6 +72,9 @@ fi
 
 # Capture environment state before activation
 ENV_BEFORE=$(export -p | sort)
+
+# Load project .env file (after ENV_BEFORE so diff captures these vars for CLAUDE_ENV_FILE)
+load_dotenv ".env"
 
 # Sync environment (creates .venv and uv.lock if needed)
 if ! uv sync --quiet 2>/dev/null; then
@@ -85,6 +90,13 @@ elif [ -f ".venv/bin/activate" ]; then
 else
   echo "Environment setup failed: .venv activation script not found after uv sync." >&2
   exit 2
+fi
+
+# Set cross-platform $PYTHON path (captured by ENV_AFTER diff → CLAUDE_ENV_FILE)
+if [ -f ".venv/Scripts/python" ]; then
+  export PYTHON=".venv/Scripts/python"
+else
+  export PYTHON=".venv/bin/python"
 fi
 
 # Capture environment state after activation
@@ -120,7 +132,7 @@ fi
 # Check system tools required by hooks
 if ! command -v jq &> /dev/null; then
   echo "Warning: jq not installed. SubagentStop hook requires jq for BibTeX validation." >&2
-  echo "Install with: brew install jq (macOS), apt install jq (Linux), or choco install jq (Windows)" >&2
+  echo "Install with: brew install jq (macOS), apt install jq (Linux), or on Windows: winget install jqlang.jq / scoop install jq / choco install jq" >&2
 fi
 
 # Success: output context for Claude (stdout is added to Claude's context)

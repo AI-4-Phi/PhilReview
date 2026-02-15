@@ -8,7 +8,7 @@ PhilLit is a multi-agent system that generates academic literature reviews for p
 2. Set up your environment:
    ```bash
    uv sync
-   python .claude/skills/philosophy-research/scripts/check_setup.py
+   $PYTHON .claude/skills/philosophy-research/scripts/check_setup.py
    ```
    See `GETTING_STARTED.md` for API key configuration and platform-specific details.
 3. Run the test suite to confirm everything works:
