@@ -45,7 +45,7 @@ try:
         log_progress as _log_progress,
     )
     from .s2_formatters import format_paper as _format_paper, S2_RECOMMEND_FIELDS
-    from .rate_limiter import ExponentialBackoff, get_limiter
+    from .rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from output import (
@@ -55,7 +55,7 @@ except ImportError:
         log_progress as _log_progress,
     )
     from s2_formatters import format_paper as _format_paper, S2_RECOMMEND_FIELDS
-    from rate_limiter import ExponentialBackoff, get_limiter
+    from rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
 
 SOURCE = "semantic_scholar"
 S2_RECOMMEND_URL = "https://api.semanticscholar.org/recommendations/v1/papers"
@@ -155,8 +155,9 @@ def get_batch_recommendations(
                 return results, errors
 
             elif response.status_code == 429:
+                retry_after = parse_retry_after(response.headers.get("Retry-After"))
                 log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
-                if not backoff.wait(attempt):
+                if not backoff.wait(attempt, retry_after=retry_after):
                     errors.append({
                         "type": "rate_limit",
                         "message": "Rate limit exceeded",
@@ -249,8 +250,9 @@ def get_single_paper_recommendations(
                 return results, errors
 
             elif response.status_code == 429:
+                retry_after = parse_retry_after(response.headers.get("Retry-After"))
                 log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
-                if not backoff.wait(attempt):
+                if not backoff.wait(attempt, retry_after=retry_after):
                     errors.append({
                         "type": "rate_limit",
                         "message": "Rate limit exceeded",
@@ -359,9 +361,15 @@ def main():
             exit_code=2
         )
 
-    # Initialize rate limiter and backoff
-    limiter = get_limiter("semantic_scholar")
-    backoff = ExponentialBackoff(max_attempts=5)
+    if not args.api_key:
+        log_progress("Warning: S2_API_KEY not set. Using slower unauthenticated rate limit. See GETTING_STARTED.md.")
+
+    # Initialize rate limiter and backoff (slower when unauthenticated)
+    limiter = get_limiter("semantic_scholar", authenticated=bool(args.api_key))
+    if args.api_key:
+        backoff = ExponentialBackoff(max_attempts=5)
+    else:
+        backoff = ExponentialBackoff(max_attempts=7, base_delay=2.0)
 
     try:
         if args.for_paper:

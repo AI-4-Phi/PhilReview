@@ -41,7 +41,7 @@ try:
         log_progress as _log_progress,
     )
     from .s2_formatters import format_paper, S2_BASE_URL, S2_FIELDS
-    from .rate_limiter import ExponentialBackoff, get_limiter
+    from .rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
     from .search_cache import cache_key, get_cache, put_cache
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -52,7 +52,7 @@ except ImportError:
         log_progress as _log_progress,
     )
     from s2_formatters import format_paper, S2_BASE_URL, S2_FIELDS
-    from rate_limiter import ExponentialBackoff, get_limiter
+    from rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
     from search_cache import cache_key, get_cache, put_cache
 
 SOURCE = "semantic_scholar"
@@ -169,8 +169,9 @@ def relevance_search(
                     break  # Success, move to next page
 
                 elif response.status_code == 429:
+                    retry_after = parse_retry_after(response.headers.get("Retry-After"))
                     log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
-                    if not backoff.wait(attempt):
+                    if not backoff.wait(attempt, retry_after=retry_after):
                         log_progress(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({
                             "type": "rate_limit",
@@ -294,8 +295,9 @@ def bulk_search(
                     break  # Success, move to next page
 
                 elif response.status_code == 429:
+                    retry_after = parse_retry_after(response.headers.get("Retry-After"))
                     log_progress(f"Rate limited, backing off (attempt {attempt+1}/{backoff.max_attempts})...")
-                    if not backoff.wait(attempt):
+                    if not backoff.wait(attempt, retry_after=retry_after):
                         log_progress(f"Max retries reached, returning {len(all_results)} partial results")
                         errors.append({
                             "type": "rate_limit",
@@ -393,8 +395,8 @@ def main():
             exit_code=2
         )
 
-    if not args.api_key and args.debug:
-        print("DEBUG: S2_API_KEY not set, using unauthenticated access", file=sys.stderr)
+    if not args.api_key:
+        log_progress("Warning: S2_API_KEY not set. Using slower unauthenticated rate limit. See GETTING_STARTED.md.")
 
     # Generate cache key from query parameters
     cache_params = {
@@ -420,9 +422,12 @@ def main():
             log_progress(f"Using cached results (cache key: {key})")
             output_success(args.query, cached)
 
-    # Initialize rate limiter and backoff
-    limiter = get_limiter("semantic_scholar")
-    backoff = ExponentialBackoff(max_attempts=5)
+    # Initialize rate limiter and backoff (slower when unauthenticated)
+    limiter = get_limiter("semantic_scholar", authenticated=bool(args.api_key))
+    if args.api_key:
+        backoff = ExponentialBackoff(max_attempts=5)
+    else:
+        backoff = ExponentialBackoff(max_attempts=7, base_delay=2.0)
 
     try:
         if args.bulk:

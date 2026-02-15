@@ -105,7 +105,7 @@ def check_api_connectivity(verbose: bool = False) -> dict[str, dict[str, Any]]:
 
     # Semantic Scholar
     try:
-        limiter = get_limiter("semantic_scholar")
+        limiter = get_limiter("semantic_scholar", authenticated=bool(os.environ.get("S2_API_KEY", "")))
         limiter.wait()
         headers = {}
         api_key = os.environ.get("S2_API_KEY", "")

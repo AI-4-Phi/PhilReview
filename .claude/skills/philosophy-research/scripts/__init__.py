@@ -12,7 +12,7 @@ This __init__.py enables proper imports without the sys.path.insert hack.
 """
 
 # Re-export common utilities for convenient imports
-from .rate_limiter import ExponentialBackoff, RateLimiter, get_limiter
+from .rate_limiter import ExponentialBackoff, RateLimiter, get_limiter, parse_retry_after
 from .search_cache import cache_key, get_cache, put_cache, clear_cache
 from .output import output_success, output_partial, output_error, log_progress, make_error
 from .s2_formatters import (
