@@ -20,6 +20,8 @@ import os
 import sys
 from typing import Any
 
+from dotenv import load_dotenv
+
 # Add parent directory to path for rate_limiter import
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -73,6 +75,7 @@ def check_dependencies() -> dict[str, dict[str, Any]]:
         "lxml": "4.9.0",
         "arxiv": "1.4.0",
         "pymarkdownlnt": "0.9.0",
+        "python-dotenv": "0.19.0",
     }
 
     results = {}
@@ -360,6 +363,9 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # Load .env file so keys are available even outside SessionStart
+    load_dotenv(override=True)
 
     # Run checks
     env_results = check_env_vars()

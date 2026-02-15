@@ -35,6 +35,7 @@ import sys
 from typing import Optional
 
 import requests
+from dotenv import load_dotenv
 
 try:
     from .output import (
@@ -284,6 +285,7 @@ def get_single_paper_recommendations(
 
 
 def main():
+    load_dotenv(override=True)  # must run before argparse defaults read os.environ
     parser = argparse.ArgumentParser(
         description="Get paper recommendations from Semantic Scholar"
     )

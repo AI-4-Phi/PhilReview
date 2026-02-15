@@ -230,7 +230,7 @@ Exit codes: 0=success, 1=not found, 2=config error, 3=API error
 
 ## Environment
 
-Required environment variables:
+Required environment variables (set in `.env` at the project root — takes priority over shell environment):
 ```bash
 BRAVE_API_KEY        # Required for SEP/PhilPapers discovery
 CROSSREF_MAILTO      # Required for CrossRef polite pool

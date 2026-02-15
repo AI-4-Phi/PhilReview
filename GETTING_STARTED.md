@@ -51,7 +51,7 @@ The Python environment is **automatically configured** when you start Claude Cod
 
 ### API Keys
 
-The literature search scripts require API keys. Create a `.env` file in the project root with the variables listed below. Variables in `.env` take priority over your shell environment and are automatically loaded when Claude Code starts.
+The literature search scripts require API keys. Create a `.env` file in the project root with the variables listed below. Variables in `.env` take priority over your shell environment. They are loaded both at session startup and by each search script directly, so they are available to all processes including subagents.
 
 **Required:**
 - **BRAVE_API_KEY**: Get one at https://brave.com/search/api/

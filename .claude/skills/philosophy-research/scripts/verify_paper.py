@@ -35,6 +35,7 @@ import sys
 from typing import Any, Optional
 
 import requests
+from dotenv import load_dotenv
 
 # Add parent directory to path for rate_limiter import
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -371,6 +372,7 @@ def search_by_metadata(
 
 
 def main():
+    load_dotenv(override=True)  # must run before argparse defaults read os.environ
     parser = argparse.ArgumentParser(
         description="Verify paper existence and metadata via CrossRef"
     )
