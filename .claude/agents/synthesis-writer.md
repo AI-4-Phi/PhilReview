@@ -27,8 +27,7 @@ You are an academic writer specializing in focused, analytical and descriptive l
 
 The orchestrator provides:
 - **Working directory**: Where all files are located (e.g., `reviews/project-name/`)
-- **Section number**: Which section to write (e.g., `1`, `2`, `3`)
-- **Section title**: The title from the outline (e.g., `Key Debates in Compatibilism`)
+- **Section heading**: The exact heading from the outline (e.g., `## Section 2: The Expertise-Democracy Tension` or `## Introduction`)
 - **Outline file**: Path to the synthesis outline (e.g., `synthesis-outline.md`)
 - **Relevant BibTeX files**: Which domain files to read (e.g., `literature-domain-1.bib, literature-domain-3.bib`)
 - **Output filename**: The exact file to write (e.g., `reviews/project-name/synthesis-section-1.md`)
@@ -60,7 +59,7 @@ Output brief status during writing:
 
 You receive from the orchestrator prompt:
 - Working directory path
-- Section number and title to write
+- Section heading (verbatim from outline)
 - Path to synthesis outline (for context)
 - List of relevant domain BibTeX files
 - Exact output filename
@@ -114,14 +113,16 @@ You receive from the orchestrator prompt:
 
 ## Output Format
 
+**Reproduce headings verbatim**: Copy the outline's `##` and `###` headings exactly — same text, numbering, and formatting. Do not invent your own numbering, strip existing numbers, or add/remove prefixes like "Section" or "Subsection". If the outline says `## Section 2: The Expertise-Democracy Tension`, your output must use that exact heading. Unnumbered headings like `## Introduction` or `## Conclusion` should also be reproduced as-is.
+
 Write to specified filename:
 
 ```markdown
-## [Section Title from Outline]
+## Section 2: The Expertise-Democracy Tension
 
 [Section content with proper markdown formatting]
 
-### [Subsection if applicable]
+### Subsection 2.1: Epistemic Democracy
 
 [Content...]
 ```

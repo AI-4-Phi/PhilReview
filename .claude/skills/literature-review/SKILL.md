@@ -208,8 +208,18 @@ Never advance to a next step in this phase before completing the current step.
 2. For each section: identify relevant BibTeX .bib files from the outline
 3. **Launch all N synthesis writers in parallel** using a single message with multiple Task tool calls:
    - subagent_type: "synthesis-writer"
-   - prompt: Include working directory, section number, section title, outline path, and relevant BibTeX files
-   - Example prompt for section 1: "Working directory: reviews/[project-name]/. Section: 1. Title: [title]. Outline: synthesis-outline.md. Relevant BibTeX files: literature-domain-1.bib, literature-domain-3.bib. Write output to: reviews/[project-name]/synthesis-section-1.md"
+   - prompt: Include working directory, section heading (exactly as it appears in the outline),
+     outline path, and relevant BibTeX files
+   - **CRITICAL**: Use the outline's own section headings verbatim (e.g., "## Introduction",
+     "## Section 1: The Charge"). Do NOT renumber sections linearly (1, 2, 3...) if the outline
+     uses different numbering. Writers follow the outline's numbering, so mismatches cause them
+     to write the wrong section or produce inconsistent headings. Output filenames should be
+     numbered sequentially (synthesis-section-1.md through synthesis-section-N.md) for correct
+     assembly order.
+   - Example prompt: "Working directory: reviews/[project-name]/. Write the section headed
+     '## Introduction' from the outline. Outline: synthesis-outline.md. Relevant BibTeX files:
+     literature-domain-1.bib, literature-domain-3.bib. Write output to:
+     reviews/[project-name]/synthesis-section-1.md"
    - description: "Write section [N]: [section name]"
    - **CRITICAL**: Include ALL Task tool calls in a single message to enable parallel execution
 4. Wait for all N agents to finish using TaskOutput (block until complete). Expected outputs: `reviews/[project-name]/synthesis-section-1.md` through `synthesis-section-N.md`. **Update task-progress.md after all sections complete**
@@ -238,7 +248,19 @@ Never advance to Phase 6 before all synthesis writers have completed.
 
    Then use **Read** to verify section ordering and transitions.
 
-2. Aggregate and deduplicate all domain BibTeX files:
+2. **Normalize section headings**:
+
+   ```bash
+   $PYTHON .claude/skills/literature-review/scripts/normalize_headings.py \
+     "reviews/[project-name]/literature-review-final.md"
+   ```
+
+   The script enforces consistent numbering: `## Section N: Title` for body sections,
+   `### N.M Title` for subsections. Introduction and Conclusion remain unnumbered.
+   If the script reports errors, investigate before proceeding.
+   Then use **Read** to verify the heading structure looks correct.
+
+3. Aggregate and deduplicate all domain BibTeX files:
 
    Use **Glob** to find all `literature-domain-*.bib` files. Run the deduplication script to create `literature-all.bib`:
 
@@ -256,7 +278,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
    - Deduplicate by DOI (catches same paper with different keys)
    - Log which duplicates were removed to console
 
-3. Generate bibliography and append to final review:
+4. Generate bibliography and append to final review:
 
    ```bash
    $PYTHON .claude/skills/literature-review/scripts/generate_bibliography.py \
@@ -270,7 +292,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
    - Deduplicate entries with the same DOI
    - Append (or replace) a `## References` section at the end of the review
 
-4. Lint the final markdown file:
+5. Lint the final markdown file:
 
    ```bash
    $PYTHON .claude/skills/literature-review/scripts/lint_md.py \
@@ -279,7 +301,7 @@ Never advance to Phase 6 before all synthesis writers have completed.
 
    Fix any reported issues before proceeding. The References section is now in scope for linting — verify no false positives from italicized journal names, DOI URLs, or other bibliography formatting.
 
-5. Clean up intermediate files (use absolute paths to avoid cwd issues):
+6. Clean up intermediate files (use absolute paths to avoid cwd issues):
 
    Move JSON API response files to `intermediate_files/json/` for archival (allows debugging while keeping review directory clean):
    ```bash
@@ -299,6 +321,16 @@ Never advance to Phase 6 before all synthesis writers have completed.
    mv "reviews/[project-name]/task-progress.md" "reviews/[project-name]/lit-review-plan.md" "reviews/[project-name]/synthesis-outline.md" "reviews/[project-name]/intermediate_files/"
    mv "reviews/[project-name]/synthesis-section-"*.md "reviews/[project-name]/literature-domain-"*.bib "reviews/[project-name]/intermediate_files/"
    rm -f reviews/.active-review
+   ```
+
+   Safety net — move any remaining non-final files to `intermediate_files/`:
+   ```bash
+   for f in "reviews/[project-name]"/*; do
+     case "$(basename "$f")" in
+       literature-review-final.md|literature-review-final.docx|literature-all.bib|intermediate_files) ;;
+       *) mv "$f" "reviews/[project-name]/intermediate_files/" 2>/dev/null || true ;;
+     esac
+   done
    ```
 
    **Note:** Do NOT use `cd` to change directories. Always use paths relative to the repo root or absolute paths to prevent working directory mismatches in subsequent commands.
@@ -324,14 +356,14 @@ reviews/[project-name]/
     └── [other intermediate files, if they exist]
 ```
 
-6. **Report source issues**: If any domain researchers reported source issues (API errors, partial results), output a summary:
+7. **Report source issues**: If any domain researchers reported source issues (API errors, partial results), output a summary:
    ```
    ⚠️ Source issues during literature search:
    - Domain [name]: [source]: [issue]
    ```
    If no issues: omit this message.
 
-7. **Optional: Convert to DOCX** (if pandoc is installed):
+8. **Optional: Convert to DOCX** (if pandoc is installed):
    ```bash
    if command -v pandoc &> /dev/null; then
      pandoc "reviews/[project-name]/literature-review-final.md" \

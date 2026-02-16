@@ -54,7 +54,7 @@ try:
         S2_PAPER_FIELDS,
         S2_CITATION_FIELDS,
     )
-    from .rate_limiter import ExponentialBackoff, get_limiter
+    from .rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from output import (
@@ -70,7 +70,7 @@ except ImportError:
         S2_PAPER_FIELDS,
         S2_CITATION_FIELDS,
     )
-    from rate_limiter import ExponentialBackoff, get_limiter
+    from rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
 
 SOURCE = "semantic_scholar"
 
@@ -134,7 +134,8 @@ def get_paper_details(
             elif response.status_code == 404:
                 raise LookupError(f"Paper not found: {paper_id}")
             elif response.status_code == 429:
-                if not backoff.wait(attempt):
+                retry_after = parse_retry_after(response.headers.get("Retry-After"))
+                if not backoff.wait(attempt, retry_after=retry_after):
                     raise RuntimeError("Rate limit exceeded")
                 continue
             else:
@@ -226,7 +227,8 @@ def get_citations(
                     raise LookupError(f"Paper not found: {paper_id}")
 
                 elif response.status_code == 429:
-                    if not backoff.wait(attempt):
+                    retry_after = parse_retry_after(response.headers.get("Retry-After"))
+                    if not backoff.wait(attempt, retry_after=retry_after):
                         errors.append({
                             "type": "rate_limit",
                             "message": f"Rate limit exceeded fetching {direction} at offset {offset}",
@@ -320,9 +322,15 @@ def main():
     fetch_references = args.references or args.both
     fetch_citations = args.citations or args.both
 
-    # Initialize rate limiter and backoff
-    limiter = get_limiter("semantic_scholar")
-    backoff = ExponentialBackoff(max_attempts=5)
+    if not args.api_key:
+        log_progress("Warning: S2_API_KEY not set. Using slower unauthenticated rate limit. See GETTING_STARTED.md.")
+
+    # Initialize rate limiter and backoff (slower when unauthenticated)
+    limiter = get_limiter("semantic_scholar", authenticated=bool(args.api_key))
+    if args.api_key:
+        backoff = ExponentialBackoff(max_attempts=5)
+    else:
+        backoff = ExponentialBackoff(max_attempts=7, base_delay=2.0)
 
     all_errors = []
 

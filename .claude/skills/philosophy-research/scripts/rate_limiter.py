@@ -1,26 +1,26 @@
 """
-Shared file-based rate limiter for cross-script coordination.
+Shared file-based rate limiter for cross-process coordination.
 
-This module provides rate limiting that works across multiple script invocations,
-preventing API bans when agents call multiple scripts in sequence.
+This module provides rate limiting that works across multiple concurrent processes,
+preventing API bans when parallel agents call scripts simultaneously.
+
+Slot reservation: wait() writes the projected request time to the lock file before
+releasing the lock. This ensures the next process sees the reserved slot and queues
+behind it, even if the current process hasn't made its request yet.
 
 Usage:
     from rate_limiter import get_limiter, ExponentialBackoff
 
-    limiter = get_limiter("semantic_scholar")
-    limiter.wait()  # Blocks until safe to make request
+    limiter = get_limiter("semantic_scholar", authenticated=bool(api_key))
+    limiter.wait()  # Blocks until safe to make request, reserves time slot
     response = requests.get(...)
-    limiter.record()  # Record successful request
-
-    # Or use convenience method:
-    limiter.wait_and_record()
+    limiter.record()  # Optional: refine timestamp with actual request time
 
 For retry logic with exponential backoff:
     backoff = ExponentialBackoff()
     for attempt in range(backoff.max_attempts):
         limiter.wait()
         response = requests.get(...)
-        limiter.record()
         if response.status_code == 429:
             if not backoff.wait(attempt):
                 break  # Max attempts exceeded
@@ -44,8 +44,12 @@ except ImportError:
 
 class RateLimiter:
     """
-    File-based rate limiter that coordinates across script invocations.
-    Uses file locking to prevent race conditions.
+    File-based rate limiter that coordinates across concurrent processes.
+
+    Uses file locking (Unix) and slot reservation to prevent race conditions
+    when multiple agents make API requests in parallel. Each call to wait()
+    reserves a time slot by writing the projected request time, so subsequent
+    callers queue behind it.
     """
 
     # Lock file directory - use system temp dir for cross-platform compatibility
@@ -65,9 +69,32 @@ class RateLimiter:
         self.lock_file = self.LOCK_DIR / f".ratelimit_{api_name}.lock"
         self._last_wait_time: Optional[float] = None
 
+    def _read_timestamp(self, f) -> float:
+        """Read the last request timestamp from the lock file."""
+        try:
+            f.seek(0)
+            content = f.read().strip()
+            return float(content) if content else 0
+        except ValueError:
+            return 0
+
+    def _write_timestamp(self, f, timestamp: float) -> None:
+        """Write a timestamp to the lock file."""
+        f.seek(0)
+        f.truncate()
+        f.write(str(timestamp))
+        f.flush()
+
     def wait(self) -> float:
         """
         Block until it's safe to make a request. Call BEFORE each API request.
+
+        Reserves a time slot by writing the projected request time to the lock
+        file before releasing the lock. This ensures concurrent processes queue
+        properly even without calling record() afterwards.
+
+        Under concurrent load, processes queue in order: if N processes contend,
+        the Nth process waits approximately N * min_interval seconds.
 
         Returns:
             The number of seconds waited (0 if no wait was needed)
@@ -75,38 +102,62 @@ class RateLimiter:
         with open(self.lock_file, "a+") as f:
             if HAS_FCNTL:
                 fcntl.flock(f, fcntl.LOCK_EX)
-            try:
-                f.seek(0)
-                content = f.read().strip()
-                last_request = float(content) if content else 0
-            except ValueError:
+
+            last_request = self._read_timestamp(f)
+            now = time.time()
+
+            # Guard against stale future timestamps (e.g., from crashed processes
+            # or clock adjustments). Use 10x interval to allow normal queuing of
+            # up to ~10 concurrent agents while still catching genuinely stale values.
+            if last_request > now + 10 * self.min_interval:
                 last_request = 0
 
-            elapsed = time.time() - last_request
+            elapsed = now - last_request
             wait_time = 0.0
             if elapsed < self.min_interval:
                 wait_time = self.min_interval - elapsed
-                time.sleep(wait_time)
+
+            # Reserve the time slot: write projected request time BEFORE releasing
+            # the lock, so the next process sees this reservation and queues behind it.
+            projected_time = now + wait_time
+            self._write_timestamp(f, projected_time)
 
             if HAS_FCNTL:
                 fcntl.flock(f, fcntl.LOCK_UN)
+
+        # Sleep AFTER releasing lock so other processes can compute their own
+        # queue position without waiting for our sleep to finish.
+        if wait_time > 0:
+            time.sleep(wait_time)
 
         self._last_wait_time = wait_time
         return wait_time
 
     def record(self) -> None:
-        """Record that a request was made. Call AFTER each successful API request."""
-        with open(self.lock_file, "w") as f:
+        """
+        Optionally refine the timestamp with the actual request time.
+
+        wait() already reserves a slot by writing the projected time. This method
+        updates the timestamp only if the actual time is later than what's recorded,
+        preventing it from overwriting a later reservation by another process.
+        """
+        now = time.time()
+        with open(self.lock_file, "a+") as f:
             if HAS_FCNTL:
                 fcntl.flock(f, fcntl.LOCK_EX)
-            f.write(str(time.time()))
+
+            existing = self._read_timestamp(f)
+            # Only write if our actual time is later than what's in the file,
+            # to avoid overwriting a slot reserved by another process.
+            if now > existing:
+                self._write_timestamp(f, now)
+
             if HAS_FCNTL:
                 fcntl.flock(f, fcntl.LOCK_UN)
 
     def wait_and_record(self) -> float:
         """
-        Convenience method: wait, then record.
-        Use when you don't need to check response before recording.
+        Convenience method: wait (reserving a slot), then record actual time.
 
         Returns:
             The number of seconds waited
@@ -155,12 +206,14 @@ class ExponentialBackoff:
         self.max_delay = max_delay
         self._last_delay: Optional[float] = None
 
-    def wait(self, attempt: int) -> bool:
+    def wait(self, attempt: int, retry_after: Optional[float] = None) -> bool:
         """
         Wait with exponential backoff.
 
         Args:
             attempt: Current attempt number (0-indexed)
+            retry_after: Optional delay from Retry-After header (seconds).
+                         If provided and larger than the computed delay, use it instead.
 
         Returns:
             True if should retry, False if max attempts exceeded
@@ -170,6 +223,11 @@ class ExponentialBackoff:
 
         # Calculate delay with jitter
         delay = min((2**attempt) * self.base_delay + random.uniform(0, 1), self.max_delay)
+
+        # Respect Retry-After header if provided and larger
+        if retry_after is not None and retry_after > delay:
+            delay = min(retry_after, self.max_delay)
+
         self._last_delay = delay
         time.sleep(delay)
         return True
@@ -196,6 +254,7 @@ class ExponentialBackoff:
 # These are factory functions to ensure each caller gets a fresh instance
 LIMITERS = {
     "semantic_scholar": lambda: RateLimiter("semantic_scholar", 1.1),
+    "semantic_scholar_unauth": lambda: RateLimiter("semantic_scholar_unauth", 3.0),
     "brave": lambda: RateLimiter("brave", 1.5),
     "crossref": lambda: RateLimiter("crossref", 0.05),  # 50/sec but conservative
     "openalex": lambda: RateLimiter("openalex", 0.11),  # 10/sec
@@ -207,12 +266,17 @@ LIMITERS = {
 }
 
 
-def get_limiter(api_name: str) -> RateLimiter:
+def get_limiter(api_name: str, authenticated: Optional[bool] = None) -> RateLimiter:
     """
     Get a pre-configured rate limiter for the specified API.
 
     Args:
-        api_name: One of: semantic_scholar, brave, crossref, openalex, arxiv, sep_fetch, iep_fetch, core, ndpr
+        api_name: One of: semantic_scholar, brave, crossref, openalex, arxiv,
+                  sep_fetch, iep_fetch, core, ndpr
+        authenticated: For APIs with auth-aware tiers (e.g., semantic_scholar).
+                       True/None = use default (authenticated) interval.
+                       False = use slower unauthenticated interval.
+                       Ignored for APIs without auth tiers.
 
     Returns:
         Configured RateLimiter instance
@@ -220,8 +284,12 @@ def get_limiter(api_name: str) -> RateLimiter:
     Raises:
         ValueError: If api_name is not recognized
     """
+    # Use unauthenticated variant if available and explicitly requested
+    if authenticated is False and f"{api_name}_unauth" in LIMITERS:
+        return LIMITERS[f"{api_name}_unauth"]()
+
     if api_name not in LIMITERS:
-        valid = ", ".join(sorted(LIMITERS.keys()))
+        valid = ", ".join(sorted(k for k in LIMITERS if not k.endswith("_unauth")))
         raise ValueError(f"Unknown API: {api_name}. Valid options: {valid}")
     return LIMITERS[api_name]()
 
@@ -242,6 +310,23 @@ def list_active_limiters() -> list[str]:
         api_name = lock_file.stem.replace(".ratelimit_", "")
         active.append(api_name)
     return sorted(active)
+
+
+def parse_retry_after(header_value: Optional[str]) -> Optional[float]:
+    """Parse a Retry-After header value (seconds) into a float.
+
+    Args:
+        header_value: The raw header value, or None if not present.
+
+    Returns:
+        Seconds to wait, or None if header absent or unparseable.
+    """
+    if header_value is None:
+        return None
+    try:
+        return float(header_value)
+    except (ValueError, TypeError):
+        return None
 
 
 def clear_all_limiters() -> int:

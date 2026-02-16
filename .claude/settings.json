@@ -2,9 +2,9 @@
   "permissions": {
     "defaultMode": "default",
     "deny": [
-      "Bash(sudo:*)",
-      "Bash(dd:*)",
-      "Bash(mkfs:*)"
+      "Bash(sudo *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)"
     ],
     "allow": [
       "Read",
@@ -12,22 +12,33 @@
       "Glob",
       "WebSearch",
       "WebFetch",
-      "Bash(ls:*)",
-      "Bash(mkdir:*)",
-      "Bash(python:*)",
-      "Bash(*python .claude/skills/philosophy-research/scripts*)",
-      "Bash(source:*)",
-      "Bash(echo:*)",
-      "Bash(cat:*)",
-      "Bash(pytest:*)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(.venv/bin/python *)",
+      "Bash(.venv/Scripts/python *)",
+      "Bash(source *)",
+      "Bash(echo *)",
+      "Bash(cat *)",
+      "Bash(pytest *)",
       "Write(reviews/**)",
       "Edit(reviews/**)",
       "Skill(literature-review)",
-      "Skill(philosophy-research)"
+      "Skill(philosophy-research)",
+      "Bash(REVIEW_DIR=*)",
+      "Bash(mv *)",
+      "Bash(find *)",
+      "Bash(for *)",
+      "Bash(if *)",
+      "Bash(pandoc *)",
+      "Bash(wc *)",
+      "Bash(rm -f reviews/*)",
+      "Bash(command *)"
     ],
     "ask": [
-      "Bash(rm:*)",
-      "Bash(rmdir:*)"
+      "Bash(rm *)",
+      "Bash(rmdir *)"
     ]
   },
   "hooks": {

@@ -13,9 +13,9 @@ Prompts for approval on first use of each tool per session. Standard security mo
 ### Deny Rules (Highest Priority)
 ```json
 "deny": [
-  "Bash(sudo:*)",    // Prevent privilege escalation
-  "Bash(dd:*)",      // Prevent disk operations
-  "Bash(mkfs:*)"     // Prevent filesystem formatting
+  "Bash(sudo *)",    // Prevent privilege escalation
+  "Bash(dd *)",      // Prevent disk operations
+  "Bash(mkfs *)"     // Prevent filesystem formatting
 ]
 ```
 Explicitly blocks destructive operations for safety. These cannot be approved even if requested.
@@ -33,31 +33,41 @@ Explicitly blocks destructive operations for safety. These cannot be approved ev
   "WebFetch",        // Fetch web content
 
   // Safe bash commands
-  // Note: Bash patterns use prefix-only matching (limited bypass protection)
-  "Bash(ls:*)",      // List directory contents
-  "Bash(mkdir:*)",   // Create directories (for review structure)
-  "Bash(python:*)",  // Run Python scripts (for literature search)
-  "Bash(*python .claude/skills/philosophy-research/scripts*)",  // Philosophy-research scripts
-  "Bash(source:*)",  // Activate Python virtual environment
-  "Bash(echo:*)",    // Output text (for debugging)
-  "Bash(cat:*)",     // Concatenate files (for assembly)
-  "Bash(pytest:*)",  // Run tests
+  "Bash(ls *)",      // List directory contents
+  "Bash(mkdir *)",   // Create directories (for review structure)
+  "Bash(python *)",  // Run Python scripts (for literature search)
+  "Bash(python3 *)", // Run Python 3 explicitly
+  "Bash(.venv/bin/python *)",     // Unix venv Python
+  "Bash(.venv/Scripts/python *)", // Windows venv Python
+  "Bash(source *)",  // Activate Python virtual environment
+  "Bash(echo *)",    // Output text (for debugging)
+  "Bash(cat *)",     // Concatenate files (for assembly)
+  "Bash(pytest *)",  // Run tests
 
-  // Literature review workflow - unrestricted within reviews/ directory
+  // Literature review workflow
   "Write(reviews/**)",  // Create files in reviews/ and subdirectories
   "Edit(reviews/**)",   // Edit files in reviews/ and subdirectories
-
-  // Custom skills for literature review workflow
   "Skill(literature-review)",      // Main orchestration skill
-  "Skill(philosophy-research)"     // Academic search skill (SEP, PhilPapers, S2, etc.)
+  "Skill(philosophy-research)",    // Academic search skill
+
+  // Workflow automation commands
+  "Bash(REVIEW_DIR=*)",   // Set review directory variable
+  "Bash(mv *)",            // Move/rename files
+  "Bash(find *)",          // Find files
+  "Bash(for *)",           // Shell loops
+  "Bash(if *)",            // Conditionals
+  "Bash(pandoc *)",        // Document conversion
+  "Bash(wc *)",            // Word count
+  "Bash(rm -f reviews/*)", // Phase 6 cleanup of review intermediates
+  "Bash(command *)"        // Check command availability
 ]
 ```
 
 ### Ask Rules (Require Approval)
 ```json
 "ask": [
-  "Bash(rm:*)",      // File deletion requires approval
-  "Bash(rmdir:*)"    // Directory deletion requires approval
+  "Bash(rm *)",      // File deletion requires approval
+  "Bash(rmdir *)"    // Directory deletion requires approval
 ]
 ```
 Destructive file operations require user approval rather than being blocked entirely.
@@ -72,12 +82,11 @@ Example: `Write(reviews/file.md)` matches `allow` rule, so it's auto-approved. `
 
 ## Bash Pattern Limitations
 
-**Important**: Bash patterns only support prefix matching with `:*` wildcard at the end.
+**Important**: Bash patterns use prefix matching with ` *` wildcard suffix.
 
-Current patterns like `Bash(python:*)` can potentially be bypassed:
-- Options before command: `python -c "malicious"`
-- Extra spaces: `python  script.py`
-- Variables: `$PYTHON script.py`
+Current patterns like `Bash(python *)` can potentially be bypassed:
+- Variables: `$PYTHON script.py` (does not match `python *`)
+- Command chaining: `python script.py && malicious`
 
 **Mitigation**: The `ask` mode for Write/Edit operations outside `reviews/` provides a secondary security layer.
 
@@ -109,4 +118,4 @@ Agents specify `model` and `tools` in their frontmatter (see `.claude/agents/`):
 | `synthesis-writer` | `sonnet` | Glob, Grep, Read, Write |
 | `literature-review-planner` | `inherit` | Read, Write |
 
-Agents inherit the project-level `allow`/`deny`/`ask` rules from `settings.json`. They do not set their own `permissionMode`.
+Agents inherit the project-level `allow`/`deny`/`ask` rules from `settings.json`. They can optionally set their own `permissionMode` in their frontmatter to override the project-level default (e.g., `permissionMode: acceptEdits`).

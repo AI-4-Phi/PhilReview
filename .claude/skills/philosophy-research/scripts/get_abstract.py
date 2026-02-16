@@ -44,7 +44,7 @@ from dotenv import load_dotenv
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from rate_limiter import ExponentialBackoff, get_limiter
+from rate_limiter import ExponentialBackoff, get_limiter, parse_retry_after
 
 SOURCE = "get_abstract"
 
@@ -141,7 +141,8 @@ def get_abstract_from_s2(
                 return None
 
             elif response.status_code == 429:
-                if not backoff.wait(attempt):
+                retry_after = parse_retry_after(response.headers.get("Retry-After"))
+                if not backoff.wait(attempt, retry_after=retry_after):
                     log_progress("S2: Rate limit exceeded, giving up")
                     return None
                 continue
@@ -225,7 +226,8 @@ def get_abstract_from_openalex(
                 return None
 
             elif response.status_code == 429:
-                if not backoff.wait(attempt):
+                retry_after = parse_retry_after(response.headers.get("Retry-After"))
+                if not backoff.wait(attempt, retry_after=retry_after):
                     log_progress("OpenAlex: Rate limit exceeded, giving up")
                     return None
                 continue
@@ -316,7 +318,8 @@ def get_abstract_from_core(
                 return None
 
             elif response.status_code == 429:
-                if not backoff.wait(attempt):
+                retry_after = parse_retry_after(response.headers.get("Retry-After"))
+                if not backoff.wait(attempt, retry_after=retry_after):
                     log_progress("CORE: Rate limit exceeded, giving up")
                     return None
                 continue
@@ -357,32 +360,37 @@ def resolve_abstract(
         Tuple of (abstract, source) where source is "s2", "openalex", or "core"
         Returns (None, None) if no abstract found
     """
-    # Get rate limiters
-    s2_limiter = get_limiter("semantic_scholar")
+    # Get rate limiters (auth-aware for S2)
+    s2_limiter = get_limiter("semantic_scholar", authenticated=bool(s2_api_key))
     openalex_limiter = get_limiter("openalex")
     core_limiter = get_limiter("core")
 
-    backoff = ExponentialBackoff(max_attempts=3, base_delay=1.0)
+    # Fewer retries than main S2 scripts: abstract resolution has fallback sources
+    if s2_api_key:
+        s2_backoff = ExponentialBackoff(max_attempts=3, base_delay=1.0)
+    else:
+        s2_backoff = ExponentialBackoff(max_attempts=5, base_delay=2.0)
+    other_backoff = ExponentialBackoff(max_attempts=3, base_delay=1.0)
 
     # Source 1: Semantic Scholar (by S2 ID or DOI)
     if s2_id or doi:
         abstract = get_abstract_from_s2(
             s2_id=s2_id, api_key=s2_api_key, limiter=s2_limiter,
-            backoff=backoff, debug=debug, doi=doi
+            backoff=s2_backoff, debug=debug, doi=doi
         )
         if abstract:
             return abstract, "s2"
 
     # Source 2: OpenAlex (if DOI provided)
     if doi:
-        abstract = get_abstract_from_openalex(doi, openalex_email, openalex_limiter, backoff, debug)
+        abstract = get_abstract_from_openalex(doi, openalex_email, openalex_limiter, other_backoff, debug)
         if abstract:
             return abstract, "openalex"
 
     # Source 3: CORE (by DOI or title+author)
     abstract = get_abstract_from_core(
         doi=doi, title=title, author=author, year=year,
-        api_key=core_api_key, limiter=core_limiter, backoff=backoff, debug=debug
+        api_key=core_api_key, limiter=core_limiter, backoff=other_backoff, debug=debug
     )
     if abstract:
         return abstract, "core"
