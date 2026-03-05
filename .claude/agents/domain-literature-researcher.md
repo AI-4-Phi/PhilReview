@@ -232,7 +232,9 @@ $PYTHON .claude/skills/philosophy-research/scripts/verify_paper.py --title "Pape
 
 ### Stage 5.5: Abstract Resolution
 
-After writing the initial BibTeX file (with all entries and notes), run the enrichment script to add abstracts:
+After writing the initial BibTeX file (with all entries and notes), run the enrichment script to add abstracts.
+
+**CRITICAL: Run this in the foreground (no `&`, no `run_in_background`).** Background tasks outlive your session and their results won't be read. The orchestrator proceeds to synthesis immediately after you finish — enrichment must complete before you return.
 
 ```bash
 $PYTHON .claude/skills/literature-review/scripts/enrich_bibliography.py "$REVIEW_DIR/literature-domain-N.bib"
