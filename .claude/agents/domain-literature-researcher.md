@@ -125,9 +125,11 @@ Use the `philosophy-research` skill scripts via Bash. All scripts are in `.claud
 REVIEW_DIR="$PWD/reviews/[project-name]"
 mkdir -p "$REVIEW_DIR/intermediate_files/json"
 ```
-Substitute `[project-name]` with the actual directory name from the orchestrator prompt.
+Substitute `[project-name]` with the actual directory name from the orchestrator prompt (e.g., `epistemic-normativity`).
 
 > **CRITICAL: ALL output files MUST use `$REVIEW_DIR` paths.** Never redirect to bare filenames (e.g., `> results.json`). Files without the full path land in the project root, not the review directory.
+
+> **CRITICAL: NEVER create directories outside `reviews/`.** The only directory you should create is `$REVIEW_DIR` (which is always under `reviews/`). Do not use the topic name, domain name, or search query as a directory path.
 
 > **File extension convention**: Always use `.json` extension when saving script output to files (the content is JSON). Never use `.txt`. This ensures Phase 6 cleanup catches all intermediate files.
 
