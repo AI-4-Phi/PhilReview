@@ -415,7 +415,7 @@ class TestBatchProcessing:
 
         input_path = tmp_path / "test.bib"
         input_path.write_text(SAMPLE_ENTRY_NO_ABSTRACT, encoding='utf-8')
-        original_content = input_path.read_text()
+        original_content = input_path.read_text(encoding='utf-8')
 
         # Mock os.replace to simulate a failure after temp file is written
         with patch("enrich_bibliography.os.replace", side_effect=OSError("disk full")):
@@ -425,7 +425,7 @@ class TestBatchProcessing:
                 )
 
         # Original file should be unchanged
-        assert input_path.read_text() == original_content
+        assert input_path.read_text(encoding='utf-8') == original_content
 
         # Temp file should have been cleaned up by error handler
         temp_file = input_path.with_suffix('.bib.tmp')
@@ -440,7 +440,7 @@ class TestBatchProcessing:
 
         input_path = tmp_path / "test.bib"
         input_path.write_text(SAMPLE_ENTRY_NO_ABSTRACT, encoding='utf-8')
-        original_content = input_path.read_text()
+        original_content = input_path.read_text(encoding='utf-8')
 
         # Mock pybtex parse_file to raise an exception (simulating invalid BibTeX)
         with patch("pybtex.database.parse_file", side_effect=Exception("Invalid BibTeX")):
@@ -449,7 +449,7 @@ class TestBatchProcessing:
             )
 
         # Original file should be unchanged
-        assert input_path.read_text() == original_content
+        assert input_path.read_text(encoding='utf-8') == original_content
 
         # Stats should indicate validation failure
         assert stats.get('validation_failed') is True
@@ -472,7 +472,7 @@ class TestBatchProcessing:
             input_path, None, None, None, None  # No output path = inplace
         )
 
-        output_content = input_path.read_text()
+        output_content = input_path.read_text(encoding='utf-8')
         assert 'Inplace abstract' in output_content
 
 

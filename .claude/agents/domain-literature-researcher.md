@@ -120,6 +120,8 @@ Output brief status after each search phase. Users should see progress every 2-3
 
 Use the `philosophy-research` skill scripts via Bash. All scripts are in `.claude/skills/philosophy-research/scripts/`.
 
+> **CRITICAL: `$PYTHON` must already be set** (by the SessionStart hook). Do NOT attempt to set, create, or `mkdir` the `$PYTHON` path yourself. If `$PYTHON` is empty or the binary doesn't exist, **STOP and report the error to the orchestrator** — do not try to fix it.
+
 **Set up the review directory** at the start of every Bash call that writes files:
 ```bash
 REVIEW_DIR="$PWD/reviews/[project-name]"
